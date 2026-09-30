@@ -39,6 +39,7 @@ test("real stdio server exercises advertised language features and incremental l
   assert.equal(caps.documentFormattingProvider, undefined);
   const completions = await client.request("textDocument/completion", params(uri, 3, 17));
   assert.ok(completions.some((item) => item.label === "FULL"));
+  assert.ok(completions.every((item) => item.kind === 20));
   const hover = await client.request("textDocument/hover", params(uri, 3, 15));
   assert.match(hover.contents.value, /GRP · VAL/);
   const signatures = await client.request("textDocument/signatureHelp", params(uri, 3, 19));

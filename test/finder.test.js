@@ -302,3 +302,26 @@ test("terminal NO is a VAL enum rather than an empty NO field in a populated GRP
   assert.equal(index.contextAt({ line: 3, character: 18 }).param, "VAL");
   assert.equal(index.contextAt({ line: 3, character: 18 }).confidence, true);
 });
+
+test("whitespace after an explicit parameter expects its value until a value is consumed", () => {
+  const cases = [
+    ["GRP NO 1 VAL ", "value"],
+    ["GRP\tNO\t1\tVAL\t", "value"],
+    ["GRP NO 1 VAL= ", "value"],
+    ["GRP NO 1 VAL FULL ", "param"],
+    ["GRP\tNO\t1\tVAL\tFULL\t", "param"],
+    ["GRP NO 1 VAL $$ annotation\n \t", "value"],
+    ["GRP NO 1 VAL FULL $$ annotation\n \t", "param"],
+  ];
+  for (const [input, expected] of cases) {
+    const text = `+PROG ASE\n${input}`;
+    const index = createIndex(text, target());
+    const line = index.lines.length - 1;
+    const context = index.contextAt({ line, character: index.lines[line].text.length });
+    assert.equal(context.role, expected, input);
+    assert.equal(context.param, "VAL", input);
+    assert.equal(context.activeParameter, 1, input);
+  }
+  const table = createIndex("+PROG SOFIMSHA\nNODE NO X Y Z ", target());
+  assert.equal(table.contextAt({ line: 1, character: 14 }).role, "param");
+});
