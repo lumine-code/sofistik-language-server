@@ -414,3 +414,90 @@ test("real cursor protocol refreshes preloaded includes before the first graph a
   await completeParent();
   assert.match(childReport()[0].message, /2099/);
 });
+
+test("first include discovery refreshes a cached descendant hidden behind an uncached intermediate", async (t) => {
+  const { root, project, uri } = await projectFixture(t, {
+    "a/main.dat": "+PROG ASE\n#include '../b/part.inc'\nEND\n",
+    "b/part.inc": "#include '../c/leaf.dat'\nLET#child 1\n",
+    "c/sofistik.def": "SOF_VERSION = 2024\n",
+    "c/leaf.dat": SOURCE,
+    "unrelated/sofistik.def": "SOF_VERSION = 2024\n",
+    "unrelated/input.dat": SOURCE,
+  });
+  assert.equal(project.documents.has(uri("b/part.inc")), false);
+  assert.equal(project.targetFor(uri("c/leaf.dat")).version, "2024");
+  await fs.writeFile(path.join(root, "c/sofistik.def"), "SOF_VERSION = 2025\n");
+  await fs.writeFile(path.join(root, "unrelated/sofistik.def"), "SOF_VERSION = 2025\n");
+  const views = await project.graphFor(uri("a/main.dat"));
+  assert.equal(views.find((view) => view.uri === uri("c/leaf.dat")).index.target.version, "2025");
+  assert.equal(project.targetFor(uri("c/leaf.dat")).version, "2025");
+  assert.equal(project.targetFor(uri("unrelated/input.dat")).version, "2024");
+});
+
+test("one graph pass resolves each reached directory once even with several files in that directory", async (t) => {
+  const { project, uri } = await projectFixture(t, {
+    "a/main.dat": "+PROG ASE\n#include '../b/part.inc'\nEND\n",
+    "b/part.inc": "#include '../c/first.dat'\n#include '../c/second.dat'\n",
+    "c/first.dat": "LET#first 1\n",
+    "c/second.dat": "LET#second 1\n",
+    "unrelated/input.dat": SOURCE,
+  });
+  const calls = {};
+  const resolve = project.resolver.resolve.bind(project.resolver);
+  project.resolver.resolve = (options) => {
+    const directory = path.basename(path.dirname(options.filePath));
+    calls[directory] = (calls[directory] || 0) + 1;
+    return resolve(options);
+  };
+  await project.graphFor(uri("a/main.dat"));
+  assert.deepEqual(calls, { a: 1, b: 1, c: 1 });
+});
+
+test("real graph discovery queues cached descendant refresh and allows reentrant client token requests", async (t) => {
+  let client;
+  const parent = "+PROG ASE\n#include '../b/part.inc'\nGRP NO #child VAL FULL\nEND\n";
+  const { root, uri } = await fixture(
+    t,
+    {
+      "a/main.dat": parent,
+      "b/part.inc": "#include '../c/leaf.dat'\nLET#child 1\n",
+      "c/sofistik.def": "SOF_VERSION = 1999\n",
+      "c/leaf.dat": SOURCE,
+    },
+    () => client?.stop(),
+  );
+  client = new LspClient(root);
+  await client.start();
+  client.open(uri("a/main.dat"), parent);
+  client.open(uri("c/leaf.dat"), SOURCE);
+  const initial = await client.request("textDocument/diagnostic", {
+    textDocument: { uri: uri("c/leaf.dat") },
+  });
+  assert.match(initial.items[0].message, /1999/);
+  let refreshes = 0;
+  client.connection.onRequest("workspace/semanticTokens/refresh", async () => {
+    refreshes++;
+    await client.request("textDocument/semanticTokens/full", {
+      textDocument: { uri: uri("c/leaf.dat") },
+    });
+    return null;
+  });
+  await fs.writeFile(path.join(root, "c/sofistik.def"), "SOF_VERSION = 2026\n");
+  client.notifications.length = 0;
+  const items = await client.request("textDocument/completion", {
+    textDocument: { uri: uri("a/main.dat") },
+    position: { line: 2, character: 11 },
+  });
+  assert.ok(items.some((item) => item.label === "CHILD"));
+  assert.deepEqual(
+    client.notifications
+      .filter(
+        (item) =>
+          item.method === "textDocument/publishDiagnostics" &&
+          item.params.uri === uri("c/leaf.dat"),
+      )
+      .at(-1)?.params.diagnostics,
+    [],
+  );
+  assert.ok(refreshes > 0);
+});
