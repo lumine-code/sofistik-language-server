@@ -1,0 +1,45 @@
+# sofistik-language-server
+
+Provides SOFiSTiK CADINP language services over LSP.
+
+> **NOTE**: This package is not an official SOFiSTiK product and is not affiliated with or endorsed by SOFiSTiK AG.
+
+## Features
+
+- **Context finder**: indexes logical records in JavaScript without Tree-sitter, WebAssembly or native modules.
+- **Language information**: provides completion, hover and ordered record signatures from versioned command schemas.
+- **Navigation**: finds document and workspace symbols, variable and macro definitions, references and static include targets.
+- **Diagnostics**: reports project-version conflicts and confidently identified structural problems.
+- **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.
+- **Calculation logs**: imports existing error-position logs on request without running SOFiSTiK.
+- **Offline operation**: runs without an installed SOFiSTiK release or network access.
+
+## Installation
+
+Install the library from an immutable Git commit:
+
+```sh
+npm install github:lumine-code/sofistik-language-server#<commit-sha>
+```
+
+The server is distributed through Git pins and is not published to the npm registry. The ide-sofistik adapter includes and launches it using the editor's Node runtime.
+
+## Usage
+
+```sh
+sofistik-language-server --stdio
+```
+
+One process serves one project directory. Its initialized root contains the project's `sofistik.def`; `SOF_VERSION = 2026` selects that release for all project documents. Without a declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-data. File headers do not select a release, language or edition.
+
+`SOF_LANGUAGE = EN` or `DE` and `SOF_EDITION = professional` or `educational` in the same definition select the language and edition; the defaults are English and professional. These are integration declarations used by the Lumine packages, not a claim that SOFiSTiK itself interprets these fields. Every consumer uses the lightweight resolver from sofistik-data directly; no environment service or installation-path setting is required.
+
+The server consumes the `sofistik` workspace configuration section: `textCase` is `upper` or `lower`, and `encoding` defaults to `utf-8` for closed files. Open documents always use the client's text. Unsupported declared releases are reported rather than silently substituted.
+
+Semantic tokens classify only confidently resolved enum values as `enumMember`. Ordinary syntax highlighting stays with the editor grammar. Dynamic includes, CDB values and unevaluated preprocessing may leave navigation ambiguous; this finder does not execute CADINP or replace the calculation programs' validation.
+
+`workspace/executeCommand` with `sofistik.readCalculationDiagnostics` and arguments `[{ "uri": "file:///path/model.dat" }]` reads the corresponding `.error_positions` JSONL. Static and imported diagnostics are published together; editing the source clears the imported findings. Log import never starts a calculation.
+
+## Contributing
+
+Got ideas to make this package better, found a bug, or want to help add new features? Just drop your thoughts on GitHub. Any feedback is welcome!
