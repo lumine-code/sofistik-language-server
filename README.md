@@ -7,7 +7,7 @@ Provides SOFiSTiK CADINP language services over LSP.
 ## Features
 
 - **Context finder**: indexes logical records in JavaScript without Tree-sitter, WebAssembly or native modules.
-- **Language information**: preserves schema order in completion, shows compact parameter positions and declaration previews, and provides ordered record signatures.
+- **Language information**: preserves schema order in completion, shows record keys, compact parameter positions and declaration previews on hover, and provides ordered record signatures.
 - **Navigation**: finds document and workspace symbols, variable and macro definitions, references and static include targets.
 - **Diagnostics**: reports unsupported file releases and confidently identified structural problems.
 - **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.

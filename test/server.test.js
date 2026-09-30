@@ -42,6 +42,8 @@ test("real stdio server exercises advertised language features and incremental l
   assert.ok(completions.every((item) => item.kind === 20));
   const hover = await client.request("textDocument/hover", params(uri, 3, 15));
   assert.match(hover.contents.value, /GRP · VAL/);
+  const recordHover = await client.request("textDocument/hover", params(uri, 3, 1));
+  assert.ok(recordHover.contents.value.startsWith("ASE · GRP\n\nNO, VAL, FACS"));
   const signatures = await client.request("textDocument/signatureHelp", params(uri, 3, 19));
   assert.match(signatures.signatures[0].label, /^GRP NO VAL /);
   assert.equal(signatures.activeParameter, 1);

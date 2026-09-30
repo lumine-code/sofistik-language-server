@@ -126,12 +126,11 @@ test("compact parameter hover uses slash position and a complete naturally wrapp
   assert.ok(result.contents.value.endsWith("SSNI"));
 });
 
-test("hover stays quiet on vocabulary, whitespace, comments and unrelated prose", async () => {
+test("hover stays quiet on modules, whitespace, comments and unrelated prose", async () => {
   const record = "GRP NO 1 VAL FULL $ a comment";
   const project = projectFor("ASE", record);
   for (const position of [
     { line: 0, character: 7 },
-    { line: 1, character: 1 },
     { line: 1, character: 3 },
     { line: 1, character: 12 },
     { line: 1, character: 22 },
@@ -146,4 +145,59 @@ test("hover stays quiet on vocabulary, whitespace, comments and unrelated prose"
   );
   const number = await hover(project, "untitled:fixture", { line: 1, character: 7 });
   assert.equal(number.contents.value, "ASE · GRP · NO /1");
+});
+
+test("record hover lists complete LC and TRAI keys in schema order, including named text fields", async () => {
+  for (const command of ["LC", "TRAI"]) {
+    const schema = keywords.getCommandSchema("SOFILOAD", command);
+    const names = schema.forms[0].slots.filter((slot) => slot.name).map((slot) => slot.name);
+    const record = `${command.toLowerCase()} `;
+    const result = await hover(projectFor("SOFILOAD", record), "untitled:fixture", {
+      line: 1,
+      character: 1,
+    });
+    assert.deepEqual(result.contents, {
+      kind: "plaintext",
+      value: `SOFILOAD · ${command}\n\n${names.join(", ")}`,
+    });
+    assert.deepEqual(result.range, {
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: command.length },
+    });
+    assert.doesNotMatch(result.contents.value, /Catalogue|Slot|2026|\bEN\b|…/);
+    if (command === "LC") assert.equal(names.at(-1), "TITL");
+    if (command === "TRAI") assert.equal(names.length, 29);
+  }
+});
+
+test("record hover retains alternative form layouts without narrowing to typed parameters", async () => {
+  const result = await hover(projectFor("BDK", "EIGE BEAM 1 LC 2"), "untitled:fixture", {
+    line: 1,
+    character: 1,
+  });
+  assert.equal(
+    result.contents.value,
+    "BDK · EIGE\n\nTYPE, NEIG, LCB\n\nBEAM, LC, TYPE, HORD, DNO, ENO",
+  );
+});
+
+test("record hover rejects partial or unknown records and does not turn prose into record keys", async () => {
+  for (const record of ["L", "UNKNOWN", "TRAI"]) {
+    assert.equal(
+      await hover(projectFor("ASE", record), "untitled:fixture", { line: 1, character: 0 }),
+      null,
+    );
+  }
+  assert.equal(
+    await hover(projectFor("SOFILOAD", "HEAD 'LC TRAI'"), "untitled:fixture", {
+      line: 1,
+      character: 7,
+    }),
+    null,
+  );
+  const second = await hover(projectFor("SOFILOAD", "LC 1; TRAI TYPE LM1"), "untitled:fixture", {
+    line: 1,
+    character: 8,
+  });
+  assert.ok(second.contents.value.startsWith("SOFILOAD · TRAI\n\nTYPE, P1, P2"));
 });
