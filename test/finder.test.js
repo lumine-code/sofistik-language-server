@@ -325,3 +325,34 @@ test("whitespace after an explicit parameter expects its value until a value is 
   const table = createIndex("+PROG SOFIMSHA\nNODE NO X Y Z ", target());
   assert.equal(table.contextAt({ line: 1, character: 14 }).role, "param");
 });
+
+test("known quoted ASE enum literals classify only their contents in the exact value slot", () => {
+  const text =
+    "+PROG ASE\nGRP NO 1 VAL 'FULL'\nGRP NO 2 VAL \"FULL\"\nGRP NO 3 VAL ''FULL''\nHEAD 'FULL'\n$ GRP NO 4 VAL 'FULL'\nGRP NO 5 VAL '$(choice)'\n";
+  const index = createIndex(text, target());
+  assert.deepEqual(
+    index.enumTokens().map((item) => ({ value: item.value, param: item.param, range: item.range })),
+    [
+      {
+        value: "FULL",
+        param: "VAL",
+        range: { start: { line: 1, character: 14 }, end: { line: 1, character: 18 } },
+      },
+      {
+        value: "FULL",
+        param: "VAL",
+        range: { start: { line: 2, character: 14 }, end: { line: 2, character: 18 } },
+      },
+      {
+        value: "FULL",
+        param: "VAL",
+        range: { start: { line: 3, character: 15 }, end: { line: 3, character: 19 } },
+      },
+    ],
+  );
+  const context = index.contextAt({ line: 1, character: 16 });
+  assert.equal(context.prefix, "FU");
+  assert.equal(context.role, "value");
+  assert.equal(context.inString, true);
+  assert.equal(context.param, "VAL");
+});

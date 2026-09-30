@@ -18,15 +18,16 @@ function timeout(promise, label, milliseconds = 10000) {
 }
 
 class LspClient {
-  constructor(rootPath) {
+  constructor(rootPath, options = {}) {
     this.rootPath = rootPath;
+    this.entryPath = options.entryPath || path.join(__dirname, "../bin/cli.js");
     this.settings = { textCase: "upper", encoding: "utf-8" };
     this.notifications = [];
     this.stderr = "";
   }
 
   async start() {
-    this.child = spawn(process.execPath, [path.join(__dirname, "../bin/cli.js"), "--stdio"], {
+    this.child = spawn(process.execPath, [this.entryPath, "--stdio"], {
       cwd: this.rootPath,
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,

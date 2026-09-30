@@ -20,6 +20,7 @@ async function fixture(t, files, definition = "SOF_VERSION = 2026\n") {
     await fs.rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   });
   await project.ready;
+  await project.indexReady;
   return { root, project, uri: (name) => canonicalUri(path.join(root, name)) };
 }
 

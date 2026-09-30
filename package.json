@@ -43,8 +43,7 @@
   },
   "dependencies": {
     "@lumine-code/sofistik-data": "github:lumine-code/sofistik-data#03f166d91b41a3f045242dc190bf78c587203243",
-    "vscode-languageserver": "10.1.2",
-    "vscode-languageserver-textdocument": "1.0.15"
+    "vscode-languageserver": "10.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
