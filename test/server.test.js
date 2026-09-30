@@ -97,7 +97,7 @@ test("real stdio server exercises advertised language features and incremental l
   assert.equal(client.stderr, "");
 });
 
-test("project definition changes invalidate enums; file headers never override project settings", async (t) => {
+test("sibling definition changes invalidate enums; file headers never override file settings", async (t) => {
   const { root, uri, client } = await fixture(t);
   client.change(uri, [{ text: "@ SOFiSTiK 1999 DE\n" + SOURCE }]);
   assert.ok(

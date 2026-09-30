@@ -42,7 +42,7 @@
     "verify": "npm run lint && npm run format:check && npm test && npm pack --dry-run"
   },
   "dependencies": {
-    "@lumine-code/sofistik-data": "github:lumine-code/sofistik-data#4b632061196d49c0e9d75a1c7f0b2fa5a06d0136",
+    "@lumine-code/sofistik-data": "github:lumine-code/sofistik-data#09b38cb1b5e3e07f9c2c054edb3ba33d9ee3b007",
     "vscode-languageserver": "10.1.2"
   },
   "devDependencies": {

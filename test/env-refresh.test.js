@@ -55,31 +55,31 @@ test("refresh observes installed-selection TTL and atomically updates every open
     version: 1,
     text: "+PROG AQUA\nEND\n",
   });
-  const target = project.target;
+  const target = first.target;
   const index = first.index;
   installed = ["2024", "2026"];
   now = 50;
-  assert.equal(await project.refreshTarget(), false);
-  assert.equal(project.target, target);
+  assert.deepEqual(await project.refreshTargets(), []);
+  assert.equal(first.target, target);
   assert.equal(first.index, index);
   assert.equal(scans, 1);
   now = 100;
-  assert.equal(await project.refreshTarget(), true);
-  assert.equal(project.target.version, "2026");
-  assert.equal(project.target.versionSource, "installed");
+  assert.deepEqual(await project.refreshTargets(), [first.uri, second.uri]);
+  assert.equal(first.target.version, "2026");
+  assert.equal(first.target.versionSource, "installed");
   assert.equal(scans, 2);
   assert.ok([first, second].every((entry) => entry.index.target.version === "2026"));
   definition = "SOF_VERSION = 2022\nSOF_LANGUAGE = DE\nSOF_EDITION = educational\n";
-  assert.equal(await project.refreshTarget(), true);
+  assert.deepEqual(await project.refreshTargets(), [first.uri, second.uri]);
   for (const entry of [first, second]) {
     assert.equal(entry.index.target.version, "2022");
     assert.equal(entry.index.target.language, "de");
     assert.equal(entry.index.target.edition, "educational");
   }
   definition = "SOF_VERSION = 2099\n";
-  assert.equal(await project.refreshTarget(), true);
-  assert.equal(project.target.version, "2099");
-  assert.equal(project.target.dataSupported, false);
+  assert.deepEqual(await project.refreshTargets(), [first.uri, second.uri]);
+  assert.equal(first.target.version, "2099");
+  assert.equal(first.target.dataSupported, false);
   assert.equal(first.index.enumTokens().length, 0);
   assert.match(project.diagnostics(first.uri)[0].message, /2099/);
 });
@@ -104,21 +104,24 @@ test("decoded and Windows case-equivalent definition notifications never create 
   t.after(() => project.dispose());
   await project.ready;
   await project.indexReady;
-  const encoded = project.definitionUri.replace(/sofistik\.def$/, "%73ofistik.def");
+  const definitionUri = canonicalUri(path.join(root, "sofistik.def"));
+  const document = project.open({
+    uri: canonicalUri(path.join(root, "model.dat")),
+    text: "+PROG ASE\nEND\n",
+    version: 1,
+  });
+  const encoded = definitionUri.replace(/sofistik\.def$/, "%73ofistik.def");
   assert.equal(project.isDefinitionUri(encoded), true);
   const notification = process.platform === "win32" ? encoded.toUpperCase() : encoded;
   assert.equal(project.isDefinitionUri(notification), true);
   selected = "2026";
   await project.watched([{ uri: notification, type: 2 }]);
-  assert.equal(project.target.version, "2026");
-  assert.equal(project.documents.size, 0);
-  assert.equal(
-    project.open({ uri: project.definitionUri, text: "LET#leak 1\n", version: 1 }),
-    null,
-  );
-  assert.equal(await project.loadDocument(project.definitionUri), null);
+  assert.equal(document.target.version, "2026");
+  assert.equal(project.documents.size, 1);
+  assert.equal(project.open({ uri: definitionUri, text: "LET#leak 1\n", version: 1 }), null);
+  assert.equal(await project.loadDocument(definitionUri), null);
   await project.watched([{ uri: canonicalUri(path.join(root, "child", "sofistik.def")), type: 2 }]);
-  assert.equal(project.documents.size, 0);
+  assert.equal(project.documents.size, 1);
 });
 
 test("real protocol accepts canonical definition aliases and preserves an unsupported declared year", async (t) => {

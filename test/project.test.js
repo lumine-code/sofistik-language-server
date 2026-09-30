@@ -31,14 +31,15 @@ test("offline project resolution ignores headers and uses the newest data withou
     { "main.dat": "@ SOFiSTiK 1999 DE\n+PROG ASE\nGRP NO 1 VAL FULL\nEND\n" },
     null,
   );
-  assert.equal(project.target.version, "2026");
-  assert.equal(project.target.language, "en");
-  assert.equal(project.target.installed, false);
-  assert.equal(project.target.versionSource, "bundled");
+  const target = (await project.loadDocument(uri("main.dat"))).target;
+  assert.equal(target.version, "2026");
+  assert.equal(target.language, "en");
+  assert.equal(target.installed, false);
+  assert.equal(target.versionSource, "bundled");
   assert.equal((await project.loadDocument(uri("main.dat"))).index.enumTokens().length, 1);
 });
 
-test("a project definition sets the same year language and edition for every file", async (t) => {
+test("a sibling definition selects the same year language and edition for files in its directory", async (t) => {
   const { project, uri } = await fixture(
     t,
     {
@@ -47,17 +48,12 @@ test("a project definition sets the same year language and edition for every fil
     },
     "SOF_VERSION = 2024\nSOF_LANGUAGE = DE\nSOF_EDITION = educational\n",
   );
-  assert.equal(project.target.version, "2024");
-  assert.equal(project.target.language, "de");
-  assert.equal(project.target.edition, "educational");
-  assert.equal(
-    project.targetFor((await project.loadDocument(uri("main.dat"))).text).language,
-    "de",
-  );
-  assert.equal(
-    project.targetFor((await project.loadDocument(uri("other.dat"))).text).version,
-    "2024",
-  );
+  for (const name of ["main.dat", "other.dat"]) {
+    const target = (await project.loadDocument(uri(name))).target;
+    assert.equal(target.version, "2024");
+    assert.equal(target.language, "de");
+    assert.equal(target.edition, "educational");
+  }
 });
 
 test("static include fragments inherit their caller's scope for definitions and references", async (t) => {

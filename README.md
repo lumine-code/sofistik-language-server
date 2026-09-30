@@ -9,7 +9,7 @@ Provides SOFiSTiK CADINP language services over LSP.
 - **Context finder**: indexes logical records in JavaScript without Tree-sitter, WebAssembly or native modules.
 - **Language information**: preserves schema order in completion, shows compact parameter positions and declaration previews, and provides ordered record signatures.
 - **Navigation**: finds document and workspace symbols, variable and macro definitions, references and static include targets.
-- **Diagnostics**: reports project-version conflicts and confidently identified structural problems.
+- **Diagnostics**: reports unsupported file releases and confidently identified structural problems.
 - **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.
 - **Calculation logs**: imports existing error-position logs on request without running SOFiSTiK.
 - **Offline operation**: runs without an installed SOFiSTiK release or network access.
@@ -30,9 +30,11 @@ The server is distributed through Git pins and is not published to the npm regis
 sofistik-language-server --stdio
 ```
 
-One process serves one project directory. Its initialized root contains the project's `sofistik.def`; `SOF_VERSION = 2026` selects that release for all project documents. Without a declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-data. File headers do not select a release, language or edition.
+One process indexes a workspace, while each saved file uses only `sofistik.def` beside that file. `SOF_VERSION = 2026` selects the release for files in that directory; definitions in the workspace root or an ancestor never apply to a child directory. Without a sibling declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-data. File headers do not select a release, language or edition. Untitled documents use the installed or bundled fallback without reading a definition.
 
 `SOF_LANGUAGE = EN` or `DE` and `SOF_EDITION = professional` or `educational` in the same definition select the language and edition; the defaults are English and professional. These are integration declarations used by the Lumine packages, not a claim that SOFiSTiK itself interprets these fields. Every consumer uses the lightweight resolver from sofistik-data directly; no environment service or installation-path setting is required.
+
+Included files use their own directory's release, language and edition while retaining the caller's lexical module and variable scope for fragment navigation. A changed or deleted definition refreshes only documents in its directory and clears their imported calculation diagnostics; installation changes are checked on subsequent requests and saves.
 
 The server consumes the `sofistik` workspace configuration section: `textCase` is `upper` or `lower`, and `encoding` defaults to `utf-8` for closed files. Open documents always use the client's text. Unsupported declared releases are reported rather than silently substituted.
 

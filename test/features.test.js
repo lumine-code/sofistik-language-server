@@ -10,8 +10,11 @@ function projectFor(module, record) {
   const text = `+PROG ${module}\n${record}\nEND\n`;
   const index = createIndex(text, { version: "2026", language: "en", keywords });
   return {
-    loadDocument: async () => ({ text, index }),
-    targetFor: () => ({ version: "2026", language: "en", keywords }),
+    loadDocument: async () => ({
+      text,
+      index,
+      target: { version: "2026", language: "en", keywords },
+    }),
     settings: { textCase: "upper" },
   };
 }
