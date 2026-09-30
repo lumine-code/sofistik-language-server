@@ -7,7 +7,7 @@ Provides SOFiSTiK CADINP language services over LSP.
 ## Features
 
 - **Context finder**: indexes logical records in JavaScript without Tree-sitter, WebAssembly or native modules.
-- **Language information**: provides completion, hover and ordered record signatures from versioned command schemas.
+- **Language information**: preserves schema order in completion, shows compact parameter positions and declaration previews, and provides ordered record signatures.
 - **Navigation**: finds document and workspace symbols, variable and macro definitions, references and static include targets.
 - **Diagnostics**: reports project-version conflicts and confidently identified structural problems.
 - **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.
@@ -37,6 +37,8 @@ One process serves one project directory. Its initialized root contains the proj
 The server consumes the `sofistik` workspace configuration section: `textCase` is `upper` or `lower`, and `encoding` defaults to `utf-8` for closed files. Open documents always use the client's text. Unsupported declared releases are reported rather than silently substituted.
 
 Semantic tokens classify only confidently resolved enum values as `enumMember`. Ordinary syntax highlighting stays with the editor grammar. Dynamic includes, CDB values and unevaluated preprocessing may leave navigation ambiguous; this finder does not execute CADINP or replace the calculation programs' validation.
+
+Parameter hover shows the record context and positional slot on its first line, such as `ASE · GRP · VAL /2`, followed by the complete catalogue enum list when available. Lists wrap naturally without truncation. Release, language and raw catalogue type codes are omitted. A uniquely resolved variable or macro reference shows its source declaration instead; modules, record names and empty space do not produce metadata-only tooltips.
 
 `workspace/executeCommand` with `sofistik.readCalculationDiagnostics` and arguments `[{ "uri": "file:///path/model.dat" }]` reads the corresponding `.error_positions` JSONL. Static and imported diagnostics are published together; editing the source clears the imported findings. Log import never starts a calculation.
 

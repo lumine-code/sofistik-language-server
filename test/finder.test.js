@@ -356,3 +356,72 @@ test("known quoted ASE enum literals classify only their contents in the exact v
   assert.equal(context.inString, true);
   assert.equal(context.param, "VAL");
 });
+
+test("partial remaining field names follow consumed values without stealing enum prefixes", () => {
+  const cases = [
+    {
+      input: "GRP NO 1 F",
+      prefix: "F",
+      role: "param",
+      names: ["FACS", "FACL", "FACD", "FACP", "FACT", "FACB"],
+    },
+    { input: "GRP NO 1 PH", prefix: "PH", role: "param", names: ["PHI", "PHIF", "PHIS"] },
+    { input: "GRP NO=1\tPH", prefix: "PH", role: "param", names: ["PHI", "PHIF", "PHIS"] },
+    {
+      input: "GRP NO 1 $$ note\n\tPH",
+      prefix: "PH",
+      role: "param",
+      names: ["PHI", "PHIF", "PHIS"],
+    },
+    {
+      input: "GRP NO #size F",
+      prefix: "F",
+      role: "param",
+      names: ["FACS", "FACL", "FACD", "FACP", "FACT", "FACB"],
+    },
+    { input: "GRP NO 1 VAL F", prefix: "F", role: "value", param: "VAL" },
+    { input: "GRP NO=1\tVAL=F", prefix: "F", role: "value", param: "VAL" },
+    { input: "GRP NO 1 VAL $$ note\n\tF", prefix: "F", role: "value", param: "VAL" },
+    { input: "GRP NO 1 VAL 'F'", prefix: "F", role: "value", param: "VAL", quoted: true },
+    { input: "GRP NO 1 'F'", prefix: "F", role: "value", param: "NO", quoted: true },
+    { input: "GRP NO 1 XYZ", prefix: "XYZ", role: "value", param: "NO" },
+  ];
+  for (const item of cases) {
+    const text = `+PROG ASE\n${item.input}`;
+    const cursor = text.length - (item.quoted ? 1 : 0);
+    const prefix = text.slice(0, cursor);
+    const position = {
+      line: prefix.split("\n").length - 1,
+      character: cursor - prefix.lastIndexOf("\n") - 1,
+    };
+    const initialText = text.slice(0, cursor - item.prefix.length) + text.slice(cursor);
+    const insertionPrefix = text.slice(0, cursor - item.prefix.length);
+    const insertion = {
+      line: insertionPrefix.split("\n").length - 1,
+      character: insertionPrefix.length - insertionPrefix.lastIndexOf("\n") - 1,
+    };
+    const incremental = createIndex(initialText, target());
+    incremental.applyChanges(
+      [{ range: { start: insertion, end: insertion }, text: item.prefix }],
+      2,
+    );
+    const fresh = createIndex(text, target());
+    assert.deepEqual(incremental.contextAt(position), fresh.contextAt(position), item.input);
+    for (const index of [fresh, incremental]) {
+      const context = index.contextAt(position);
+      assert.equal(context.role, item.role, item.input);
+      assert.equal(context.prefix, item.prefix, item.input);
+      assert.equal(context.param, item.param ?? null, item.input);
+      assert.deepEqual(context.paramCandidates, item.names, item.input);
+      assert.equal(index.enumTokens().length, 0, item.input);
+    }
+  }
+});
+
+test("used named fields remain excluded from partial matches across $$ continuation", () => {
+  const text = "+PROG ASE\nGRP NO 1 PHI 2 $$ note\nPH";
+  const index = createIndex(text, target());
+  const context = index.contextAt({ line: 2, character: 2 });
+  assert.equal(context.role, "param");
+  assert.deepEqual(context.paramCandidates, ["PHIF", "PHIS"]);
+});

@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-data");
 const { SofistikProject, canonicalUri } = require("../lib/project");
+const { hover } = require("../lib/features");
 
 async function fixture(t, files, definition = "SOF_VERSION = 2026\n") {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-project-"));
@@ -160,4 +161,32 @@ test("module validation names the exact token and release without rejecting runt
   assert.match(errors[0].message, /2026/);
   project.change(uri("main.dat"), [{ text: "+PROG SOFIMSHA\nNODE 1 FIX PXPY\nEND\n" }], 2);
   assert.deepEqual(project.diagnostics(uri("main.dat")), []);
+});
+
+test("symbol hover previews a unique source declaration without identity or count boilerplate", async (t) => {
+  const { project, uri } = await fixture(t, {
+    "main.dat": "+PROG ASE\nLET#size 1\nGRP NO #size VAL FULL\nEND\n",
+  });
+  const result = await hover(project, uri("main.dat"), { line: 2, character: 10 });
+  assert.deepEqual(result.contents, { kind: "plaintext", value: "LET#size 1\n\nmain.dat:2" });
+  assert.equal(await hover(project, uri("main.dat"), { line: 1, character: 6 }), null);
+  assert.equal(await hover(project, uri("main.dat"), { line: 2, character: 12 }), null);
+});
+
+test("hover suppresses missing and ambiguous runtime definitions", async (t) => {
+  const { project, uri } = await fixture(t, {
+    "main.dat":
+      "+PROG ASE\nLET#size 1\nLET#size 2\nGRP NO #size VAL FULL\nGRP NO #external VAL FULL\nEND\n",
+  });
+  assert.equal(await hover(project, uri("main.dat"), { line: 3, character: 10 }), null);
+  assert.equal(await hover(project, uri("main.dat"), { line: 4, character: 10 }), null);
+});
+
+test("macro hover shows its source value without claiming an evaluated runtime result", async (t) => {
+  const { project, uri } = await fixture(t, {
+    "main.dat": "+PROG TEMPLATE\n#define factor=2\nLET#size $(factor)\nEND\n",
+  });
+  const result = await hover(project, uri("main.dat"), { line: 2, character: 13 });
+  assert.deepEqual(result.contents, { kind: "plaintext", value: "#define factor=2\n\nmain.dat:2" });
+  assert.equal(await hover(project, uri("main.dat"), { line: 1, character: 9 }), null);
 });
