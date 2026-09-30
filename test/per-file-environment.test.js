@@ -336,3 +336,81 @@ startServer(undefined, { resolver: { resolve: ({ filePath }) => {
   }
   assert.deepEqual(JSON.parse(await fs.readFile(countsPath, "utf8")), { first: 3 });
 });
+
+test("current static include indexes retain transitive environment reachability after graph invalidation", async (t) => {
+  const { project, root, uri } = await projectFixture(t, {
+    "a/sofistik.def": "SOF_VERSION = 2026\n",
+    "a/main.dat": "+PROG ASE\n#include '../b/child.dat'\nEND\n",
+    "b/sofistik.def": "SOF_VERSION = 2024\n",
+    "b/child.dat": "#include '../c/part.inc'\nLET#child 1\n",
+    "c/sofistik.def": "SOF_VERSION = 2024\n",
+    "c/part.inc": "#include '../b/child.dat'\nLET#nested 1\n",
+    "unrelated/sofistik.def": "SOF_VERSION = 2024\n",
+    "unrelated/input.dat": SOURCE,
+  });
+  const main = project.open({
+    uri: uri("a/main.dat"),
+    text: "+PROG ASE\n#include '../b/child.dat'\nEND\n",
+    version: 1,
+  });
+  await project.graphFor(main.uri);
+  const unrelated = project.documents.get(uri("unrelated/input.dat"));
+  const unrelatedIndex = unrelated.index;
+  project.change(main.uri, [{ text: main.text + "$ changed\n" }], 2);
+  assert.equal(project.views.size, 0);
+  for (const directory of ["b", "c", "unrelated"])
+    await fs.writeFile(path.join(root, directory, "sofistik.def"), "SOF_VERSION = 2025\n");
+  await project.refreshTargets(project.environmentDirectories(main.uri));
+  const views = await project.graphFor(main.uri);
+  for (const name of ["b/child.dat", "c/part.inc"]) {
+    assert.equal(project.targetFor(uri(name)).version, "2025");
+    assert.equal(views.find((view) => view.uri === uri(name)).index.target.version, "2025");
+  }
+  assert.equal(unrelated.target.version, "2024");
+  assert.equal(unrelated.index, unrelatedIndex);
+});
+
+test("real cursor protocol refreshes preloaded includes before the first graph and after parent edits", async (t) => {
+  let client;
+  const parent = "+PROG ASE\n#include '../b/child.dat'\nGRP NO #child VAL FULL\nEND\n";
+  const { root, uri } = await fixture(
+    t,
+    {
+      "a/sofistik.def": "SOF_VERSION = 2026\n",
+      "a/main.dat": parent,
+      "b/sofistik.def": "SOF_VERSION = 1999\n",
+      "b/child.dat": SOURCE,
+    },
+    () => client?.stop(),
+  );
+  client = new LspClient(root);
+  await client.start();
+  client.open(uri("a/main.dat"), parent);
+  client.open(uri("b/child.dat"), SOURCE);
+  const childReport = () =>
+    client.notifications
+      .filter(
+        (item) =>
+          item.method === "textDocument/publishDiagnostics" &&
+          item.params.uri === uri("b/child.dat"),
+      )
+      .at(-1)?.params.diagnostics;
+  await client.request("textDocument/diagnostic", { textDocument: { uri: uri("b/child.dat") } });
+  assert.match(childReport()[0].message, /1999/);
+  const completeParent = () =>
+    client.request("textDocument/completion", {
+      textDocument: { uri: uri("a/main.dat") },
+      position: { line: 2, character: 11 },
+    });
+  await fs.writeFile(path.join(root, "b/sofistik.def"), "SOF_VERSION = 2026\n");
+  client.notifications.length = 0;
+  await completeParent();
+  assert.deepEqual(childReport(), []);
+  // No watched-file notification: the parent edit clears the previously built graph.
+  client.change(uri("a/main.dat"), [{ text: parent + "$ changed\n" }], 2);
+  await client.request("textDocument/documentSymbol", { textDocument: { uri: uri("a/main.dat") } });
+  await fs.writeFile(path.join(root, "b/sofistik.def"), "SOF_VERSION = 2099\n");
+  client.notifications.length = 0;
+  await completeParent();
+  assert.match(childReport()[0].message, /2099/);
+});
