@@ -99,6 +99,83 @@ test("real stdio server exercises advertised language features and incremental l
   assert.equal(client.stderr, "");
 });
 
+test("semantic tokens preserve string highlighting while quoted enums keep completion and hover", async (t) => {
+  const { uri, client } = await fixture(t);
+  const quotedValues = ["'FULL'", '"FULL"', "''FULL''", '""FULL""'];
+  client.change(uri, [
+    {
+      text: [
+        "+PROG ASE",
+        "GRP NO 1 VAL FULL",
+        ...quotedValues.map((value, index) => `GRP NO ${index + 2} VAL ${value}`),
+        "GRP NO 6 VAL NO",
+        "END",
+        "",
+      ].join("\n"),
+    },
+  ]);
+  const assertTokens = async (data) => {
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/full", { textDocument: { uri } }),
+      { data },
+    );
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/range", {
+        textDocument: { uri },
+        range: { start: { line: 1, character: 0 }, end: { line: 7, character: 0 } },
+      }),
+      { data },
+    );
+  };
+  const unquotedTokens = [1, 13, 4, 0, 0, 5, 13, 2, 0, 0];
+  await assertTokens(unquotedTokens);
+  for (const [index, value] of quotedValues.entries()) {
+    const line = index + 2;
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/range", {
+        textDocument: { uri },
+        range: { start: { line, character: 0 }, end: { line: line + 1, character: 0 } },
+      }),
+      { data: [] },
+    );
+    const character = 13 + value.indexOf("FULL") + 2;
+    const completions = await client.request(
+      "textDocument/completion",
+      params(uri, line, character),
+    );
+    assert.ok(
+      completions.some((item) => item.label === "FULL"),
+      value,
+    );
+    const hover = await client.request("textDocument/hover", params(uri, line, character));
+    assert.match(hover.contents.value, /ASE · GRP · VAL/, value);
+    assert.match(hover.contents.value, /FULL/, value);
+  }
+  client.change(
+    uri,
+    [
+      {
+        range: { start: { line: 1, character: 13 }, end: { line: 1, character: 17 } },
+        text: "'FULL'",
+      },
+    ],
+    3,
+  );
+  await assertTokens([6, 13, 2, 0, 0]);
+  client.change(
+    uri,
+    [
+      {
+        range: { start: { line: 1, character: 13 }, end: { line: 1, character: 19 } },
+        text: "FULL",
+      },
+    ],
+    4,
+  );
+  await assertTokens(unquotedTokens);
+  assert.equal(client.stderr, "");
+});
+
 test("sibling definition changes invalidate enums; file headers never override file settings", async (t) => {
   const { root, uri, client } = await fixture(t);
   client.change(uri, [{ text: "@ SOFiSTiK 1999 DE\n" + SOURCE }]);

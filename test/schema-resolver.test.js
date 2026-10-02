@@ -34,4 +34,6 @@ test("conservatively leaves enum/item collisions unclassified", () => {
   const resolved = resolver.resolve(tokens, { module: "M", command: "C" });
   assert.equal(resolved.confidence, false);
   assert.equal(resolved.assignments[1].ambiguous, true);
+  assert.equal(resolved.assignments[2].param, null);
+  assert.equal(resolved.assignments[2].activeParameter, null);
 });

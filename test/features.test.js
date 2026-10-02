@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
 const { createIndex } = require("../lib/finder");
-const { signatureHelp, completion, hover } = require("../lib/features");
+const { signatureHelp, completion, hover, semanticTokens } = require("../lib/features");
 
 const keywords = new SofistikDataProvider().forRelease("2026", "en");
 
@@ -52,6 +52,59 @@ test("completion distinguishes a named enum value from the next parameter", asyn
   });
   assert.ok(parameters.some((item) => item.label === "FACS"));
   assert.ok(parameters.every((item) => item.kind === 5));
+});
+
+test("positional GRP values advance after named slots across hover, signatures and semantic tokens", async () => {
+  const records = [
+    "GRP NUMB 57 OFF SPRI",
+    "GRP NUMB 57 OPTI OFF SPRI",
+    "GRP NUMB 57 OPTI OFF etyp SPRI",
+    "GRP 57 OFF SPRI",
+  ];
+  for (const module of ["RESULTS", "WING"]) {
+    const slots = keywords.getCommandSchema(module, "GRP").forms[0].slots;
+    for (const record of records) {
+      const project = projectFor(module, record);
+      const message = `${module}: ${record}`;
+      for (const [activeParameter, value] of ["57", "OFF", "SPRI"].entries()) {
+        const position = { line: 1, character: record.indexOf(value) + 1 };
+        const result = await hover(project, "untitled:fixture", position);
+        const slot = slots[activeParameter];
+        assert.equal(
+          result.contents.value,
+          `${module} · GRP · ${slot.name} /${activeParameter + 1}` +
+            (slot.enumValues.length ? `\n\n${slot.enumValues.join(", ")}` : ""),
+          message,
+        );
+        const signature = await signatureHelp(project, "untitled:fixture", position);
+        assert.equal(signature.activeParameter, activeParameter, `${message}: ${value}`);
+      }
+      const off = record.indexOf("OFF");
+      const spri = record.indexOf("SPRI");
+      const expectedTokens = { data: [1, off, 3, 0, 0, 0, spri - off, 4, 0, 0] };
+      const entry = await project.loadDocument();
+      assert.deepEqual(semanticTokens(entry), expectedTokens, message);
+      assert.deepEqual(
+        semanticTokens(entry, {
+          start: { line: 1, character: off },
+          end: { line: 1, character: spri + 4 },
+        }),
+        expectedTokens,
+        message,
+      );
+      for (const value of ["OFF", "SPRI"]) {
+        const partial = record.replace(value, value.slice(0, 2));
+        const items = await completion(projectFor(module, partial), "untitled:fixture", {
+          line: 1,
+          character: record.indexOf(value) + 2,
+        });
+        assert.ok(
+          items.some((item) => item.label === value && item.kind === 20),
+          `${message}: ${value}`,
+        );
+      }
+    }
+  }
 });
 
 test("parameter completion keeps canonical slot order and conveys it through sortText", async () => {

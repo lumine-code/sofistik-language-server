@@ -105,7 +105,7 @@ test("accepts inherited fragment context and incomplete input", () => {
   assert.equal(createIndex("#DEFINE shared\n#INCLUDE $(incomplete", {}).diagnostics.length, 0);
 });
 
-test("only emits enum semantic tokens for values of an identified slot", () => {
+test("only emits enum semantic tokens for values of an identified named or positional slot", () => {
   const text = "+PROG TENDON\nAXES KIND QUAD\nAXES VAL3 11 QUAD\nAXES KIND 'QUAD'\nHEAD 'QUAD'\n";
   const index = createIndex(text, target());
   assert.deepEqual(
@@ -303,6 +303,137 @@ test("terminal NO is a VAL enum rather than an empty NO field in a populated GRP
   assert.equal(index.contextAt({ line: 3, character: 18 }).confidence, true);
 });
 
+test("named GRP values advance through subsequent positional slots", () => {
+  const records = [
+    "GRP NUMB 57 OFF SPRI",
+    "GRP NUMB=57 OFF SPRI",
+    "GRP NUMB = 57 OFF SPRI",
+    "GRP NUMB #base+1 OFF SPRI",
+    "GRP NUMB (57) OFF SPRI",
+    "GRP NUMB ((57)) OFF SPRI",
+    "GRP NUMB=(57) OFF SPRI",
+    "GRP NUMB=((57)) OFF SPRI",
+    "GRP NUMB 57[mm] OFF SPRI",
+    "GRP NUMB (57+#base)[mm] OFF SPRI",
+    "GRP NUMB=(#base+1)[mm] OFF SPRI",
+    "GRP NUMB 57 $$ annotation\nOFF SPRI",
+    "GRP NUMB $$ annotation\n57 OFF SPRI",
+    "GRP NUMB (57 $$ annotation\n+#base) OFF SPRI",
+    "GRP NUMB 57 $$ annotation\nOFF $$ annotation\nSPRI",
+    "GRP NUMB 57 OPTI OFF SPRI",
+    "GRP NUMB 57 OFF ETYP SPRI",
+  ];
+  for (const module of ["RESULTS", "WING"]) {
+    for (const record of records) {
+      const text = `+PROG ${module}\n${record}\n`;
+      const index = createIndex(text, target());
+      const message = `${module}: ${record}`;
+      for (const line of index.lines.slice(1)) {
+        for (const token of line.tokens.filter((item) => item.role === "value")) {
+          const expected =
+            token.value === "OFF"
+              ? ["OPTI", 1]
+              : token.value === "SPRI"
+                ? ["ETYP", 2]
+                : ["NUMB", 0];
+          assert.deepEqual([token.param, token.activeParameter], expected, message);
+        }
+      }
+      for (const [value, param, activeParameter] of [
+        ["OFF", "OPTI", 1],
+        ["SPRI", "ETYP", 2],
+      ]) {
+        const context = index.contextAt(at(text, value, 1));
+        assert.equal(context.param, param, message);
+        assert.equal(context.activeParameter, activeParameter, message);
+        assert.equal(context.role, "value", message);
+      }
+      assert.deepEqual(
+        index.enumTokens().map((token) => [token.value, token.param]),
+        [
+          ["OFF", "OPTI"],
+          ["SPRI", "ETYP"],
+        ],
+        message,
+      );
+    }
+  }
+});
+
+test("positional and table GRP records use the same schema slots as named records", () => {
+  for (const module of ["RESULTS", "WING"]) {
+    for (const record of [
+      "GRP 57 OFF SPRI",
+      "GRP (57) OFF SPRI",
+      "GRP NUMB OPTI ETYP\n57 OFF SPRI",
+    ]) {
+      const text = `+PROG ${module}\n${record}\n`;
+      const index = createIndex(text, target());
+      for (const [value, param, activeParameter] of [
+        ["57", "NUMB", 0],
+        ["OFF", "OPTI", 1],
+        ["SPRI", "ETYP", 2],
+      ]) {
+        const context = index.contextAt(at(text, value, 1));
+        assert.equal(context.param, param, `${module}: ${record}`);
+        assert.equal(context.activeParameter, activeParameter, `${module}: ${record}`);
+      }
+    }
+  }
+});
+
+test("table expressions retain the header's field order through adjacent fragments", () => {
+  for (const module of ["RESULTS", "WING"]) {
+    for (const record of [
+      "GRP NUMB OPTI ETYP\n(#base+1)[mm] OFF SPRI",
+      "GRP ETYP NUMB OPTI\nSPRI (#base+1)[mm] OFF",
+    ]) {
+      const text = `+PROG ${module}\n${record}\n`;
+      const index = createIndex(text, target());
+      for (const token of index.lines[2].tokens.filter((item) => item.role === "value")) {
+        const expected =
+          token.value === "OFF" ? ["OPTI", 1] : token.value === "SPRI" ? ["ETYP", 2] : ["NUMB", 0];
+        assert.deepEqual([token.param, token.activeParameter], expected, `${module}: ${record}`);
+      }
+      for (const [value, param, activeParameter] of [
+        ["#base", "NUMB", 0],
+        ["+1", "NUMB", 0],
+        ["[mm]", "NUMB", 0],
+        ["OFF", "OPTI", 1],
+        ["SPRI", "ETYP", 2],
+      ]) {
+        const context = index.contextAt(at(text, value, 1));
+        assert.equal(context.param, param, `${module}: ${record}`);
+        assert.equal(context.activeParameter, activeParameter, `${module}: ${record}`);
+      }
+    }
+  }
+});
+
+test("positional values after an uncertain named slot remain unclassified", () => {
+  const schema = {
+    forms: [
+      { slots: [{ name: "NUMB" }, { name: "OPTI", enumValues: ["OFF"] }] },
+      { slots: [{ name: "OTHER" }, { name: "NUMB" }, { name: "ETYP", enumValues: ["OFF"] }] },
+    ],
+  };
+  const keywords = {
+    getModuleNames: () => ["CUSTOM"],
+    getCommandSchema: (_module, command) => (command === "GRP" ? schema : null),
+  };
+  for (const record of ["GRP NUMB 57 OFF", "GRP NUMB 57 $$ annotation\nOFF"]) {
+    const text = `+PROG CUSTOM\n${record}\n`;
+    const index = createIndex(text, { keywords });
+    const number = index.contextAt(at(text, "57", 1));
+    assert.equal(number.param, "NUMB", record);
+    assert.equal(number.activeParameter, null, record);
+    const value = index.contextAt(at(text, "OFF", 1));
+    assert.equal(value.param, null, record);
+    assert.equal(value.activeParameter, null, record);
+    assert.deepEqual(index.enumTokens(), [], record);
+  }
+});
+
 test("whitespace after an explicit parameter expects its value until a value is consumed", () => {
   const cases = [
     ["GRP NO 1 VAL ", "value"],
@@ -326,9 +457,9 @@ test("whitespace after an explicit parameter expects its value until a value is 
   assert.equal(table.contextAt({ line: 1, character: 14 }).role, "param");
 });
 
-test("known quoted ASE enum literals classify only their contents in the exact value slot", () => {
+test("quoted enum values retain their string context without semantic enum tokens", () => {
   const text =
-    "+PROG ASE\nGRP NO 1 VAL 'FULL'\nGRP NO 2 VAL \"FULL\"\nGRP NO 3 VAL ''FULL''\nHEAD 'FULL'\n$ GRP NO 4 VAL 'FULL'\nGRP NO 5 VAL '$(choice)'\n";
+    "+PROG ASE\nGRP NO 1 VAL 'FULL'\nGRP NO 2 VAL \"FULL\"\nGRP NO 3 VAL ''FULL''\nGRP NO 4 VAL \"\"FULL\"\"\nHEAD 'FULL'\n$ GRP NO 5 VAL 'FULL'\nGRP NO 6 VAL '$(choice)'\nGRP NO 7 VAL FULL\n";
   const index = createIndex(text, target());
   assert.deepEqual(
     index.enumTokens().map((item) => ({ value: item.value, param: item.param, range: item.range })),
@@ -336,17 +467,7 @@ test("known quoted ASE enum literals classify only their contents in the exact v
       {
         value: "FULL",
         param: "VAL",
-        range: { start: { line: 1, character: 14 }, end: { line: 1, character: 18 } },
-      },
-      {
-        value: "FULL",
-        param: "VAL",
-        range: { start: { line: 2, character: 14 }, end: { line: 2, character: 18 } },
-      },
-      {
-        value: "FULL",
-        param: "VAL",
-        range: { start: { line: 3, character: 15 }, end: { line: 3, character: 19 } },
+        range: { start: { line: 8, character: 13 }, end: { line: 8, character: 17 } },
       },
     ],
   );
@@ -383,8 +504,8 @@ test("partial remaining field names follow consumed values without stealing enum
     { input: "GRP NO=1\tVAL=F", prefix: "F", role: "value", param: "VAL" },
     { input: "GRP NO 1 VAL $$ note\n\tF", prefix: "F", role: "value", param: "VAL" },
     { input: "GRP NO 1 VAL 'F'", prefix: "F", role: "value", param: "VAL", quoted: true },
-    { input: "GRP NO 1 'F'", prefix: "F", role: "value", param: "NO", quoted: true },
-    { input: "GRP NO 1 XYZ", prefix: "XYZ", role: "value", param: "NO" },
+    { input: "GRP NO 1 'F'", prefix: "F", role: "value", param: "VAL", quoted: true },
+    { input: "GRP NO 1 XYZ", prefix: "XYZ", role: "value", param: "VAL" },
   ];
   for (const item of cases) {
     const text = `+PROG ASE\n${item.input}`;
