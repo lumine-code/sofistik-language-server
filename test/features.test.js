@@ -107,6 +107,89 @@ test("positional GRP values advance after named slots across hover, signatures a
   }
 });
 
+test("comma alternatives retain one GRP slot across language features and advance the following slot once", async () => {
+  const cases = [
+    { record: "GRP NUMB 31+#grp YES BEAM,GLN SING" },
+    { record: "GRP NUMB 31+#grp YES BEAM, GLN SING" },
+    { record: "GRP NUMB 31+#grp YES,OFF BEAM,GLN SING" },
+    { record: "GRP NUMB 31+#grp OPTI YES, OFF ETYP BEAM, GLN GDIV SING" },
+    { record: "GRP NUMB 31+#grp YES BEAM,'GLN' SING", quoted: "GLN" },
+    { record: "GRP NUMB 31+#grp YES 'BEAM',GLN SING", quoted: "BEAM" },
+  ];
+  for (const { record, quoted } of cases) {
+    const project = projectFor("WING", record);
+    const values = [
+      ["YES", "OPTI", 1],
+      ["OFF", "OPTI", 1],
+      ["BEAM", "ETYP", 2],
+      ["GLN", "ETYP", 2],
+      ["SING", "GDIV", 3],
+    ].filter(([value]) => record.includes(value));
+    const entry = await project.loadDocument();
+    const expected = [];
+    let previousCharacter = 0;
+    for (const [value, parameter, activeParameter] of values) {
+      const start = record.indexOf(value);
+      const position = { line: 1, character: start + 1 };
+      const result = await hover(project, "untitled:fixture", position);
+      assert.equal(
+        result.contents.value.split("\n")[0],
+        `WING · GRP · ${parameter} /${activeParameter + 1}`,
+        `${record}: ${value}`,
+      );
+      const signature = await signatureHelp(project, "untitled:fixture", position);
+      assert.equal(signature.activeParameter, activeParameter, `${record}: ${value}`);
+      const completions = await completion(project, "untitled:fixture", {
+        line: 1,
+        character: start + 2,
+      });
+      const item = completions.find((candidate) => candidate.label === value);
+      assert.equal(item?.kind, 20, `${record}: ${value}`);
+      assert.deepEqual(
+        item.textEdit.range,
+        { start: { line: 1, character: start }, end: { line: 1, character: start + 2 } },
+        `${record}: ${value}`,
+      );
+      assert.deepEqual(
+        semanticTokens(entry, {
+          start: { line: 1, character: start },
+          end: { line: 1, character: start + value.length },
+        }),
+        { data: value === quoted ? [] : [1, start, value.length, 0, 0] },
+        `${record}: ${value}`,
+      );
+      if (value !== quoted) {
+        expected.push(expected.length ? 0 : 1, start - previousCharacter, value.length, 0, 0);
+        previousCharacter = start;
+      }
+    }
+    assert.deepEqual(semanticTokens(entry), { data: expected }, record);
+    assert.deepEqual(
+      semanticTokens(entry, {
+        start: { line: 1, character: 0 },
+        end: { line: 2, character: 0 },
+      }),
+      { data: expected },
+      record,
+    );
+  }
+});
+
+test("completion after a comma inserts a new alternative without replacing the comma", async () => {
+  for (const record of ["GRP NUMB 57 YES BEAM,", "GRP NUMB 57 YES BEAM, "]) {
+    const position = { line: 1, character: record.length };
+    const items = await completion(projectFor("WING", record), "untitled:fixture", position);
+    assert.ok(items.length > 1, record);
+    assert.ok(
+      items.every((item) => item.kind === 20),
+      record,
+    );
+    const gln = items.find((item) => item.label === "GLN");
+    assert.ok(gln, record);
+    assert.deepEqual(gln.textEdit.range, { start: position, end: position }, record);
+  }
+});
+
 test("parameter completion keeps canonical slot order and conveys it through sortText", async () => {
   const record = "GRP NO 1 VAL FULL ";
   const items = await completion(projectFor("ASE", record), "untitled:fixture", {

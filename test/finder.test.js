@@ -546,3 +546,178 @@ test("used named fields remain excluded from partial matches across $$ continuat
   assert.equal(context.role, "param");
   assert.deepEqual(context.paramCandidates, ["PHIF", "PHIS"]);
 });
+
+test("comma-separated enum alternatives retain one positional slot and individual ranges", () => {
+  for (const values of ["BEAM,GLN", "BEAM, GLN", "BEAM , GLN", "BEAM, $$ annotation\nGLN"]) {
+    const text = `+PROG WING\nGRP NUMB 31+#grp YES ${values} DEFA\n`;
+    const index = createIndex(text, target());
+    for (const [value, param, activeParameter] of [
+      ["31+", "NUMB", 0],
+      ["#grp", "NUMB", 0],
+      ["YES", "OPTI", 1],
+      ["BEAM", "ETYP", 2],
+      ["GLN", "ETYP", 2],
+      ["DEFA", "GDIV", 3],
+    ]) {
+      const context = index.contextAt(at(text, value, 1));
+      assert.equal(context.param, param, values);
+      assert.equal(context.activeParameter, activeParameter, values);
+    }
+    assert.deepEqual(
+      index.enumTokens().map((token) => ({ value: token.value, range: token.range })),
+      ["YES", "BEAM", "GLN", "DEFA"].map((value) => ({
+        value,
+        range: { start: at(text, value), end: at(text, value, value.length) },
+      })),
+      values,
+    );
+  }
+});
+
+test("root expression lists stay in one field while function commas remain nested", () => {
+  for (const record of [
+    "GRP NUMB MAX(1,2), (31+#grp),57 YES BEAM,GLN",
+    "GRP ETYP NUMB OPTI\nBEAM,GLN MAX(1,2), (31+#grp),57 YES,NO",
+  ]) {
+    const text = `+PROG WING\n${record}\n`;
+    const index = createIndex(text, target());
+    for (const [value, param, activeParameter] of [
+      ["MAX", "NUMB", 0],
+      ["1,2", "NUMB", 0],
+      ["2)", "NUMB", 0],
+      ["31+", "NUMB", 0],
+      ["#grp", "NUMB", 0],
+      ["57", "NUMB", 0],
+      ["YES", "OPTI", 1],
+      ["BEAM", "ETYP", 2],
+      ["GLN", "ETYP", 2],
+    ]) {
+      const context = index.contextAt(at(text, value, 1));
+      assert.equal(context.param, param, record);
+      assert.equal(context.activeParameter, activeParameter, record);
+    }
+    assert.deepEqual(
+      index.enumTokens().map((token) => token.value),
+      record.startsWith("GRP ETYP") ? ["BEAM", "GLN", "YES", "NO"] : ["YES", "BEAM", "GLN"],
+      record,
+    );
+  }
+});
+
+test("quoted list alternatives and commas inside quoted values keep string context", () => {
+  for (const [values, expectedEnums] of [
+    ["'BEAM',GLN", ["YES", "GLN", "DEFA"]],
+    ["'BEAM', 'GLN'", ["YES", "DEFA"]],
+    ["'BEAM,GLN'", ["YES", "DEFA"]],
+  ]) {
+    const text = `+PROG WING\nGRP NUMB 57 YES ${values} DEFA\n`;
+    const index = createIndex(text, target());
+    for (const value of ["BEAM", "GLN"]) {
+      const context = index.contextAt(at(text, value, 1));
+      assert.equal(context.param, "ETYP", values);
+      assert.equal(context.activeParameter, 2, values);
+    }
+    assert.equal(index.contextAt(at(text, "BEAM", 1)).inString, true, values);
+    assert.equal(index.contextAt(at(text, "DEFA", 1)).param, "GDIV", values);
+    assert.deepEqual(
+      index.enumTokens().map((token) => token.value),
+      expectedEnums,
+      values,
+    );
+  }
+});
+
+test("commas disambiguate enum alternatives that also name a parameter", () => {
+  for (const values of ["YES, NO", "NO,YES"]) {
+    const text = `+PROG ASE\nGRP NO 57 VAL ${values} FACS 1\n`;
+    const index = createIndex(text, target());
+    for (const value of ["YES", "NO"]) {
+      const position = at(text, `VAL ${values}`, 4 + values.indexOf(value) + 1);
+      const context = index.contextAt(position);
+      assert.equal(context.param, "VAL", values);
+      assert.equal(context.activeParameter, 1, values);
+      assert.equal(context.role, "value", values);
+      assert.equal(context.confidence, true, values);
+    }
+    assert.equal(index.contextAt(at(text, "FACS", 1)).param, "FACS", values);
+    assert.deepEqual(
+      index.enumTokens().map((token) => token.value),
+      values.split(/,\s*/),
+      values,
+    );
+  }
+});
+
+test("an unfinished list expects another value after the comma, whitespace or continuation", () => {
+  for (const record of [
+    "GRP NUMB 57 YES BEAM,",
+    "GRP NUMB 57 YES BEAM, ",
+    "GRP NUMB 57 YES BEAM, $$ annotation\n ",
+  ]) {
+    const text = `+PROG WING\n${record}`;
+    const index = createIndex(text, target());
+    const line = index.lines.length - 1;
+    const context = index.contextAt({ line, character: index.lines[line].text.length });
+    assert.equal(context.role, "value", record);
+    assert.equal(context.param, "ETYP", record);
+    assert.equal(context.activeParameter, 2, record);
+    assert.equal(context.prefix, "", record);
+  }
+});
+
+test("alternatives of an unnamed slot retain its known position across continuation", () => {
+  const schema = {
+    forms: [{ slots: [{ name: "NUMB" }, { name: null }, { name: "ETYP", enumValues: ["SPRI"] }] }],
+  };
+  const keywords = {
+    getModuleNames: () => ["CUSTOM"],
+    getCommandSchema: (_module, command) => (command === "GRP" ? schema : null),
+  };
+  for (const values of ["foo,bar", "foo, $$ annotation\nbar"]) {
+    const text = `+PROG CUSTOM\nGRP NUMB 57 ${values} SPRI\n`;
+    const index = createIndex(text, { keywords });
+    for (const value of ["foo", "bar"]) {
+      const context = index.contextAt(at(text, value, 1));
+      assert.equal(context.param, null, values);
+      assert.equal(context.activeParameter, 1, values);
+    }
+    const next = index.contextAt(at(text, "SPRI", 1));
+    assert.equal(next.param, "ETYP", values);
+    assert.equal(next.activeParameter, 2, values);
+    assert.deepEqual(
+      index.enumTokens().map((token) => token.value),
+      ["SPRI"],
+      values,
+    );
+  }
+  const unfinished = createIndex("+PROG CUSTOM\nGRP NUMB 57 foo, $$ annotation\n ", { keywords });
+  const context = unfinished.contextAt({ line: 2, character: 1 });
+  assert.equal(context.role, "value");
+  assert.equal(context.param, null);
+  assert.equal(context.activeParameter, 1);
+});
+
+test("incremental comma edits converge with fresh positional and list assignments", () => {
+  const text = "+PROG WING\nGRP NUMB 57 YES BEAM GLN\n";
+  const index = createIndex(text, target());
+  const position = at(text, "BEAM", 4);
+  for (const [version, replacement, width, expectedParam] of [
+    [2, ",", 0, "ETYP"],
+    [3, "", 1, "GDIV"],
+  ]) {
+    index.applyChanges(
+      [
+        {
+          range: { start: position, end: { ...position, character: position.character + width } },
+          text: replacement,
+        },
+      ],
+      version,
+    );
+    const fresh = createIndex(index.text, target());
+    const contextPosition = at(index.text, "GLN", 1);
+    assert.deepEqual(index.contextAt(contextPosition), fresh.contextAt(contextPosition));
+    assert.deepEqual(index.enumTokens(), fresh.enumTokens());
+    assert.equal(index.contextAt(contextPosition).param, expectedParam);
+  }
+});
