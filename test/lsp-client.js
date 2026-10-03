@@ -21,6 +21,10 @@ class LspClient {
   constructor(rootPath, options = {}) {
     this.rootPath = rootPath;
     this.entryPath = options.entryPath || path.join(__dirname, "../bin/cli.js");
+    this.workDoneProgress = options.workDoneProgress === true;
+    this.autoInitialized = options.autoInitialized !== false;
+    this.onCreateProgress = options.onCreateProgress || (() => null);
+    this.progressRequests = [];
     this.settings = { textCase: "upper", encoding: "utf-8" };
     this.notifications = [];
     this.stderr = "";
@@ -46,14 +50,24 @@ class LspClient {
     this.connection.onRequest("client/unregisterCapability", () => null);
     this.connection.onRequest("workspace/semanticTokens/refresh", () => null);
     this.connection.onRequest("workspace/diagnostic/refresh", () => null);
+    this.connection.onRequest("window/workDoneProgress/create", (params) => {
+      this.progressRequests.push(params);
+      return this.onCreateProgress(params);
+    });
     this.connection.onNotification((method, params) => {
       this.notifications.push({ method, params });
+    });
+    // JSON-RPC installs its own progress dispatcher, so the catch-all above
+    // does not receive work-done notifications without this explicit handler.
+    this.connection.onNotification("$/progress", (params) => {
+      this.notifications.push({ method: "$/progress", params });
     });
     this.connection.listen();
     const result = await this.request("initialize", {
       processId: process.pid,
       rootUri: pathToFileURL(this.rootPath).href,
       capabilities: {
+        ...(this.workDoneProgress && { window: { workDoneProgress: true } }),
         general: { positionEncodings: ["utf-16"] },
         workspace: {
           configuration: true,
@@ -71,7 +85,7 @@ class LspClient {
         },
       },
     });
-    this.notify("initialized", {});
+    if (this.autoInitialized) this.notify("initialized", {});
     return result;
   }
 
