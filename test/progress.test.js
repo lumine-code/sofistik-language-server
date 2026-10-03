@@ -125,6 +125,34 @@ test("open-buffer completion does not wait for the progress creation round trip"
   await finished(client);
 });
 
+test("an unanswered progress handshake times out without blocking indexing or reviving late progress", async (t) => {
+  let release;
+  const handshake = new Promise((resolve) => {
+    release = resolve;
+  });
+  const { client } = await fixture(t, {
+    workDoneProgress: true,
+    onCreateProgress: () => handshake,
+  });
+  await client.start();
+  await until(() => client.progressRequests.length);
+  assert.ok((await client.request("workspace/symbol", { query: "" })).length);
+  assert.ok(
+    client.notifications.some(
+      ({ method, params }) =>
+        method === "window/logMessage" &&
+        /within 2 seconds; indexing will continue/.test(params.message),
+    ),
+  );
+  assert.deepEqual(messages(client), []);
+  release(null);
+  // The reply is sent before this request, so its response orders any late
+  // continuation without assuming how long either process needs to run.
+  assert.ok((await client.request("workspace/symbol", { query: "" })).length);
+  assert.equal(client.progressRequests.length, 1);
+  assert.deepEqual(messages(client), []);
+});
+
 test("shutdown closes active indexing progress before answering", async (t) => {
   const { client, uri } = await fixture(
     t,
