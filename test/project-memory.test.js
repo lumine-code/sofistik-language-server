@@ -82,13 +82,30 @@ test("oversized disk inputs are reported before indexing and recover after shrin
   assert.equal(project.documents.has(uri("generated.results")), false);
   assert.equal(project.documents.has(uri("main.dat")), true);
   assert.equal(skipped.length, 1);
-  assert.match(skipped[0][1], /8 MiB/);
+  assert.match(skipped[0][1], /32 MiB/);
   assert.equal(await project.loadDocument(uri("generated.results")), null);
   assert.equal(skipped.length, 1);
   await fs.writeFile(oversized, "+PROG ASE\nLET#recovered 1\nEND\n");
   await project.watched([{ uri: uri("generated.results"), type: 2 }]);
   assert.equal(project.skippedInputs.has(uri("generated.results")), false);
   assert.equal(workspaceSymbols(project, "recovered").length, 1);
+});
+
+test("inputs above 8 MiB retain language services from disk and in open buffers", async (t) => {
+  const { root, uri, start } = await fixture(t);
+  const text = "$" + " ".repeat(8 * 1024 * 1024) + "\n+PROG ASE\nGRP NO 1 VAL \nEND\n";
+  await fs.writeFile(path.join(root, "main.dat"), text);
+  const project = await start();
+  const main = uri("main.dat");
+  assert.equal(project.documents.get(main).text, text);
+  assert.equal(project.skippedInputs.has(main), false);
+  project.open({ uri: main, version: 1, text });
+  assert.deepEqual(project.diagnostics(main), []);
+  assert.ok(
+    (await completion(project, main, { line: 2, character: 13 })).some(
+      (item) => item.label === "FULL",
+    ),
+  );
 });
 
 test("oversized buffers accept incremental edits and resume language services", async (t) => {
