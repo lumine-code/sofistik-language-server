@@ -59,7 +59,8 @@ test("real server shares debounced diagnostics with pull while completion stays 
   );
   assert.ok(issue);
   assert.equal(issue.range.start.line, 1);
-  assert.ok(issue.relatedInformation.some((item) => item.location.range.start.line === 0));
+  assert.equal(issue.relatedInformation, undefined);
+  assert.equal(issue.data.programAnchor.range.start.line, 0);
   assert.equal(issue.data.focusOrigin.range.start.line, 1);
   const pushed = await notification(
     client,
@@ -97,7 +98,7 @@ test("real server shares debounced diagnostics with pull while completion stays 
   assert.deepEqual((await diagnostics("model.dat")).items, current.items);
 });
 
-test("a program expanded from a macro reports at its invocation and retains its original header", async (t) => {
+test("a program expanded from a macro reports at its invocation and relates its offending record", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const source = [
     "#DEFINE block",
@@ -113,7 +114,11 @@ test("a program expanded from a macro reports at its invocation and retains its 
   const issue = lint(report.items).find((item) => item.code === codeFor("load-without-load-case"));
   assert.ok(issue);
   assert.equal(issue.range.start.line, 5);
-  assert.ok(issue.relatedInformation.some(({ location }) => location.range.start.line === 1));
+  assert.equal(issue.data.programAnchor.range.start.line, 1);
+  assert.equal(
+    issue.relatedInformation.some(({ location }) => location.range.start.line === 1),
+    false,
+  );
   assert.ok(issue.relatedInformation.some(({ location }) => location.range.start.line === 2));
 });
 

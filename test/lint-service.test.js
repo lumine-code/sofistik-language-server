@@ -148,7 +148,8 @@ test("a persistent worker reuses unchanged modules and remaps their diagnostics"
   assert.ok(issue);
   assert.equal(issue.source, "sofistik-linter");
   assert.equal(issue.range.start.line, 1);
-  assert.ok(issue.relatedInformation.some((item) => item.location.range.start.line === 0));
+  assert.equal(issue.relatedInformation, undefined);
+  assert.equal(issue.data.programAnchor.range.start.line, 0);
   assert.equal(issue.data.focusOrigin.range.start.line, 1);
 
   change(entry, "\n" + BAD);

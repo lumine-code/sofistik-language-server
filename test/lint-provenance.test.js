@@ -33,6 +33,17 @@ async function analyze(text, sources = new Map(), engine = new LintEngine()) {
 
 const issue = (result, code = "G101") => result.diagnostics.find((item) => item.code === code);
 
+test("direct findings keep program suppression anchors without boilerplate header links", async () => {
+  const result = await analyze("+PROG SOFILOAD\nLC 1\nLINE P1 1.00.0\nEND\n");
+  const found = issue(result, "G310");
+  assert.ok(found);
+  assert.deepEqual(found.range, range(2, 8, 14));
+  assert.deepEqual(found.data.programAnchor, { uri, range: range(0, 0, 14) });
+  assert.equal(found.relatedInformation, undefined);
+  const suppressed = await analyze("+PROG SOFILOAD ! noqa: G310\nLC 1\nLINE P1 1.00.0\nEND\n");
+  assert.equal(issue(suppressed, "G310"), undefined);
+});
+
 test("precise variable diagnostics preserve UTF-16 columns across CRLF and semicolon records", async () => {
   const prefix = "HEAD 'ą😀'; LET#a ";
   const result = await analyze(`+PROG TEMPLATE\r\n${prefix}#missing\r\nEND\r\n`);

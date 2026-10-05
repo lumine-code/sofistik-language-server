@@ -64,7 +64,8 @@ test("known numeric named and positional parameters highlight only the malformed
     assert.equal(issues[0].uri, uri);
     assert.equal(selectedText(text, issues[0].range), "1.00.0", body);
     assert.equal(issues[0].data.recordOrigin.range.start.line, 1);
-    assert.ok(issues[0].relatedInformation.some((item) => item.location.range.start.line === 0));
+    assert.equal(issues[0].relatedInformation, undefined);
+    assert.equal(issues[0].data.programAnchor.range.start.line, 0);
   }
 });
 
