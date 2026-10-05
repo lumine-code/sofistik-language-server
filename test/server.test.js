@@ -8,6 +8,8 @@ const { LspClient } = require("./lsp-client");
 
 const SOURCE = "+PROG ASE\nHEAD 'Example ą😀'\nLET#size 1\nGRP NO #size VAL FULL\nEND\n";
 const params = (uri, line, character) => ({ textDocument: { uri }, position: { line, character } });
+const flattenSymbols = (symbols) =>
+  symbols.flatMap((symbol) => [symbol, ...flattenSymbols(symbol.children ?? [])]);
 
 async function fixture(t, definition = "SOF_VERSION = 2026\nSOF_LANGUAGE = EN\n") {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-lsp-"));
@@ -48,7 +50,7 @@ test("real stdio server exercises advertised language features and incremental l
   assert.match(signatures.signatures[0].label, /^GRP NO VAL /);
   assert.equal(signatures.activeParameter, 1);
   const symbols = await client.request("textDocument/documentSymbol", { textDocument: { uri } });
-  assert.ok(symbols.some((item) => item.name.toLowerCase() === "size"));
+  assert.ok(flattenSymbols(symbols).some((item) => item.name.toLowerCase() === "size"));
   const workspace = await client.request("workspace/symbol", { query: "siz" });
   assert.ok(workspace.some((item) => item.location.uri === uri));
   const definitions = await client.request("textDocument/definition", params(uri, 3, 10));
@@ -200,7 +202,7 @@ test("sibling definition changes invalidate enums; file headers never override f
   const diagnostics = await client.request("textDocument/diagnostic", { textDocument: { uri } });
   assert.ok(diagnostics.items.some((item) => item.code === "unsupported-project-version"));
   const symbols = await client.request("textDocument/documentSymbol", { textDocument: { uri } });
-  assert.ok(symbols.some((item) => item.name.toLowerCase() === "size"));
+  assert.ok(flattenSymbols(symbols).some((item) => item.name.toLowerCase() === "size"));
   await fs.writeFile(definitionPath, "SOF_VERSION = 2026\n");
   client.notify("workspace/didChangeWatchedFiles", {
     changes: [{ uri: pathToFileURL(definitionPath).href, type: 2 }],

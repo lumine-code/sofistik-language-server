@@ -8,7 +8,7 @@ Provides SOFiSTiK CADINP language services over LSP.
 
 - **Context finder**: indexes logical records in JavaScript without Tree-sitter, WebAssembly or native modules.
 - **Language information**: preserves schema order in completion, shows record keys, compact parameter positions and declaration previews on hover, and provides ordered record signatures.
-- **Navigation**: finds document and workspace symbols, variable and macro definitions, references and static include targets.
+- **Navigation**: shows document symbols as programs containing commands and declarations, and finds workspace symbols, variable and macro definitions, references and static include targets.
 - **Indexing progress**: reports background workspace indexing and file counts through standard LSP work-done progress while open-buffer language features remain available.
 - **Diagnostics**: reports unsupported file releases and confidently identified structural problems.
 - **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.
@@ -42,6 +42,8 @@ The server consumes the `sofistik` workspace configuration section: `textCase` i
 Closed inputs and include fragments retain a compact navigation index; full token indexes are kept only for open documents. Inputs larger than 32 MiB are excluded from language services to prevent generated outputs from exhausting the server's memory. Skipped disk inputs are reported in the server log, and opening an oversized input shows a diagnostic. Reducing its size restores language services automatically.
 
 Semantic tokens classify only confidently resolved, unquoted enum values as `enumMember`. Quoted values keep the editor grammar's string highlighting. Dynamic includes, CDB values and unevaluated preprocessing may leave navigation ambiguous; this finder does not execute CADINP or replace the calculation programs' validation.
+
+Document symbols use a PROG → command hierarchy with complete structural ranges and precise name selections. Repeated explicit commands remain separate entries, while omitted-keyword rows, tables and `$$` continuations belong to the preceding command. Recognized module tails after END remain within their program, and incomplete programs end at the next header, root statement or end of the buffer. Comments, quoted text and TEXT prose do not create command entries. Commented `$PROG` headers form a scope boundary without a visible program entry. Variable and macro declarations remain available within their containing program or command; workspace symbols and definition lookup retain their declaration-based behavior.
 
 Parameter hover shows the record context and positional slot on its first line, such as `ASE · GRP · VAL /2`, followed by the complete catalogue enum list when available. Values following a named parameter advance through the subsequent slots: `GRP NUMB 57 OFF SPRI` in WING resolves to `NUMB /1`, `OPTI /2` and `ETYP /3`. Comma-separated alternatives share one slot: both `BEAM` and `GLN` in `GRP NUMB 31+#grp YES BEAM,GLN` are `ETYP /3`, with separate completion, hover and enum tokens. Lists wrap naturally without truncation. Release, language and raw catalogue type codes are omitted. A uniquely resolved variable or macro reference shows its source declaration instead; modules, record names and empty space do not produce metadata-only tooltips.
 
