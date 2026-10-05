@@ -85,6 +85,7 @@ Source ranges identify the original variable, proven invalid value or record, ev
 | G307 | Native control branch or terminator conflicts with the open IF/LOOP structure. |
 | G308 | IF or ELSEIF has no condition expression. Bare LOOP retains its documented default bound. |
 | G309 | Native IF/LOOP remains open at a confirmed program boundary. Intermediate END does not close its scope. |
+| G310 | A number-like atom has repeated decimal points in its mantissa, such as 1.00.0, 1..2 or .1.2. |
 | SL001 | SOFILOAD loading record without an active load case. |
 | SL002 | SOFILOAD supplementary LTD record without a task. |
 | SL003 | SOFILOAD LTD MOD without a known source selection. |
@@ -96,6 +97,8 @@ Source ranges identify the original variable, proven invalid value or record, ev
 Native control checks run only for the verified releases. They inspect structure without evaluating CADINP conditions, preserve controls across intermediate END input blocks, and stop claiming certainty when expansion or runtime input can change that structure. Bare LOOP is valid with its documented default iteration limit. G307 relates a conflicting closer or branch to its opener; G309 selects the unclosed opener. The new module families likewise check only definite local values or known task state: zero bedding/load defaults stay inactive, BET suppresses the legacy ALF check, and moving-load position styles reset at TASK, END and PROG boundaries.
 
 ## ERR-derived module rules
+
+G310 scans numeric atoms in definite numeric fields, LET/STO assignments, array indices, conditions and UNIT input after preprocessing. It uses native source prefixes to exclude identifiers and text that share the generic keyword kind. Arithmetic operators, generation, repetition, trailing decimal points, strings, comments and unit contents do not become guessed errors. Incomplete or repeated exponent syntax is outside this rule: native CADINP accepts some forms such as 1E+ and changes others in variable-expression mode. A malformed atom retains its complete source range while long messages and finding counts stay bounded.
 
 A rule listed for a release still requires its language's native command and parameter bindings to exist in that release's schema. Source values, implicit units and control-flow states that cannot be resolved from text remain unknown; they do not become guessed defaults.
 

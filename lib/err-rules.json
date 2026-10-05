@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "ruleVersion": 3,
+  "ruleVersion": 4,
   "releases": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
   "modulePrefixes": {
     "BASIC": "G",

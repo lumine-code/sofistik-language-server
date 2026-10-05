@@ -30261,5 +30261,134 @@
     "Empty-stack orphan closers now retain G305 but are checked in the expanded control stack; raw FinderIndex diagnostics remain available to its direct consumers and are filtered by the live lint service. Nonempty mismatches and duplicate/late branches are also evaluated after preprocessing.",
     "Unknown expansions or runtimeAPPLY suppress downstream syntax certainty until an explicit nextPROG. Disabled programs and opaqueTEXT/legacytext bodies do not create control-stack frames.",
     "Checks are independent of variable-flow branch analysis and do not evaluate CADINP arithmetic."
-  ]
+  ],
+  "numericSyntaxReview": {
+    "scope": "Repeated decimal points in a numeric mantissa only; no expression evaluation or general exponent validation.",
+    "schema": "Source nativePrefix preserved before kind normalization: numerical-looking tokens in blank/apostrophe fields are checked, opaque names and text excluded.",
+    "binary": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/sps.exe",
+    "reportedVersion": "2026-6.0.879",
+    "program": "TEMPLATE",
+    "args": ["-B", "-R"],
+    "exitStatusNote": "-R continues on errors and SPS exits0 despite individual expression failures; validity was taken from per-case errors/results.",
+    "probes": [
+      {
+        "label": "CASE0",
+        "expression": "1.00.0",
+        "errors": [12102, 12101],
+        "values": []
+      },
+      {
+        "label": "CASE1",
+        "expression": "1..2",
+        "errors": [12102, 12101],
+        "values": []
+      },
+      {
+        "label": "CASE3",
+        "expression": "1E",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "1.000"
+          }
+        ]
+      },
+      {
+        "label": "CASE4",
+        "expression": "1E+",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "1.000"
+          }
+        ]
+      },
+      {
+        "label": "CASE5",
+        "expression": "1E2E3",
+        "errors": [10133, 12101],
+        "values": []
+      },
+      {
+        "label": "CASE8",
+        "expression": "120.+12.",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "132.0"
+          }
+        ]
+      },
+      {
+        "label": "CASE9",
+        "expression": "1.0-3",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "-2.000"
+          }
+        ]
+      },
+      {
+        "label": "E3 AND E VARIABLES DEFINED",
+        "expression": "1E2E3",
+        "errors": [10133, 12101],
+        "values": []
+      },
+      {
+        "label": "E3 AND E VARIABLES DEFINED",
+        "expression": "=1E2E3",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "2.000"
+          }
+        ]
+      },
+      {
+        "label": "EXTRA0",
+        "expression": "=1.00.0",
+        "errors": [12102, 12101],
+        "values": []
+      },
+      {
+        "label": "EXTRA1",
+        "expression": "=1..2",
+        "errors": [12102, 12101],
+        "values": []
+      },
+      {
+        "label": "EXTRA3",
+        "expression": "1E-",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "1.000"
+          }
+        ]
+      },
+      {
+        "label": "EXTRA4",
+        "expression": "1E+-2",
+        "errors": [],
+        "values": [
+          {
+            "index": 0,
+            "formatted": "-1.000"
+          }
+        ]
+      }
+    ],
+    "manual": {
+      "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/cadinp_1.pdf",
+      "sections": ["1.1.4", "1.2.11", "1.2.12", "1.2.13", "1.2.16"]
+    },
+    "bounds": "At most100 findings per record; message literal excerpt at most64 UTF16 units; source range is not truncated."
+  }
 }

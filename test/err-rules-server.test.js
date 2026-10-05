@@ -181,3 +181,43 @@ test("orphan controls are checked only after preprocessing and inherit program N
     false,
   );
 });
+
+test("numeric syntax findings point to a macro use and respect per-line suppression", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const source = "#DEFINE value = 1.00.0\n+PROG SOFIMSHC\nSPT NO 1 X $(value) Y 2\nEND\n";
+  client.open(uri, source);
+  const issue = (await diagnostics()).find(({ code }) => code === "G310");
+  assert.ok(issue);
+  assert.equal(issue.data.rule, "invalid-number");
+  assert.deepEqual(issue.range, {
+    start: { line: 2, character: 11 },
+    end: { line: 2, character: 19 },
+  });
+  assert.ok(issue.relatedInformation.some(({ location }) => location.range.start.line === 0));
+  client.change(uri, [{ text: source.replace(" Y 2", " Y 2 ! noqa: G310") }], 2);
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "G310"),
+    false,
+  );
+  client.change(uri, [{ text: source.replace("1.00.0", "1.0") }], 3);
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "G310"),
+    false,
+  );
+});
+
+test("native slot prefixes keep numeric-looking names separate from numeric values", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  client.open(uri, "+PROG SOFIMSHC\nGAX ID axis TYPE AXIS\nGAXV NAME 1.00.0 VAL 1\nEND\n");
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "G310"),
+    false,
+  );
+  client.change(uri, [{ text: "+PROG SOFILOAD\nLC NO 1 FACT 1.00.0\nEND\n" }], 2);
+  const issue = (await diagnostics()).find(({ code }) => code === "G310");
+  assert.ok(issue);
+  assert.deepEqual(issue.range, {
+    start: { line: 1, character: 13 },
+    end: { line: 1, character: 19 },
+  });
+});
