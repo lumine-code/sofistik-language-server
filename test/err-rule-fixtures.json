@@ -1,0 +1,5416 @@
+{
+  "aqb-and-requires-combination": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "EXTR": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG AQB\nCOMB EXTR AND LC1 1\nEND"],
+          "valid": ["+PROG AQB\nCOMB EXTR MAX LC1 1\nCOMB EXTR AND LC1 2\nEND"],
+          "dynamic": ["+PROG AQB\nCOMB EXTR #mode LC1 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG AQB\nKOMB EXTR UND LF1 1\nENDE"],
+          "valid": ["+PROG AQB\nKOMB EXTR MAX LF1 1\nKOMB EXTR UND LF1 2\nENDE"],
+          "dynamic": ["+PROG AQB\nKOMB EXTR #mode LF1 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "aqb-creep-humidity-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["EIGE"],
+        "de": ["EIGE"]
+      },
+      "parameters": {
+        "RH": {
+          "en": "RH",
+          "de": "RH"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG AQB\nEIGE RH 110\nEND"],
+          "valid": ["+PROG AQB\nEIGE RH 50\nEND"],
+          "dynamic": ["+PROG AQB\nEIGE RH #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG AQB\nEIGE RH 110\nENDE"],
+          "valid": ["+PROG AQB\nEIGE RH 50\nENDE"],
+          "dynamic": ["+PROG AQB\nEIGE RH #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "aqb-creep-temperature-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["EIGE"],
+        "de": ["EIGE"]
+      },
+      "parameters": {
+        "TEMP": {
+          "en": "TEMP",
+          "de": "TEMP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG AQB\nEIGE TEMP 90\nEND"],
+          "valid": ["+PROG AQB\nEIGE TEMP 20\nEND"],
+          "dynamic": ["+PROG AQB\nEIGE TEMP #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG AQB\nEIGE TEMP 90\nENDE"],
+          "valid": ["+PROG AQB\nEIGE TEMP 20\nENDE"],
+          "dynamic": ["+PROG AQB\nEIGE TEMP #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "aqb-creep-extremum-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB", "EIGE"],
+        "de": ["KOMB", "EIGE"]
+      },
+      "parameters": {
+        "EXTR": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG AQB\nCOMB EXTR GMAX LC1 1\nEIGE PHI 1\nEND"],
+          "valid": ["+PROG AQB\nCOMB EXTR MAX LC1 1\nEIGE PHI 1\nEND"],
+          "dynamic": ["+PROG AQB\nCOMB EXTR #mode LC1 1\nEIGE PHI 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG AQB\nKOMB EXTR GMAX LF1 1\nEIGE PHI 1\nENDE"],
+          "valid": ["+PROG AQB\nKOMB EXTR MAX LF1 1\nEIGE PHI 1\nENDE"],
+          "dynamic": ["+PROG AQB\nKOMB EXTR #mode LF1 1\nEIGE PHI 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "vertex-without-polygon": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["POLY", "VERT"],
+        "de": ["QPOL", "QP"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG AQUA\nSECT 1\nVERT Y 0 Z 0\nEND"],
+          "valid": ["+PROG AQUA\nSECT 1\nPOLY\nVERT Y 0 Z 0\nEND"],
+          "dynamic": ["+PROG AQUA\nSECT 1\n$(polygon)\nVERT Y 0 Z 0\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG AQUA\nQNR 1\nQP Y 0 Z 0\nENDE"],
+          "valid": ["+PROG AQUA\nQNR 1\nQPOL\nQP Y 0 Z 0\nENDE"],
+          "dynamic": ["+PROG AQUA\nQNR 1\n$(polygon)\nQP Y 0 Z 0\nENDE"]
+        }
+      }
+    }
+  ],
+  "ase-step-storage-single-step": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["STEP"],
+        "de": ["STEP"]
+      },
+      "parameters": {
+        "N": {
+          "en": "N",
+          "de": "N"
+        },
+        "LCST": {
+          "en": "LCST",
+          "de": "LFSP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG ASE\nSTEP N 2 DT 0.1 LCST 100\nEND"],
+          "valid": ["+PROG ASE\nSTEP N 1 DT 0.1 LCST 100\nEND"],
+          "dynamic": [
+            "+PROG ASE\nSTEP N #n DT 0.1 LCST 100\nEND",
+            "+PROG ASE\nSTEP N 1.3 DT 0.1 LCST 100\nEND"
+          ]
+        },
+        "de": {
+          "invalid": ["+PROG ASE\nSTEP N 2 DT 0.1 LFSP 100\nENDE"],
+          "valid": ["+PROG ASE\nSTEP N 1 DT 0.1 LFSP 100\nENDE"],
+          "dynamic": [
+            "+PROG ASE\nSTEP N #n DT 0.1 LFSP 100\nENDE",
+            "+PROG ASE\nSTEP N 1.3 DT 0.1 LFSP 100\nENDE"
+          ]
+        }
+      }
+    }
+  ],
+  "ase-launch-translation-rotation-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LAUN"],
+        "de": ["TAKT"]
+      },
+      "parameters": {
+        "DX": {
+          "en": "DX",
+          "de": "DX"
+        },
+        "PHI": {
+          "en": "PHI",
+          "de": "PHI"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG ASE\nLAUN GRP 1 DX 1 PHI 10\nEND"],
+          "valid": ["+PROG ASE\nLAUN GRP 1 PHI 10\nEND"],
+          "dynamic": ["+PROG ASE\nLAUN GRP 1 DX #dx PHI 10\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG ASE\nTAKT GRP 1 DX 1 PHI 10\nENDE"],
+          "valid": ["+PROG ASE\nTAKT GRP 1 PHI 10\nENDE"],
+          "dynamic": ["+PROG ASE\nTAKT GRP 1 DX #dx PHI 10\nENDE"]
+        }
+      }
+    }
+  ],
+  "ase-launch-axis-overdefined": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LAUN"],
+        "de": ["TAKT"]
+      },
+      "parameters": {
+        "XM": {
+          "en": "XM",
+          "de": "XM"
+        },
+        "YM": {
+          "en": "YM",
+          "de": "YM"
+        },
+        "ZM": {
+          "en": "ZM",
+          "de": "ZM"
+        },
+        "PHI": {
+          "en": "PHI",
+          "de": "PHI"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG ASE\nLAUN GRP 1 PHI 10 XM 0 YM 0 ZM 0\nEND"],
+          "valid": ["+PROG ASE\nLAUN GRP 1 PHI 10 XM 0 YM 0\nEND"],
+          "dynamic": ["+PROG ASE\nLAUN GRP 1 PHI #angle XM 0 YM 0 ZM 0\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG ASE\nTAKT GRP 1 PHI 10 XM 0 YM 0 ZM 0\nENDE"],
+          "valid": ["+PROG ASE\nTAKT GRP 1 PHI 10 XM 0 YM 0\nENDE"],
+          "dynamic": ["+PROG ASE\nTAKT GRP 1 PHI #angle XM 0 YM 0 ZM 0\nENDE"]
+        }
+      }
+    }
+  ],
+  "bdk-system-factor-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CTRL"],
+        "de": ["STEU"]
+      },
+      "parameters": {
+        "SFAC": {
+          "en": "SFAC",
+          "de": "SFAK"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BDK\nCTRL SFAC 0.5\nEND"],
+          "valid": ["+PROG BDK\nCTRL SFAC 1\nEND"],
+          "dynamic": ["+PROG BDK\nCTRL SFAC #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BDK\nSTEU SFAK 0.5\nENDE"],
+          "valid": ["+PROG BDK\nSTEU SFAK 1\nENDE"],
+          "dynamic": ["+PROG BDK\nSTEU SFAK #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-minimum-reinforcement-factor-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["MREI"],
+        "de": ["MBEW"]
+      },
+      "parameters": {
+        "FFCT": {
+          "en": "FFCT",
+          "de": "FFCT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nMREI FFCT 1.1\nEND"],
+          "valid": ["+PROG BEMESS\nMREI FFCT 0.5\nEND"],
+          "dynamic": ["+PROG BEMESS\nMREI FFCT #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nMBEW FFCT 1.1\nENDE"],
+          "valid": ["+PROG BEMESS\nMBEW FFCT 0.5\nENDE"],
+          "dynamic": ["+PROG BEMESS\nMBEW FFCT #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-minimum-reinforcement-k-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["MREI"],
+        "de": ["MBEW"]
+      },
+      "parameters": {
+        "K": {
+          "en": "K",
+          "de": "K"
+        },
+        "KC": {
+          "en": "KC",
+          "de": "KC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nMREI FFCT 0.5 K 0.01 KC 0.5\nEND"],
+          "valid": ["+PROG BEMESS\nMREI FFCT 0.5 K 0.5 KC 0.5\nEND"],
+          "dynamic": ["+PROG BEMESS\nMREI FFCT 0.5 K #k KC 0.5\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nMBEW FFCT 0.5 K 0.01 KC 0.5\nENDE"],
+          "valid": ["+PROG BEMESS\nMBEW FFCT 0.5 K 0.5 KC 0.5\nENDE"],
+          "dynamic": ["+PROG BEMESS\nMBEW FFCT 0.5 K #k KC 0.5\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-control-load-safety-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CTRL"],
+        "de": ["STEU"]
+      },
+      "parameters": {
+        "GALF": {
+          "en": "GALF",
+          "de": "GALF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nCTRL GALF 0.4\nEND"],
+          "valid": ["+PROG BEMESS\nCTRL GALF 1\nEND"],
+          "dynamic": ["+PROG BEMESS\nCTRL GALF #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nSTEU GALF 0.4\nENDE"],
+          "valid": ["+PROG BEMESS\nSTEU GALF 1\nENDE"],
+          "dynamic": ["+PROG BEMESS\nSTEU GALF #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-di3d-axis-overdefined": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DI3D"],
+        "de": ["RI3D"]
+      },
+      "parameters": {
+        "X": {
+          "en": "X",
+          "de": "X"
+        },
+        "Y": {
+          "en": "Y",
+          "de": "Y"
+        },
+        "Z": {
+          "en": "Z",
+          "de": "Z"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nDI3D X 1 Y 1 Z 1\nEND"],
+          "valid": ["+PROG BEMESS\nDI3D X 1 Y 1\nEND"],
+          "dynamic": ["+PROG BEMESS\nDI3D X #x Y 1 Z 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nRI3D X 1 Y 1 Z 1\nENDE"],
+          "valid": ["+PROG BEMESS\nRI3D X 1 Y 1\nENDE"],
+          "dynamic": ["+PROG BEMESS\nRI3D X #x Y 1 Z 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-material-positive-values": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["MAT"],
+        "de": ["MAT"]
+      },
+      "parameters": {
+        "FC": {
+          "en": "FC",
+          "de": "FC"
+        },
+        "FY": {
+          "en": "FY",
+          "de": "FY"
+        },
+        "S2": {
+          "en": "S2",
+          "de": "S2"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nMAT FC -20 FY 500 S2 2\nEND"],
+          "valid": ["+PROG BEMESS\nMAT FC 20 FY 500 S2 2\nEND"],
+          "dynamic": ["+PROG BEMESS\nMAT FC #fc FY 500 S2 2\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nMAT FC -20 FY 500 S2 2\nENDE"],
+          "valid": ["+PROG BEMESS\nMAT FC 20 FY 500 S2 2\nENDE"],
+          "dynamic": ["+PROG BEMESS\nMAT FC #fc FY 500 S2 2\nENDE"]
+        }
+      }
+    }
+  ],
+  "bemess-material-c1-sign": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["MAT"],
+        "de": ["MAT"]
+      },
+      "parameters": {
+        "C1": {
+          "en": "C1",
+          "de": "C1"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG BEMESS\nMAT C1 2\nEND"],
+          "valid": ["+PROG BEMESS\nMAT C1 -2\nEND"],
+          "dynamic": ["+PROG BEMESS\nMAT C1 #strain\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG BEMESS\nMAT C1 2\nENDE"],
+          "valid": ["+PROG BEMESS\nMAT C1 -2\nENDE"],
+          "dynamic": ["+PROG BEMESS\nMAT C1 #strain\nENDE"]
+        }
+      }
+    }
+  ],
+  "column-fire-class-supported": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["FIRE"],
+        "de": ["FIRE"]
+      },
+      "parameters": {
+        "R": {
+          "en": "R",
+          "de": "R"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COLUMN\nFIRE R 45\nEND"],
+          "valid": ["+PROG COLUMN\nFIRE R 60\nEND"],
+          "dynamic": ["+PROG COLUMN\nFIRE R #rating\nEND", "+PROG COLUMN\nFIRE R 45.2\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COLUMN\nFIRE R 45\nENDE"],
+          "valid": ["+PROG COLUMN\nFIRE R 60\nENDE"],
+          "dynamic": ["+PROG COLUMN\nFIRE R #rating\nENDE", "+PROG COLUMN\nFIRE R 45.2\nENDE"]
+        }
+      }
+    }
+  ],
+  "composite-uls-check-conflict": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "CHEC": {
+          "en": "CHEC",
+          "de": "CHEC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE ULS CHEC PERM\nEND"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE ULS CHEC BOTH\nEND"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE #task CHEC PERM\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE ULS CHEC PERM\nENDE"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE ULS CHEC BOTH\nENDE"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE #task CHEC PERM\nENDE"]
+        }
+      }
+    }
+  ],
+  "composite-sls-check-conflict": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "CHEC": {
+          "en": "CHEC",
+          "de": "CHEC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC PLAS\nEND"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nEND"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE #task CHEC PLAS\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC PLAS\nENDE"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nENDE"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE #task CHEC PLAS\nENDE"]
+        }
+      }
+    }
+  ],
+  "composite-crack-width-choice": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "CHEC": {
+          "en": "CHEC",
+          "de": "CHEC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC 0.5\nEND"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC 0.3\nEND"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC #width\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC 0.5\nENDE"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC 0.3\nENDE"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE CRAC CHEC #width\nENDE"]
+        }
+      }
+    }
+  ],
+  "composite-tension-stiffening-beta-range": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TS", "TASK"],
+        "de": ["TS", "TASK"]
+      },
+      "parameters": {
+        "BETA": {
+          "en": "BETA",
+          "de": "BETA"
+        },
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA 1.2\nEND"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA 0.5\nEND"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA 1.2\nENDE"],
+          "valid": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA 0.5\nENDE"],
+          "dynamic": ["+PROG COMPOSITE\nTASK TYPE SLS CHEC RARE\nTS BETA #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "composite-properties-without-selection": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["SELP", "SEL"],
+        "de": ["SELP", "SEL"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG COMPOSITE\nSELP XW 0.5\nEND"],
+          "valid": ["+PROG COMPOSITE\nSEL NO ALL\nSELP XW 0.5\nEND"],
+          "dynamic": ["+PROG COMPOSITE\n$(selection)\nSELP XW 0.5\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG COMPOSITE\nSELP XW 0.5\nENDE"],
+          "valid": ["+PROG COMPOSITE\nSEL NO ALL\nSELP XW 0.5\nENDE"],
+          "dynamic": ["+PROG COMPOSITE\n$(selection)\nSELP XW 0.5\nENDE"]
+        }
+      }
+    }
+  ],
+  "csa-load-set-number-positive": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["LSET"],
+        "de": ["LSET"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NO"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO 0 N 1\nEND"],
+          "valid": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO 1 N 1\nEND"],
+          "dynamic": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO #set N 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO 0 N 1\nENDE"],
+          "valid": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO 1 N 1\nENDE"],
+          "dynamic": ["+PROG CSA\nTASK TYPE CAPA\nLSET NO #set N 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "csm-safety-factor-pair": [
+    {
+      "versions": ["2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GAMT"],
+        "de": ["GAMT"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "GAMU": {
+          "en": "GAMU",
+          "de": "GAMU"
+        },
+        "GAMF": {
+          "en": "GAMF",
+          "de": "GAMF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSM\nGAMT TYPE G GAMU 1.35\nEND"],
+          "valid": ["+PROG CSM\nGAMT TYPE G GAMU 1.35 GAMF 1\nEND"],
+          "dynamic": ["+PROG CSM\nGAMT TYPE G GAMU #gamma\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSM\nGAMT TYP G GAMU 1.35\nENDE"],
+          "valid": ["+PROG CSM\nGAMT TYP G GAMU 1.35 GAMF 1\nENDE"],
+          "dynamic": ["+PROG CSM\nGAMT TYP G GAMU #gamma\nENDE"]
+        }
+      }
+    }
+  ],
+  "csm-equilibrium-max-factor": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["EQIT"],
+        "de": ["EQIT"]
+      },
+      "parameters": {
+        "FMAX": {
+          "en": "FMAX",
+          "de": "FMAX"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSM\nEQIT FMAX 1.1\nEND"],
+          "valid": ["+PROG CSM\nEQIT FMAX 1\nEND"],
+          "dynamic": ["+PROG CSM\nEQIT FMAX #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSM\nEQIT FMAX 1.1\nENDE"],
+          "valid": ["+PROG CSM\nEQIT FMAX 1\nENDE"],
+          "dynamic": ["+PROG CSM\nEQIT FMAX #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "csm-construction-stage-reserved-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CS"],
+        "de": ["BA"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSM\nCS NO 999 TYPE G\nEND"],
+          "valid": ["+PROG CSM\nCS NO 1 TYPE G\nEND"],
+          "dynamic": ["+PROG CSM\nCS NO #stage TYPE G\nEND", "+PROG CSM\nCS NO 999.1 TYPE G\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSM\nBA NR 999 TYP G\nENDE"],
+          "valid": ["+PROG CSM\nBA NR 1 TYP G\nENDE"],
+          "dynamic": ["+PROG CSM\nBA NR #stage TYP G\nENDE", "+PROG CSM\nBA NR 999.1 TYP G\nENDE"]
+        }
+      }
+    }
+  ],
+  "csm-stage-cantilever-mode": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CS"],
+        "de": ["BA"]
+      },
+      "parameters": {
+        "CANT": {
+          "en": "CANT",
+          "de": "KRAG"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSM\nCS NO 1 CANT 10\nEND"],
+          "valid": ["+PROG CSM\nCS NO 1 CANT 2\nEND"],
+          "dynamic": ["+PROG CSM\nCS NO 1 CANT #mode\nEND", "+PROG CSM\nCS NO 1 CANT 10.3\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSM\nBA NR 1 KRAG 10\nENDE"],
+          "valid": ["+PROG CSM\nBA NR 1 KRAG 2\nENDE"],
+          "dynamic": ["+PROG CSM\nBA NR 1 KRAG #mode\nENDE", "+PROG CSM\nBA NR 1 KRAG 10.3\nENDE"]
+        }
+      }
+    }
+  ],
+  "csm-variable-temperature-height-conflict": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["TEMP"],
+        "de": ["TEMP"]
+      },
+      "parameters": {
+        "MODE": {
+          "en": "MODE",
+          "de": "MODE"
+        },
+        "HM": {
+          "en": "HM",
+          "de": "HM"
+        },
+        "SM": {
+          "en": "SM",
+          "de": "SM"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG CSM\nTEMP LC 1 MODE ZVAR HM 100\nEND"],
+          "valid": ["+PROG CSM\nTEMP LC 1 MODE ZVAR\nEND"],
+          "dynamic": ["+PROG CSM\nTEMP LC 1 MODE #mode HM 100\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG CSM\nTEMP LF 1 MODE ZVAR HM 100\nENDE"],
+          "valid": ["+PROG CSM\nTEMP LF 1 MODE ZVAR\nENDE"],
+          "dynamic": ["+PROG CSM\nTEMP LF 1 MODE #mode HM 100\nENDE"]
+        }
+      }
+    }
+  ],
+  "dyna-transient-spectrum-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["RESP", "STEP"],
+        "de": ["RESP", "STEP"]
+      },
+      "parameters": {
+        "N": {
+          "en": "N",
+          "de": "N"
+        },
+        "INT": {
+          "en": "INT",
+          "de": "INT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG DYNA\nSTEP N 10 DT 0.1 INT TIME\nRESP TYPE USER\nEND"],
+          "valid": ["+PROG DYNA\nSTEP N 10 DT 0.1 INT TIME\nEND"],
+          "dynamic": ["+PROG DYNA\nSTEP N #n DT 0.1 INT TIME\nRESP TYPE USER\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG DYNA\nSTEP N 10 DT 0.1 INT TIME\nRESP TYP USER\nENDE"],
+          "valid": ["+PROG DYNA\nSTEP N 10 DT 0.1 INT TIME\nENDE"],
+          "dynamic": ["+PROG DYNA\nSTEP N #n DT 0.1 INT TIME\nRESP TYP USER\nENDE"]
+        }
+      }
+    }
+  ],
+  "dynr-response-damping-negative": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["RESP"],
+        "de": ["RESP"]
+      },
+      "parameters": {
+        "D1": {
+          "en": "D1",
+          "de": "D1"
+        },
+        "D2": {
+          "en": "D2",
+          "de": "D2"
+        },
+        "D3": {
+          "en": "D3",
+          "de": "D3"
+        },
+        "D4": {
+          "en": "D4",
+          "de": "D4"
+        },
+        "D5": {
+          "en": "D5",
+          "de": "D5"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG DYNR\nRESP TYPE A D1 -0.1\nEND"],
+          "valid": ["+PROG DYNR\nRESP TYPE A D1 0.05\nEND"],
+          "dynamic": ["+PROG DYNR\nRESP TYPE A D1 #damping\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG DYNR\nRESP TYP A D1 -0.1\nENDE"],
+          "valid": ["+PROG DYNR\nRESP TYP A D1 0.05\nENDE"],
+          "dynamic": ["+PROG DYNR\nRESP TYP A D1 #damping\nENDE"]
+        }
+      }
+    }
+  ],
+  "ella-individual-load-without-train": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["TRAI", "TRPL", "TRBL"],
+        "de": ["LZUG", "LZPL", "LZBL"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG ELLA\nLC 1\nTRPL P 1\nEND"],
+          "valid": ["+PROG ELLA\nLC 1\nTRAI TYPE 1\nTRPL P 1\nEND"],
+          "dynamic": ["+PROG ELLA\nLC 1\n$(train)\nTRPL P 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG ELLA\nLF 1\nLZPL P 1\nENDE"],
+          "valid": ["+PROG ELLA\nLF 1\nLZUG TYP 1\nLZPL P 1\nENDE"],
+          "dynamic": ["+PROG ELLA\nLF 1\n$(train)\nLZPL P 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "footing-action-prefix": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ACT"],
+        "de": ["EINW"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "KENN"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FOOTING\nACT TYPE X1 GAMU 1.5\nEND"],
+          "valid": ["+PROG FOOTING\nACT TYPE Q1 GAMU 1.5\nEND"],
+          "dynamic": ["+PROG FOOTING\nACT TYPE #action GAMU 1.5\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG FOOTING\nEINW KENN X1 GAMU 1.5\nENDE"],
+          "valid": ["+PROG FOOTING\nEINW KENN Q1 GAMU 1.5\nENDE"],
+          "dynamic": ["+PROG FOOTING\nEINW KENN #action GAMU 1.5\nENDE"]
+        }
+      }
+    }
+  ],
+  "hase-flex-substructure-selector": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["FLEX"],
+        "de": ["FLEX"]
+      },
+      "parameters": {
+        "NO2": {
+          "en": "NO2",
+          "de": "NR2"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG HASE\nFLEX NO 1 NO1 2 NO2 3\nEND"],
+          "valid": ["+PROG HASE\nFLEX NO 1 NO1 2 NO2 SUBS\nEND"],
+          "dynamic": ["+PROG HASE\nFLEX NO 1 NO1 2 NO2 #category\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG HASE\nFLEX NR 1 NR1 2 NR2 3\nENDE"],
+          "valid": ["+PROG HASE\nFLEX NR 1 NR1 2 NR2 SUBS\nENDE"],
+          "dynamic": ["+PROG HASE\nFLEX NR 1 NR1 2 NR2 #category\nENDE"]
+        }
+      }
+    }
+  ],
+  "hase-internal-external-pile-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PILE", "XPIL"],
+        "de": ["PILE", "XPIL"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG HASE\nPILE X 0 Y 0 D 1\nXPIL GRP 1\nEND"],
+          "valid": ["+PROG HASE\nPILE X 0 Y 0 D 1\nEND"],
+          "dynamic": ["+PROG HASE\n$(pile_commands)\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG HASE\nPILE X 0 Y 0 D 1\nXPIL GRP 1\nENDE"],
+          "valid": ["+PROG HASE\nPILE X 0 Y 0 D 1\nENDE"],
+          "dynamic": ["+PROG HASE\n$(pile_commands)\nENDE"]
+        }
+      }
+    }
+  ],
+  "hydra-boundary-direction-input-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["BOUN"],
+        "de": ["RAND"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "DVX": {
+          "en": "DVX",
+          "de": "DVX"
+        },
+        "DVY": {
+          "en": "DVY",
+          "de": "DVY"
+        },
+        "DVZ": {
+          "en": "DVZ",
+          "de": "DVZ"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG HYDRA\nBOUN TYPE HP VAL 1 DVX 1\nEND"],
+          "valid": ["+PROG HYDRA\nBOUN TYPE HP VAL 1\nEND"],
+          "dynamic": ["+PROG HYDRA\nBOUN TYPE #kind VAL 1 DVX 1\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG HYDRA\nRAND TYP HP VAL 1 DVX 1\nENDE"],
+          "valid": ["+PROG HYDRA\nRAND TYP HP VAL 1\nENDE"],
+          "dynamic": ["+PROG HYDRA\nRAND TYP #kind VAL 1 DVX 1\nENDE"]
+        }
+      }
+    }
+  ],
+  "talpa-construction-group-stiffness-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CGRP"],
+        "de": ["CGRP"]
+      },
+      "parameters": {
+        "FACS": {
+          "en": "FACS",
+          "de": "FAKS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TALPA\nCGRP FACS 1.1\nEND"],
+          "valid": ["+PROG TALPA\nCGRP FACS 0.5\nEND"],
+          "dynamic": ["+PROG TALPA\nCGRP FACS #value\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG TALPA\nCGRP FAKS 1.1\nENDE"],
+          "valid": ["+PROG TALPA\nCGRP FAKS 0.5\nENDE"],
+          "dynamic": ["+PROG TALPA\nCGRP FAKS #value\nENDE"]
+        }
+      }
+    }
+  ],
+  "talpa-in-situ-pressure-ratio-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CGRP"],
+        "de": ["CGRP"]
+      },
+      "parameters": {
+        "ACT": {
+          "en": "ACT",
+          "de": "AKT"
+        },
+        "K": {
+          "en": "K",
+          "de": "K"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TALPA\nCGRP NO 1 ACT SITU K 1\nEND"],
+          "valid": ["+PROG TALPA\nCGRP NO 1 ACT SITU K 0.5\nEND"],
+          "dynamic": ["+PROG TALPA\nCGRP NO 1 ACT SITU K #k\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG TALPA\nCGRP NR 1 AKT SITU K 1\nENDE"],
+          "valid": ["+PROG TALPA\nCGRP NR 1 AKT SITU K 0.5\nENDE"],
+          "dynamic": ["+PROG TALPA\nCGRP NR 1 AKT SITU K #k\nENDE"]
+        }
+      }
+    }
+  ],
+  "talpa-relaxation-factor-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CGRP"],
+        "de": ["CGRP"]
+      },
+      "parameters": {
+        "ACT": {
+          "en": "ACT",
+          "de": "AKT"
+        },
+        "ALPH": {
+          "en": "ALPH",
+          "de": "ALPH"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TALPA\nCGRP NO 1 ACT RLX ALPH 1\nEND"],
+          "valid": ["+PROG TALPA\nCGRP NO 1 ACT RLX ALPH 0.5\nEND"],
+          "dynamic": ["+PROG TALPA\nCGRP NO 1 ACT RLX ALPH #alpha\nEND"]
+        },
+        "de": {
+          "invalid": ["+PROG TALPA\nCGRP NR 1 AKT RLX ALPH 1\nENDE"],
+          "valid": ["+PROG TALPA\nCGRP NR 1 AKT RLX ALPH 0.5\nENDE"],
+          "dynamic": ["+PROG TALPA\nCGRP NR 1 AKT RLX ALPH #alpha\nENDE"]
+        }
+      }
+    }
+  ],
+  "sof-impo-required": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["IMPD"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHA\nIMPD 1 2\nEND\n"],
+          "valid": ["+PROG SOFIMSHA\nIMPO OPT ASC FROM \"source.txt\"\nIMPD 1 2\nEND\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nIMPO OPT ASC FROM \"source.txt\"\nENDIF\nIMPD 1 2\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["IMPO"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["IMPD"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHA\nIMPD 1 2\nENDE\n"],
+          "valid": ["+PROG SOFIMSHA\nIMPO OPT ASC FROM \"source.txt\"\nIMPD 1 2\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nIMPO OPT ASC FROM \"source.txt\"\nENDIF\nIMPD 1 2\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["IMPO"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sof-ctrl-node-before-syst": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CTRL"],
+        "de": []
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHA\nSYST 3D\nCTRL NODE 1\nEND\n"],
+          "valid": ["+PROG SOFIMSHA\nCTRL NODE 1\nSYST 3D\nEND\n"],
+          "dynamic": ["+PROG SOFIMSHA\nLET#option 1\nSYST 3D\nCTRL OPT #option VAL 1\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SYST"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["STEU"]
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHA\nSYST 3D\nSTEU KNOT 1\nENDE\n"],
+          "valid": ["+PROG SOFIMSHA\nSTEU KNOT 1\nSYST 3D\nENDE\n"],
+          "dynamic": ["+PROG SOFIMSHA\nLET#option 1\nSYST 3D\nSTEU OPT #option WERT 1\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SYST"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sof-ubnd-requires-umsh": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["UBND"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHA\nUBND TYPE OUT SEL NODE N1 1 N2 2 N3 3\nEND\n"],
+          "valid": ["+PROG SOFIMSHA\nUMSH TYPE TRI\nUBND TYPE OUT SEL NODE N1 1 N2 2 N3 3\nEND\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nUMSH TYPE TRI\nENDIF\nUBND TYPE OUT SEL NODE N1 1\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["UMSH"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["UBND"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHA\nUBND TYP OUT SEL NODE N1 1 N2 2 N3 3\nENDE\n"],
+          "valid": ["+PROG SOFIMSHA\nUMSH TYP TRI\nUBND TYP OUT SEL NODE N1 1 N2 2 N3 3\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nUMSH TYP TRI\nENDIF\nUBND TYP OUT SEL NODE N1 1\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["UMSH"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sof-bsec-context": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["BSEC"],
+        "de": []
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "X": {
+          "en": "X",
+          "de": "X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHA\nBSEC X 0 NCS 1\nEND\n"],
+          "valid": ["+PROG SOFIMSHA\nBSEC NO 1 X 0 NCS 1\nEND\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nBEAM NO 1 NA 1 NE 2 NCS 1\nENDIF\nBSEC X 0 NCS 1\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["BEAM"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SCHN"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "X": {
+          "en": "X",
+          "de": "X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHA\nSCHN X 0 QNR 1\nENDE\n"],
+          "valid": ["+PROG SOFIMSHA\nSCHN NR 1 X 0 QNR 1\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFIMSHA\nLET#flag 1\nIF #flag\nSTAB NR 1 KA 1 KE 2 QNR 1\nENDIF\nSCHN X 0 QNR 1\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["STAB"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sofimsha-grp-base-gdiv": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GRP"],
+        "de": []
+      },
+      "parameters": {
+        "BASE": {
+          "en": "BASE",
+          "de": "BASE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHA\nSYST 3D GDIV 1000\nGRP NO 1 BASE 100\nEND\n"],
+          "valid": ["+PROG SOFIMSHA\nSYST 3D GDIV 0\nGRP NO 1 BASE 100\nEND\n"],
+          "dynamic": ["+PROG SOFIMSHA\nLET#div 1\nSYST 3D GDIV #div\nGRP NO 1 BASE 100\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SYST"],
+        "de": []
+      },
+      "parameters": {
+        "OBSERVED": {
+          "en": "GDIV",
+          "de": "GDIV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GRUP"]
+      },
+      "parameters": {
+        "BASE": {
+          "en": "BASE",
+          "de": "BASE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHA\nSYST 3D GDIV 1000\nGRUP NR 1 BASE 100\nENDE\n"],
+          "valid": ["+PROG SOFIMSHA\nSYST 3D GDIV 0\nGRUP NR 1 BASE 100\nENDE\n"],
+          "dynamic": ["+PROG SOFIMSHA\nLET#div 1\nSYST 3D GDIV #div\nGRUP NR 1 BASE 100\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SYST"]
+      },
+      "parameters": {
+        "OBSERVED": {
+          "en": "GDIV",
+          "de": "GDIV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sofimshc-grp-base-gdiv": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GRP"],
+        "de": []
+      },
+      "parameters": {
+        "BASE": {
+          "en": "BASE",
+          "de": "BASE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHC\nSYST 3D GDIV 1000\nGRP NO 1 BASE 100\nEND\n"],
+          "valid": ["+PROG SOFIMSHC\nSYST 3D GDIV 0\nGRP NO 1 BASE 100\nEND\n"],
+          "dynamic": ["+PROG SOFIMSHC\nLET#div 1\nSYST 3D GDIV #div\nGRP NO 1 BASE 100\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SYST"],
+        "de": []
+      },
+      "parameters": {
+        "OBSERVED": {
+          "en": "GDIV",
+          "de": "GDIV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GRUP"]
+      },
+      "parameters": {
+        "BASE": {
+          "en": "BASE",
+          "de": "BASE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHC\nSYST 3D GDIV 1000\nGRUP NR 1 BASE 100\nENDE\n"],
+          "valid": ["+PROG SOFIMSHC\nSYST 3D GDIV 0\nGRUP NR 1 BASE 100\nENDE\n"],
+          "dynamic": ["+PROG SOFIMSHC\nLET#div 1\nSYST 3D GDIV #div\nGRUP NR 1 BASE 100\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SYST"]
+      },
+      "parameters": {
+        "OBSERVED": {
+          "en": "GDIV",
+          "de": "GDIV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sof-gax-property-context": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GAXA", "GAXH", "GAXB", "GAXC", "GAXD", "GAXN", "GAXP", "GAXS", "GAXV"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHC\nGAXA S 0 X 0 Y 0\nEND\n"],
+          "valid": ["+PROG SOFIMSHC\nGAX ID axis\nGAXA S 0 X 0 Y 0\nEND\n"],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#flag 1\nIF #flag\nGAX ID axis\nENDIF\nGAXA S 0 X 0 Y 0\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GAX"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GAXA", "GAXH", "GAXB", "GAXC", "GAXD", "GAXN", "GAXP", "GAXS", "GAXV"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHC\nGAXA S 0 X 0 Y 0\nENDE\n"],
+          "valid": ["+PROG SOFIMSHC\nGAX ID axis\nGAXA S 0 X 0 Y 0\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#flag 1\nIF #flag\nGAX ID axis\nENDIF\nGAXA S 0 X 0 Y 0\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GAX"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sof-gar-property-context": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GARA", "GARC", "GARS"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFIMSHC\nGARA X 0 Y 0 Z 0\nEND\n"],
+          "valid": ["+PROG SOFIMSHC\nGAR ID area TYPE PLAN\nGARA X 0 Y 0 Z 0\nEND\n"],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#flag 1\nIF #flag\nGAR ID area TYPE PLAN\nENDIF\nGARA X 0 Y 0 Z 0\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["GAR"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GARA", "GARC", "GARS"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFIMSHC\nGARA X 0 Y 0 Z 0\nENDE\n"],
+          "valid": ["+PROG SOFIMSHC\nGAR ID area TYP PLAN\nGARA X 0 Y 0 Z 0\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#flag 1\nIF #flag\nGAR ID area TYP PLAN\nENDIF\nGARA X 0 Y 0 Z 0\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["GAR"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "sofiload-push-count": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PUSH"],
+        "de": []
+      },
+      "parameters": {
+        "NLCC": {
+          "en": "NLCC",
+          "de": "NLCC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nPUSH NLCC 0\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nPUSH NLCC 1\nEND\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#count 1\nPUSH NLCC #count\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["PUSH"]
+      },
+      "parameters": {
+        "NLCC": {
+          "en": "NLCC",
+          "de": "NLCC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nPUSH NLCC 0\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nPUSH NLCC 1\nENDE\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#count 1\nPUSH NLCC #count\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "sofiload-ltd-srlc-positive": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LTD"],
+        "de": []
+      },
+      "parameters": {
+        "SRLC": {
+          "en": "SRLC",
+          "de": "SRLC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT TASK SRLC 0\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT TASK SRLC 1\nEND\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#load 1\nLTD OPT TASK SRLC #load\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LTD"]
+      },
+      "parameters": {
+        "SRLC": {
+          "en": "SRLC",
+          "de": "SRLC"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT TASK SRLC 0\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT TASK SRLC 1\nENDE\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#load 1\nLTD OPT TASK SRLC #load\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "sofiload-ltd-mod-selection": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LTD"],
+        "de": []
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "SRCT": {
+          "en": "SRCT",
+          "de": "SRCT"
+        },
+        "TRGT": {
+          "en": "TRGT",
+          "de": "TRGT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT MOD SRCT ALL SRC 1 TRGT AUTO TRG 2\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT MOD SRCT SLN SRC 1 TRGT SPT TRG 2\nEND\n"],
+          "dynamic": [
+            "+PROG SOFILOAD\nLET#sourceType 1\nLET#targetType 1\nLTD OPT MOD SRCT #sourceType SRC 1 TRGT #targetType TRG 2\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LTD"]
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "SRCT": {
+          "en": "SRCT",
+          "de": "SRCT"
+        },
+        "TRGT": {
+          "en": "TRGT",
+          "de": "TRGT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT MOD SRCT ALL SRC 1 TRGT AUTO TRG 2\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT MOD SRCT SLN SRC 1 TRGT SPT TRG 2\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFILOAD\nLET#sourceType 1\nLET#targetType 1\nLTD OPT MOD SRCT #sourceType SRC 1 TRGT #targetType TRG 2\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "sofiload-ltd-ign-selection": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LTD"],
+        "de": []
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "SRCT": {
+          "en": "SRCT",
+          "de": "SRCT"
+        },
+        "TRGT": {
+          "en": "TRGT",
+          "de": "TRGT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT IGN SRCT ALL SRC 1\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT IGN SRCT SLN SRC 1\nEND\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#kind 1\nLTD OPT IGN SRCT #kind SRC 1\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LTD"]
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "SRCT": {
+          "en": "SRCT",
+          "de": "SRCT"
+        },
+        "TRGT": {
+          "en": "TRGT",
+          "de": "TRGT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT IGN SRCT ALL SRC 1\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT IGN SRCT SLN SRC 1\nENDE\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#kind 1\nLTD OPT IGN SRCT #kind SRC 1\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "sofiload-ltd-hmom-type": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LTD"],
+        "de": []
+      },
+      "parameters": {
+        "HMOM": {
+          "en": "HMOM",
+          "de": "HMOM"
+        },
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT TASK HMOM AUTO TYPE CONS\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT TASK HMOM AUTO TYPE MOMT\nEND\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#type 1\nLTD OPT TASK HMOM AUTO TYPE #type\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LTD"]
+      },
+      "parameters": {
+        "HMOM": {
+          "en": "HMOM",
+          "de": "HMOM"
+        },
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nLTD OPT TASK HMOM AUTO TYP CONS\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nLTD OPT TASK HMOM AUTO TYP MOMT\nENDE\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#type 1\nLTD OPT TASK HMOM AUTO TYP #type\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "sofiload-trb-number": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["TRB"],
+        "de": []
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nTRB NO 0\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nTRB NO 1\nEND\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#area 1\nTRB NO #area\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": [],
+        "de": ["TRB"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nTRB NR 0\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nTRB NR 1\nENDE\n"],
+          "dynamic": ["+PROG SOFILOAD\nLET#area 1\nTRB NR #area\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "sofiload-trbp-polygon": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["TRBP"],
+        "de": []
+      },
+      "parameters": {
+        "POLY": {
+          "en": "POLY",
+          "de": "POLY"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SOFILOAD\nTRB NO 1\nTRBP X 0 Y 0 Z 0 POLY 0\nEND\n"],
+          "valid": ["+PROG SOFILOAD\nTRB NO 1\nTRBP X 0 Y 0 Z 0 POLY 1\nEND\n"],
+          "dynamic": [
+            "+PROG SOFILOAD\nLET#polygon 1\nTRB NO 1\nTRBP X 0 Y 0 Z 0 POLY #polygon\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": [],
+        "de": ["TRBP"]
+      },
+      "parameters": {
+        "POLY": {
+          "en": "POLY",
+          "de": "POLY"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SOFILOAD\nTRB NR 1\nTRBP X 0 Y 0 Z 0 POLY 0\nENDE\n"],
+          "valid": ["+PROG SOFILOAD\nTRB NR 1\nTRBP X 0 Y 0 Z 0 POLY 1\nENDE\n"],
+          "dynamic": [
+            "+PROG SOFILOAD\nLET#polygon 1\nTRB NR 1\nTRBP X 0 Y 0 Z 0 POLY #polygon\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "tendon-ptuv-radius-positive": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PTUV"],
+        "de": []
+      },
+      "parameters": {
+        "RH": {
+          "en": "RH",
+          "de": "RH"
+        },
+        "RV": {
+          "en": "RV",
+          "de": "RV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nTGEO NOG 1 NOH 1\nPTUV S 0 RH -1\nEND\n"],
+          "valid": ["+PROG TENDON\nTGEO NOG 1 NOH 1\nPTUV S 0 RH 1\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#radius 1\nTGEO NOG 1 NOH 1\nPTUV S 0 RH #radius\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ZPUV"]
+      },
+      "parameters": {
+        "RH": {
+          "en": "RH",
+          "de": "RH"
+        },
+        "RV": {
+          "en": "RV",
+          "de": "RV"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nSGEO NRG 1 NRH 1\nZPUV S 0 RH -1\nENDE\n"],
+          "valid": ["+PROG TENDON\nSGEO NRG 1 NRH 1\nZPUV S 0 RH 1\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#radius 1\nSGEO NRG 1 NRH 1\nZPUV S 0 RH #radius\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-ptuv-radius-slope": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PTUV"],
+        "de": []
+      },
+      "parameters": {
+        "RH": {
+          "en": "RH",
+          "de": "RH"
+        },
+        "RV": {
+          "en": "RV",
+          "de": "RV"
+        },
+        "DUS": {
+          "en": "DUS",
+          "de": "DUS"
+        },
+        "DVS": {
+          "en": "DVS",
+          "de": "DVS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nPTUV S 0 RH 1 DUS 0.2\nEND\n"],
+          "valid": ["+PROG TENDON\nPTUV S 0 RH 1 DUS 0 DVS 0\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#slope 1\nPTUV S 0 RH 1 DUS #slope\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ZPUV"]
+      },
+      "parameters": {
+        "RH": {
+          "en": "RH",
+          "de": "RH"
+        },
+        "RV": {
+          "en": "RV",
+          "de": "RV"
+        },
+        "DUS": {
+          "en": "DUS",
+          "de": "DUS"
+        },
+        "DVS": {
+          "en": "DVS",
+          "de": "DVS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nZPUV S 0 RH 1 DUS 0.2\nENDE\n"],
+          "valid": ["+PROG TENDON\nZPUV S 0 RH 1 DUS 0 DVS 0\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#slope 1\nZPUV S 0 RH 1 DUS #slope\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-ptuv-position-type": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PTUV"],
+        "de": []
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "X": {
+          "en": "X",
+          "de": "X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nPTUV TYPE REFX S 1 X 0.5 U 0\nEND\n"],
+          "valid": ["+PROG TENDON\nPTUV TYPE BEAM S 1 X 0.5 U 0\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#type 1\nPTUV TYPE #type S 1 X 0.5 U 0\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ZPUV"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "X": {
+          "en": "X",
+          "de": "X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nZPUV TYP REFX S 1 X 0.5 U 0\nENDE\n"],
+          "valid": ["+PROG TENDON\nZPUV TYP STAB S 1 X 0.5 U 0\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#type 1\nZPUV TYP #type S 1 X 0.5 U 0\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-axes-kind-type": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["AXES"],
+        "de": []
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "KIND": {
+          "en": "KIND",
+          "de": "ART"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nAXES NOH 1 TYPE BEAM KIND QUAD\nEND\n"],
+          "valid": ["+PROG TENDON\nAXES NOH 1 TYPE POLY KIND QUAD\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#axisType 1\nAXES NOH 1 TYPE #axisType KIND QUAD\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["AXES"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "KIND": {
+          "en": "KIND",
+          "de": "ART"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nAXES NRH 1 TYP STAB ART QUAD\nENDE\n"],
+          "valid": ["+PROG TENDON\nAXES NRH 1 TYP POLY ART QUAD\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#axisType 1\nAXES NRH 1 TYP #axisType ART QUAD\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-load-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LOAD"],
+        "de": []
+      },
+      "parameters": {
+        "LC": {
+          "en": "LC",
+          "de": "LF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nLOAD NOT 1 LC 0\nEND\n"],
+          "valid": ["+PROG TENDON\nLOAD NOT 1 LC 1\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#load 1\nLOAD NOT 1 LC #load\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LAST"]
+      },
+      "parameters": {
+        "LC": {
+          "en": "LC",
+          "de": "LF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nLAST NRS 1 LF 0\nENDE\n"],
+          "valid": ["+PROG TENDON\nLAST NRS 1 LF 1\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#load 1\nLAST NRS 1 LF #load\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-number-range": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["TEND"],
+        "de": []
+      },
+      "parameters": {
+        "NOT": {
+          "en": "NOT",
+          "de": "NRS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nTEND NOT 0 NOG 1\nEND\n"],
+          "valid": ["+PROG TENDON\nTEND NOT 1 NOG 1\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#tendon 1\nTEND NOT #tendon NOG 1\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["TEND"]
+      },
+      "parameters": {
+        "NOT": {
+          "en": "NOT",
+          "de": "NRS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nTEND NRS 0 NRG 1\nENDE\n"],
+          "valid": ["+PROG TENDON\nTEND NRS 1 NRG 1\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#tendon 1\nTEND NRS #tendon NRG 1\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "tendon-size-form": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SIZE"],
+        "de": []
+      },
+      "parameters": {
+        "FORM": {
+          "en": "FORM",
+          "de": "FORM"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TENDON\nSIZE FORM STAN\nEND\n"],
+          "valid": ["+PROG TENDON\nSIZE FORM URS\nEND\n"],
+          "dynamic": ["+PROG TENDON\nLET#form 1\nSIZE FORM #form\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SIZE"]
+      },
+      "parameters": {
+        "FORM": {
+          "en": "FORM",
+          "de": "FORM"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TENDON\nSIZE FORM STAN\nENDE\n"],
+          "valid": ["+PROG TENDON\nSIZE FORM URS\nENDE\n"],
+          "dynamic": ["+PROG TENDON\nLET#form 1\nSIZE FORM #form\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "textile-one-cutt": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["CUTT"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TEXTILE\nCUTT NO 1 LC 1\nCUTT NO 2 LC 1\nEND\n"],
+          "valid": ["+PROG TEXTILE\nCUTT NO 1 LC 1\nEND\nCUTT NO 2 LC 1\nEND\n"],
+          "dynamic": [
+            "+PROG TEXTILE\nLET#flag 1\nIF #flag\nCUTT NO 1 LC 1\nELSE\nCUTT NO 2 LC 1\nENDIF\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["CUTT"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TEXTILE\nCUTT NR 1 LF 1\nCUTT NR 2 LF 1\nENDE\n"],
+          "valid": ["+PROG TEXTILE\nCUTT NR 1 LF 1\nENDE\nCUTT NR 2 LF 1\nENDE\n"],
+          "dynamic": [
+            "+PROG TEXTILE\nLET#flag 1\nIF #flag\nCUTT NR 1 LF 1\nELSE\nCUTT NR 2 LF 1\nENDIF\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "textile-comp-matrix-count": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMP"],
+        "de": []
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "N": {
+          "en": "N",
+          "de": "N"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG TEXTILE\nCOMP TYPE E1 N 1 V1 0\nEND\n"],
+          "valid": ["+PROG TEXTILE\nCOMP TYPE E1 N 2 V1 0 V2 0.01\nEND\n"],
+          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYPE E1 N #count V1 0\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["COMP"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "N": {
+          "en": "N",
+          "de": "N"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG TEXTILE\nCOMP TYP E1 N 1 W1 0\nENDE\n"],
+          "valid": ["+PROG TEXTILE\nCOMP TYP E1 N 2 W1 0 W2 0.01\nENDE\n"],
+          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYP E1 N #count W1 0\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "star-one-desi": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DESI"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG STAR\nDESI\nDESI\nEND\n"],
+          "valid": ["+PROG STAR\nDESI\nEND\nDESI\nEND\n"],
+          "dynamic": ["+PROG STAR\nLET#flag 1\nIF #flag\nDESI\nELSE\nDESI\nENDIF\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["BEME"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG STAR\nBEME\nBEME\nENDE\n"],
+          "valid": ["+PROG STAR\nBEME\nENDE\nBEME\nENDE\n"],
+          "dynamic": ["+PROG STAR\nLET#flag 1\nIF #flag\nBEME\nELSE\nBEME\nENDIF\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "star-one-nstr": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["NSTR"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG STAR\nNSTR\nNSTR\nEND\n"],
+          "valid": ["+PROG STAR\nNSTR\nEND\nNSTR\nEND\n"],
+          "dynamic": ["+PROG STAR\nLET#flag 1\nIF #flag\nNSTR\nELSE\nNSTR\nENDIF\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DEHN"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG STAR\nDEHN\nDEHN\nENDE\n"],
+          "valid": ["+PROG STAR\nDEHN\nENDE\nDEHN\nENDE\n"],
+          "dynamic": ["+PROG STAR\nLET#flag 1\nIF #flag\nDEHN\nELSE\nDEHN\nENDIF\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "maxima-act-type": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ACT"],
+        "de": []
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nACT GAMU 1.5\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nACT TYPE G GAMU 1.5\nEND\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#action 1\nCOMB NO 1 EXTR STAN\nACT TYPE #action\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ACT"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nACT GAMU 1.5\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nACT TYP G GAMU 1.5\nENDE\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#action 1\nKOMB NR 1 EXTR STAN\nACT TYP #action\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "maxima-act-type-name": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ACT"],
+        "de": []
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nACT TYPE 1\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nACT TYPE G\nEND\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#action 1\nCOMB NO 1 EXTR STAN\nACT TYPE #action\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ACT"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nACT TYP 1\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nACT TYP G\nENDE\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#action 1\nKOMB NR 1 EXTR STAN\nACT TYP #action\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "maxima-supp-element-type": [
+    {
+      "versions": ["2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SUPP"],
+        "de": []
+      },
+      "parameters": {
+        "ETYP": {
+          "en": "ETYP",
+          "de": "ETYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nSUPP COMB 1 EXTR MAMI TYPE N\nEND\n"],
+          "valid": ["+PROG MAXIMA\nSUPP COMB 1 EXTR MAMI ETYP BEAM TYPE N\nEND\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#elementType 1\nSUPP COMB 1 EXTR MAMI ETYP #elementType\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SUPP"]
+      },
+      "parameters": {
+        "ETYP": {
+          "en": "ETYP",
+          "de": "ETYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nSUPP KOMB 1 EXTR MAMI ZUST N\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nSUPP KOMB 1 EXTR MAMI ETYP BEAM ZUST N\nENDE\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#elementType 1\nSUPP KOMB 1 EXTR MAMI ETYP #elementType\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "maxima-supp-srss-mode": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SUPP"],
+        "de": []
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        },
+        "EXTR": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG MAXIMA\nCOMB NO 1 EXTR DESI\nSUPP COMB 1 EXTR SRSS ETYP NODE TYPE PZ\nEND\n"
+          ],
+          "valid": [
+            "+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nSUPP COMB 1 EXTR SRSS ETYP NODE TYPE PZ\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#mode 1\nCOMB NO 1 EXTR #mode\nSUPP COMB 1 EXTR SRSS ETYP NODE TYPE PZ\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": []
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SUPP"]
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        },
+        "EXTR": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [
+            "+PROG MAXIMA\nKOMB NR 1 EXTR DESI\nSUPP KOMB 1 EXTR SRSS ETYP NODE ZUST PZ\nENDE\n"
+          ],
+          "valid": [
+            "+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nSUPP KOMB 1 EXTR SRSS ETYP NODE ZUST PZ\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#mode 1\nKOMB NR 1 EXTR #mode\nSUPP KOMB 1 EXTR SRSS ETYP NODE ZUST PZ\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "maxima-supp-spac-mode": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SUPP"],
+        "de": []
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        },
+        "ETYP": {
+          "en": "ETYP",
+          "de": "ETYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 1 EXTR DESI\nSUPP COMB 1 ETYP SPAC\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nSUPP COMB 1 ETYP SPAC\nEND\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#mode 1\nCOMB NO 1 EXTR #mode\nSUPP COMB 1 ETYP SPAC\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": []
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SUPP"]
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        },
+        "ETYP": {
+          "en": "ETYP",
+          "de": "ETYP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 1 EXTR DESI\nSUPP KOMB 1 ETYP SPAC\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nSUPP KOMB 1 ETYP SPAC\nENDE\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#mode 1\nKOMB NR 1 EXTR #mode\nSUPP KOMB 1 ETYP SPAC\nENDE\n"
+          ]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "maxima-sum-mode": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SUM"],
+        "de": []
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 1 EXTR DESI\nSUM COMB 1 LC 101\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nSUM COMB 1 LC 101\nEND\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#mode 1\nCOMB NO 1 EXTR #mode\nSUM COMB 1 LC 101\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": []
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SUM"]
+      },
+      "parameters": {
+        "COMB": {
+          "en": "COMB",
+          "de": "KOMB"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 1 EXTR DESI\nSUM KOMB 1 LF 101\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nSUM KOMB 1 LF 101\nENDE\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#mode 1\nKOMB NR 1 EXTR #mode\nSUM KOMB 1 LF 101\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "maxima-act-expl-mode": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ACT"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 1 EXTR EXPL TYPE G\nACT TYPE G\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR STAN\nACT TYPE G\nEND\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#mode 1\nCOMB NO 1 EXTR #mode\nACT TYPE G\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": []
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ACT"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 1 EXTR EXPL TYPE G\nACT TYP G\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR STAN\nACT TYP G\nENDE\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#mode 1\nKOMB NR 1 EXTR #mode\nACT TYP G\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "CNO": {
+          "en": "NO",
+          "de": "NR"
+        },
+        "CMODE": {
+          "en": "EXTR",
+          "de": "EXTR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "maxima-add-facf-factor": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ADD"],
+        "de": []
+      },
+      "parameters": {
+        "FACU": {
+          "en": "FACU",
+          "de": "FAKU"
+        },
+        "FACF": {
+          "en": "FACF",
+          "de": "FAKF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG MAXIMA\nCOMB NO 1 EXTR EXPL TYPE G\nADD TYPE G FACU GAM FACF 1\nEND\n"
+          ],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1 EXTR EXPL TYPE G\nADD TYPE G FACU GAM\nEND\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#factor 1\nCOMB NO 1 EXTR EXPL TYPE G\nADD TYPE G FACU #factor FACF 1\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["ADD"]
+      },
+      "parameters": {
+        "FACU": {
+          "en": "FACU",
+          "de": "FAKU"
+        },
+        "FACF": {
+          "en": "FACF",
+          "de": "FAKF"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [
+            "+PROG MAXIMA\nKOMB NR 1 EXTR EXPL TYPE G\nADD TYP G FAKU GAM FAKF 1\nENDE\n"
+          ],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1 EXTR EXPL TYPE G\nADD TYP G FAKU GAM\nENDE\n"],
+          "dynamic": [
+            "+PROG MAXIMA\nLET#factor 1\nKOMB NR 1 EXTR EXPL TYPE G\nADD TYP G FAKU #factor FAKF 1\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "wing-dcdb-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DCDB"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDCDB NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDCDB NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDCDB NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DCDB"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDCDB NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDCDB NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDCDB NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dvdf-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DVDF"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDVDF NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDVDF NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDVDF NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DVDF"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDVDF NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDVDF NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDVDF NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-ddef-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DDEF"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDDEF NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDDEF NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDDEF NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DDEF"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDDEF NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDDEF NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDDEF NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dfnc-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DFNC"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDFNC NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDFNC NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDFNC NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DFNK"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDFNK NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDFNK NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDFNK NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dmet-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DMET"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDMET NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDMET NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDMET NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DMET"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDMET NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDMET NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDMET NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dval-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DVAL"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDVAL NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDVAL NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDVAL NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DVAL"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDVAL NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDVAL NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDVAL NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dutp-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DUTP"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDUTP NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDUTP NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDUTP NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DUTP"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDUTP NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDUTP NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDUTP NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-detp-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DETP"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDETP NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDETP NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDETP NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DETP"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDETP NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDETP NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDETP NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dgrp-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DGRP"],
+        "de": []
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDGRP NUMB 0\nEND\n"],
+          "valid": ["+PROG WING\nDGRP NUMB 1\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDGRP NUMB #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DGRP"]
+      },
+      "parameters": {
+        "NUMB": {
+          "en": "NUMB",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDGRP NR 0\nENDE\n"],
+          "valid": ["+PROG WING\nDGRP NR 1\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#number 1\nDGRP NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "results-join-columns": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["JOIN"],
+        "de": []
+      },
+      "parameters": {
+        "COL1": {
+          "en": "COL1",
+          "de": "SPA1"
+        },
+        "COL2": {
+          "en": "COL2",
+          "de": "SPA2"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG RESULTS\nJOIN COL1 \"NODE.NO\"\nEND\n"],
+          "valid": ["+PROG RESULTS\nJOIN COL1 \"NODE.NO\" COL2 \"BEAM.NA\"\nEND\n"],
+          "dynamic": [
+            "+PROG RESULTS\nLET#column1 1\nLET#column2 1\nJOIN COL1 #column1 COL2 #column2\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["JOIN"]
+      },
+      "parameters": {
+        "COL1": {
+          "en": "COL1",
+          "de": "SPA1"
+        },
+        "COL2": {
+          "en": "COL2",
+          "de": "SPA2"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG RESULTS\nJOIN SPA1 \"NODE.NO\"\nENDE\n"],
+          "valid": ["+PROG RESULTS\nJOIN SPA1 \"NODE.NO\" SPA2 \"BEAM.NA\"\nENDE\n"],
+          "dynamic": [
+            "+PROG RESULTS\nLET#column1 1\nLET#column2 1\nJOIN SPA1 #column1 SPA2 #column2\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "shearwall-desi-safety": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["DESI"],
+        "de": []
+      },
+      "parameters": {
+        "SCMC": {
+          "en": "SCMC",
+          "de": "SCMC"
+        },
+        "SCMS": {
+          "en": "SCMS",
+          "de": "SCMS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG SHEARWALL\nDESI SCMC 0.01\nEND\n"],
+          "valid": ["+PROG SHEARWALL\nDESI SCMC 1.5 SCMS 1.15\nEND\n"],
+          "dynamic": ["+PROG SHEARWALL\nLET#factor 1\nDESI SCMC #factor\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DESI"]
+      },
+      "parameters": {
+        "SCMC": {
+          "en": "SCMC",
+          "de": "SCMC"
+        },
+        "SCMS": {
+          "en": "SCMS",
+          "de": "SCMS"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG SHEARWALL\nDESI SCMC 0.01\nENDE\n"],
+          "valid": ["+PROG SHEARWALL\nDESI SCMC 1.5 SCMS 1.15\nENDE\n"],
+          "dynamic": ["+PROG SHEARWALL\nLET#factor 1\nDESI SCMC #factor\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "feacheck-soft-input": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SOFT"],
+        "de": []
+      },
+      "parameters": {
+        "MR1L": {
+          "en": "MR1L",
+          "de": "MR1L"
+        },
+        "MR1U": {
+          "en": "MR1U",
+          "de": "MR1U"
+        },
+        "SR1": {
+          "en": "SR1",
+          "de": "SR1"
+        },
+        "SRX1": {
+          "en": "SRX1",
+          "de": "SRX1"
+        },
+        "SR3": {
+          "en": "SR3",
+          "de": "SR3"
+        },
+        "SRX3": {
+          "en": "SRX3",
+          "de": "SRX3"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nSOFT MR1L 2 MR1U 1 SRX1 0.8 SR1 0.7\nEND\n"],
+          "valid": [
+            "+PROG FEACHECK\nSOFT MR1L 0.8 MR1U 1.2 SRX1 0.6 SR1 0.7 SRX3 0.6 SR3 0.8\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#lower 1\nLET#upper 1\nSOFT MR1L #lower MR1U #upper\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SOFT"]
+      },
+      "parameters": {
+        "MR1L": {
+          "en": "MR1L",
+          "de": "MR1L"
+        },
+        "MR1U": {
+          "en": "MR1U",
+          "de": "MR1U"
+        },
+        "SR1": {
+          "en": "SR1",
+          "de": "SR1"
+        },
+        "SRX1": {
+          "en": "SRX1",
+          "de": "SRX1"
+        },
+        "SR3": {
+          "en": "SR3",
+          "de": "SR3"
+        },
+        "SRX3": {
+          "en": "SRX3",
+          "de": "SRX3"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nSOFT MR1L 2 MR1U 1 SRX1 0.8 SR1 0.7\nENDE\n"],
+          "valid": [
+            "+PROG FEACHECK\nSOFT MR1L 0.8 MR1U 1.2 SRX1 0.6 SR1 0.7 SRX3 0.6 SR3 0.8\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#lower 1\nLET#upper 1\nSOFT MR1L #lower MR1U #upper\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feacheck-weak-input": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["WEAK"],
+        "de": []
+      },
+      "parameters": {
+        "TAUC": {
+          "en": "TAUC",
+          "de": "TAUC"
+        },
+        "TAUS": {
+          "en": "TAUS",
+          "de": "TAUS"
+        },
+        "CR1": {
+          "en": "CR1",
+          "de": "CR1"
+        },
+        "CR1X": {
+          "en": "CR1X",
+          "de": "CR1X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nWEAK TAUC 0 TAUS 1 CR1X 0.9 CR1 0.8\nEND\n"],
+          "valid": ["+PROG FEACHECK\nWEAK TAUC 1 TAUS 1 CR1X 0.6 CR1 0.8\nEND\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#capacity 1\nLET#lower 1\nLET#upper 1\nWEAK TAUC #capacity CR1X #lower CR1 #upper\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["WEAK"]
+      },
+      "parameters": {
+        "TAUC": {
+          "en": "TAUC",
+          "de": "TAUC"
+        },
+        "TAUS": {
+          "en": "TAUS",
+          "de": "TAUS"
+        },
+        "CR1": {
+          "en": "CR1",
+          "de": "CR1"
+        },
+        "CR1X": {
+          "en": "CR1X",
+          "de": "CR1X"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nWEAK TAUC 0 TAUS 1 CR1X 0.9 CR1 0.8\nENDE\n"],
+          "valid": ["+PROG FEACHECK\nWEAK TAUC 1 TAUS 1 CR1X 0.6 CR1 0.8\nENDE\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#capacity 1\nLET#lower 1\nLET#upper 1\nWEAK TAUC #capacity CR1X #lower CR1 #upper\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feacheck-shared-input": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SHPR"],
+        "de": []
+      },
+      "parameters": {
+        "QD": {
+          "en": "QD",
+          "de": "QD"
+        },
+        "IMP": {
+          "en": "IMP",
+          "de": "IMP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nSHPR QD 0.5\nEND\n"],
+          "valid": ["+PROG FEACHECK\nSHPR QD 1 IMP 1\nEND\n"],
+          "dynamic": ["+PROG FEACHECK\nLET#ductility 1\nSHPR QD #ductility\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SHPR"]
+      },
+      "parameters": {
+        "QD": {
+          "en": "QD",
+          "de": "QD"
+        },
+        "IMP": {
+          "en": "IMP",
+          "de": "IMP"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nSHPR QD 0.5\nENDE\n"],
+          "valid": ["+PROG FEACHECK\nSHPR QD 1 IMP 1\nENDE\n"],
+          "dynamic": ["+PROG FEACHECK\nLET#ductility 1\nSHPR QD #ductility\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "feacheck-drift-input": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DRFT"],
+        "de": []
+      },
+      "parameters": {
+        "D2HX": {
+          "en": "D2HX",
+          "de": "D2HX"
+        },
+        "NRED": {
+          "en": "NRED",
+          "de": "NRED"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nDRFT D2HX -1 NRED 2\nEND\n"],
+          "valid": ["+PROG FEACHECK\nDRFT D2HX 0.01 NRED 0.5\nEND\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#limit 1\nLET#reduction 1\nDRFT D2HX #limit NRED #reduction\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DRFT"]
+      },
+      "parameters": {
+        "D2HX": {
+          "en": "D2HX",
+          "de": "D2HX"
+        },
+        "NRED": {
+          "en": "NRED",
+          "de": "NRED"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nDRFT D2HX -1 NRED 2\nENDE\n"],
+          "valid": ["+PROG FEACHECK\nDRFT D2HX 0.01 NRED 0.5\nENDE\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#limit 1\nLET#reduction 1\nDRFT D2HX #limit NRED #reduction\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feacheck-pdelta-input": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["PDEL"],
+        "de": []
+      },
+      "parameters": {
+        "THT1": {
+          "en": "THT1",
+          "de": "THT1"
+        },
+        "THT2": {
+          "en": "THT2",
+          "de": "THT2"
+        },
+        "THTX": {
+          "en": "THTX",
+          "de": "THTX"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nPDEL THT1 0.2 THT2 0.1 THTX 0.3\nEND\n"],
+          "valid": ["+PROG FEACHECK\nPDEL THT1 0.1 THT2 0.2 THTX 0.3\nEND\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#first 1\nLET#second 1\nPDEL THT1 #first THT2 #second\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["PDEL"]
+      },
+      "parameters": {
+        "THT1": {
+          "en": "THT1",
+          "de": "THT1"
+        },
+        "THT2": {
+          "en": "THT2",
+          "de": "THT2"
+        },
+        "THTX": {
+          "en": "THTX",
+          "de": "THTX"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nPDEL THT1 0.2 THT2 0.1 THTX 0.3\nENDE\n"],
+          "valid": ["+PROG FEACHECK\nPDEL THT1 0.1 THT2 0.2 THTX 0.3\nENDE\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#first 1\nLET#second 1\nPDEL THT1 #first THT2 #second\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feacheck-elevation-order": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["SELE"],
+        "de": []
+      },
+      "parameters": {
+        "ZLVB": {
+          "en": "ZLVB",
+          "de": "ZLVB"
+        },
+        "ZLVT": {
+          "en": "ZLVT",
+          "de": "ZLVT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEACHECK\nSELE ZLVB 10 ZLVT 0\nEND\n"],
+          "valid": ["+PROG FEACHECK\nSELE ZLVB 0 ZLVT 10\nEND\n"],
+          "dynamic": ["+PROG FEACHECK\nLET#bottom 1\nLET#top 1\nSELE ZLVB #bottom ZLVT #top\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["SELE"]
+      },
+      "parameters": {
+        "ZLVB": {
+          "en": "ZLVB",
+          "de": "ZLVB"
+        },
+        "ZLVT": {
+          "en": "ZLVT",
+          "de": "ZLVT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEACHECK\nSELE ZLVB 10 ZLVT 0\nENDE\n"],
+          "valid": ["+PROG FEACHECK\nSELE ZLVB 0 ZLVT 10\nENDE\n"],
+          "dynamic": [
+            "+PROG FEACHECK\nLET#bottom 1\nLET#top 1\nSELE ZLVB #bottom ZLVT #top\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feabench-copy-lc-context": [
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LCPY"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG FEABENCH\nLCPY NO 1\nEND\n"],
+          "valid": ["+PROG FEABENCH\nLC NO 2\nLCPY NO 1\nEND\n"],
+          "dynamic": ["+PROG FEABENCH\nLET#flag 1\nIF #flag\nLC NO 2\nENDIF\nLCPY NO 1\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LC"],
+        "de": []
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LCPY"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG FEABENCH\nLCPY NO 1\nENDE\n"],
+          "valid": ["+PROG FEABENCH\nLC NO 2\nLCPY NO 1\nENDE\n"],
+          "dynamic": ["+PROG FEABENCH\nLET#flag 1\nIF #flag\nLC NO 2\nENDIF\nLCPY NO 1\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["LC"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    }
+  ],
+  "maxima-combination-number": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["COMB"],
+        "de": []
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG MAXIMA\nCOMB NO 0\nEND\n"],
+          "valid": ["+PROG MAXIMA\nCOMB NO 1\nEND\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#number 1\nCOMB NO #number\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["KOMB"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG MAXIMA\nKOMB NR 0\nENDE\n"],
+          "valid": ["+PROG MAXIMA\nKOMB NR 1\nENDE\n"],
+          "dynamic": ["+PROG MAXIMA\nLET#number 1\nKOMB NR #number\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dcdb-key-number": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DCDB"],
+        "de": []
+      },
+      "parameters": {
+        "KW": {
+          "en": "KW",
+          "de": "KW"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDCDB NUMB 1 KW -1\nEND\n"],
+          "valid": ["+PROG WING\nDCDB NUMB 1 KW 0\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#key 1\nDCDB NUMB 1 KW #key\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DCDB"]
+      },
+      "parameters": {
+        "KW": {
+          "en": "KW",
+          "de": "KW"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDCDB NR 1 KW -1\nENDE\n"],
+          "valid": ["+PROG WING\nDCDB NR 1 KW 0\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#key 1\nDCDB NR 1 KW #key\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dcdb-integer-count": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DCDB"],
+        "de": []
+      },
+      "parameters": {
+        "INT": {
+          "en": "INT",
+          "de": "INT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDCDB NUMB 1 INT -1\nEND\n"],
+          "valid": ["+PROG WING\nDCDB NUMB 1 INT 0\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#count 1\nDCDB NUMB 1 INT #count\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DCDB"]
+      },
+      "parameters": {
+        "INT": {
+          "en": "INT",
+          "de": "INT"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDCDB NR 1 INT -1\nENDE\n"],
+          "valid": ["+PROG WING\nDCDB NR 1 INT 0\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#count 1\nDCDB NR 1 INT #count\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "wing-dcdb-float-count": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["DCDB"],
+        "de": []
+      },
+      "parameters": {
+        "FLOA": {
+          "en": "FLOA",
+          "de": "FLOA"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": ["+PROG WING\nDCDB NUMB 1 FLOA -1\nEND\n"],
+          "valid": ["+PROG WING\nDCDB NUMB 1 FLOA 0\nEND\n"],
+          "dynamic": ["+PROG WING\nLET#count 1\nDCDB NUMB 1 FLOA #count\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        }
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": [],
+        "de": ["DCDB"]
+      },
+      "parameters": {
+        "FLOA": {
+          "en": "FLOA",
+          "de": "FLOA"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": [],
+          "dynamic": []
+        },
+        "de": {
+          "invalid": ["+PROG WING\nDCDB NR 1 FLOA -1\nENDE\n"],
+          "valid": ["+PROG WING\nDCDB NR 1 FLOA 0\nENDE\n"],
+          "dynamic": ["+PROG WING\nLET#count 1\nDCDB NR 1 FLOA #count\nENDE\n"]
+        }
+      }
+    }
+  ],
+  "dbmerg-negative-load-case": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LC"],
+        "de": ["LF"]
+      },
+      "parameters": {
+        "NO": {
+          "en": "NO",
+          "de": "NR"
+        }
+      },
+      "fixtures": {
+        "invalid": ["LC NO -1"],
+        "valid": ["LC NO 1", "LC NO 0", "LC"],
+        "dynamic": ["LC NO #lc", "LC NO 1+#offset"]
+      }
+    }
+  ],
+  "dbprin-beam-stiffness-unsupported": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["ITEM"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "KIND": {
+          "en": "KIND",
+          "de": "ART1"
+        }
+      },
+      "fixtures": {
+        "invalid": ["ITEM TYPE BEAM KIND STIF"],
+        "valid": ["ITEM TYPE NODE KIND DISP", "ITEM TYPE BEAM KIND FORC"],
+        "dynamic": ["ITEM TYPE #etype KIND STIF", "ITEM TYPE BEAM KIND #kind"]
+      }
+    },
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "de": ["ITEM"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYP"
+        },
+        "KIND": {
+          "en": "KIND",
+          "de": "ART1"
+        }
+      },
+      "fixtures": {
+        "invalid": ["ITEM TYPE BEAM KIND STIF"],
+        "valid": ["ITEM TYPE NODE KIND DISP", "ITEM TYPE BEAM KIND FORC"],
+        "dynamic": ["ITEM TYPE #etype KIND STIF", "ITEM TYPE BEAM KIND #kind"]
+      }
+    }
+  ],
+  "rely-var-name-required": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["VAR"],
+        "de": ["VAR"]
+      },
+      "parameters": {
+        "NAME": {
+          "en": "NAME",
+          "de": "NAME"
+        }
+      },
+      "fixtures": {
+        "invalid": ["VAR TYPE NORM P1 1 P2 0.1", "VAR NAME '' TYPE NORM P1 1 P2 0.1"],
+        "valid": ["VAR NAME rv TYPE NORM P1 1 P2 0.1"],
+        "dynamic": ["VAR NAME #name TYPE NORM P1 1 P2 0.1"]
+      }
+    }
+  ],
+  "rely-var-distribution-xor": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["VAR"],
+        "de": ["VAR"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "TID": {
+          "en": "TID",
+          "de": "TID"
+        }
+      },
+      "fixtures": {
+        "invalid": ["VAR NAME rv TYPE NORM TID 1 P1 1 P2 0.1", "VAR NAME rv P1 1 P2 0.1"],
+        "valid": ["VAR NAME rv TYPE NORM P1 1 P2 0.1", "VAR NAME rv TID 1 P1 1 P2 0.1"],
+        "dynamic": ["VAR NAME rv TYPE #type P1 1 P2 0.1"]
+      }
+    }
+  ],
+  "rely-exds-file-required-for-dat": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["EXDS"],
+        "de": ["EXDS"]
+      },
+      "parameters": {
+        "SAIF": {
+          "en": "SAIF",
+          "de": "SAIF"
+        },
+        "SDES": {
+          "en": "SDES",
+          "de": "SDES"
+        }
+      },
+      "fixtures": {
+        "invalid": ["EXDS SDES DAT", "EXDS SDES DAT SAIF ''"],
+        "valid": ["EXDS SDES DAT SAIF 'points.txt'", "EXDS SDES JOA", "EXDS"],
+        "dynamic": ["EXDS SDES #design", "EXDS SDES DAT SAIF #filename"]
+      }
+    }
+  ],
+  "rely-slsf-alternative-required": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["SLSF"],
+        "de": ["SLSF"]
+      },
+      "parameters": {
+        "VARN": {
+          "en": "VARN",
+          "de": "VARN"
+        },
+        "EXPR": {
+          "en": "EXPR",
+          "de": "EXPR"
+        }
+      },
+      "fixtures": {
+        "invalid": ["SLSF"],
+        "valid": ["SLSF VARN sf", "SLSF EXPR '=1'"],
+        "dynamic": ["SLSF VARN #name", "SLSF EXPR #expression"]
+      }
+    }
+  ],
+  "rely-slsf-alternatives-exclusive": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["SLSF"],
+        "de": ["SLSF"]
+      },
+      "parameters": {
+        "VARN": {
+          "en": "VARN",
+          "de": "VARN"
+        },
+        "EXPR": {
+          "en": "EXPR",
+          "de": "EXPR"
+        }
+      },
+      "fixtures": {
+        "invalid": ["SLSF VARN sf EXPR '=1'"],
+        "valid": ["SLSF VARN sf", "SLSF EXPR '=1'"],
+        "dynamic": ["SLSF VARN #name", "SLSF EXPR #expression"]
+      }
+    }
+  ],
+  "feabench-step-duration-positive": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["STEP"],
+        "de": ["STEP"]
+      },
+      "parameters": {
+        "TVAL": {
+          "en": "TVAL",
+          "de": "TVAL"
+        }
+      },
+      "fixtures": {
+        "invalid": ["STEP TYPE NEWC TVAL 0 DT 0.01", "STEP TYPE NEWC TVAL -1 DT 0.01"],
+        "valid": ["STEP TYPE NEWC TVAL 1 DT 0.01", "STEP TYPE NEWC TVAL AUTO DT AUTO"],
+        "dynamic": ["STEP TYPE NEWC TVAL #duration DT 0.01"]
+      }
+    }
+  ],
+  "feabench-step-size-positive": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["STEP"],
+        "de": ["STEP"]
+      },
+      "parameters": {
+        "DT": {
+          "en": "DT",
+          "de": "DT"
+        }
+      },
+      "fixtures": {
+        "invalid": ["STEP TYPE NEWC TVAL 1 DT 0", "STEP TYPE NEWC TVAL 1 DT -0.01"],
+        "valid": ["STEP TYPE NEWC TVAL 1 DT 0.01", "STEP TYPE NEWC TVAL AUTO DT AUTO"],
+        "dynamic": ["STEP TYPE NEWC TVAL 1 DT #dt"]
+      }
+    }
+  ],
+  "feabench-moving-speed-positive": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["MOVL"],
+        "de": ["MOVL"]
+      },
+      "parameters": {
+        "V": {
+          "en": "V",
+          "de": "V"
+        }
+      },
+      "fixtures": {
+        "invalid": ["MOVL LCT 10 TRCK SLN ID 1 V 0", "MOVL LCT 10 TRCK SLN ID 1 V -5"],
+        "valid": ["MOVL LCT 10 TRCK SLN ID 1 V 5 TDIR NEG"],
+        "dynamic": ["MOVL LCT 10 TRCK SLN ID 1 V #speed"]
+      }
+    }
+  ],
+  "feabench-dtc-positive-controls": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["DTC"],
+        "de": ["DTC"]
+      },
+      "parameters": {
+        "TOL": {
+          "en": "TOL",
+          "de": "TOL"
+        },
+        "TSMX": {
+          "en": "TSMX",
+          "de": "TSMX"
+        },
+        "CSMX": {
+          "en": "CSMX",
+          "de": "CSMX"
+        }
+      },
+      "fixtures": {
+        "invalid": [
+          "DTC ITEM AZ FMAX 10 TOL 0",
+          "DTC ITEM AZ FMAX 10 TSMX -1",
+          "DTC ITEM AZ FMAX 10 CSMX 0"
+        ],
+        "valid": ["DTC ITEM AZ FMAX 10", "DTC ITEM AZ FMAX 10 TOL 0.01 TSMX 100 CSMX 20"],
+        "dynamic": ["DTC ITEM AZ FMAX 10 TOL #tol"]
+      }
+    }
+  ],
+  "feabench-dtc-reduction-range": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["DTC"],
+        "de": ["DTC"]
+      },
+      "parameters": {
+        "FACR": {
+          "en": "FACR",
+          "de": "FACR"
+        }
+      },
+      "fixtures": {
+        "invalid": ["DTC ITEM AZ FMAX 10 FACR -0.1", "DTC ITEM AZ FMAX 10 FACR 1.1"],
+        "valid": ["DTC ITEM AZ FMAX 10 FACR 0.65", "DTC ITEM AZ FMAX 10"],
+        "dynamic": ["DTC ITEM AZ FMAX 10 FACR #factor"]
+      }
+    }
+  ],
+  "feabench-eigenvalue-count-positive": [
+    {
+      "versions": ["2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["EIGE"],
+        "de": ["EIGE"]
+      },
+      "parameters": {
+        "NEIG": {
+          "en": "NEIG",
+          "de": "NEIG"
+        },
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        }
+      },
+      "fixtures": {
+        "invalid": ["EIGE TYPE IRAM NEIG 0 LCB 1001", "EIGE TYPE LANC NEIG -1 LCB 1001"],
+        "valid": ["EIGE TYPE IRAM NEIG 10 LCB 1001", "EIGE TYPE REST NEIG AUTO"],
+        "dynamic": ["EIGE TYPE #solver NEIG 0", "EIGE TYPE IRAM NEIG #count LCB 1001"]
+      }
+    }
+  ],
+  "csa-compressive-limit-sign": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LIMS"],
+        "de": ["LIMS"]
+      },
+      "parameters": {
+        "LSC": {
+          "en": "LSC",
+          "de": "LSC"
+        }
+      },
+      "fixtures": {
+        "invalid": ["LIMS CRT CLE MAT 1 LSC 1"],
+        "valid": [
+          "LIMS CRT CLE MAT 1 LSC -2.5[o/oo]",
+          "LIMS CRT CLE MAT 1 LSC 0",
+          "LIMS CRT CLE MAT 1 LST 5"
+        ],
+        "dynamic": ["LIMS CRT CLE MAT 1 LSC #limit"]
+      }
+    }
+  ],
+  "csa-tensile-limit-sign": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["LIMS"],
+        "de": ["LIMS"]
+      },
+      "parameters": {
+        "LST": {
+          "en": "LST",
+          "de": "LST"
+        }
+      },
+      "fixtures": {
+        "invalid": ["LIMS CRT CLE MAT 1 LST -1"],
+        "valid": [
+          "LIMS CRT CLE MAT 1 LST 5[o/oo]",
+          "LIMS CRT CLE MAT 1 LST 0",
+          "LIMS CRT CLE MAT 1 LSC -2"
+        ],
+        "dynamic": ["LIMS CRT CLE MAT 1 LST #limit"]
+      }
+    }
+  ],
+  "csa-criterion-needs-category": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        }
+      },
+      "fixtures": {}
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["PCAT"],
+        "de": ["PCAT"]
+      },
+      "parameters": {
+        "CAT": {
+          "en": "CAT",
+          "de": "CAT"
+        }
+      },
+      "fixtures": {}
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["PCRT"],
+        "de": ["PCRT"]
+      },
+      "parameters": {},
+      "fixtures": {
+        "invalid": ["TASK TYPE PERF\nPCRT CRT CLE"],
+        "valid": ["TASK TYPE PERF\nPCAT CAT CONC\nPCRT CRT CLE"],
+        "dynamic": ["TASK TYPE #task\nPCRT CRT CLE"]
+      }
+    }
+  ],
+  "shared-nstr-stiffness-bracket": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["NSTR"],
+        "de": ["DEHN"]
+      },
+      "parameters": {
+        "KMIN": {
+          "en": "KMIN",
+          "de": "KMIN"
+        },
+        "KMAX": {
+          "en": "KMAX",
+          "de": "KMAX"
+        }
+      },
+      "fixtures": {
+        "invalid": ["NSTR KMIN 1.1", "NSTR KMAX 0.9"],
+        "valid": ["NSTR KMIN 1 KMAX 1", "NSTR KMIN 0.5 KMAX 2"],
+        "dynamic": ["NSTR KMIN #minimum KMAX #maximum"]
+      }
+    }
+  ],
+  "shared-nstr-alph-range": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["NSTR"],
+        "de": ["DEHN"]
+      },
+      "parameters": {
+        "ALPH": {
+          "en": "ALPH",
+          "de": "ALPH"
+        }
+      },
+      "fixtures": {
+        "invalid": ["NSTR ALPH 0", "NSTR ALPH -1", "NSTR ALPH 1"],
+        "valid": ["NSTR ALPH 0.99", "NSTR ALPH 0.5", "NSTR"],
+        "dynamic": ["NSTR ALPH #alpha"]
+      }
+    }
+  ],
+  "plbconverter-input-extension": [
+    {
+      "versions": ["2018"],
+      "commands": {
+        "en": ["DOCX"],
+        "de": ["DOCX"]
+      },
+      "parameters": {
+        "IN": {
+          "en": "IN",
+          "de": "IN"
+        }
+      },
+      "fixtures": {
+        "invalid": ["DOCX IN 'report.txt'"],
+        "valid": ["DOCX IN 'report.plb'", "DOCX"],
+        "dynamic": ["DOCX IN #file", "DOCX IN 'basename_without_extension'"]
+      }
+    },
+    {
+      "versions": ["2020"],
+      "commands": {
+        "en": ["DOCX", "IMG"],
+        "de": ["DOCX", "IMG"]
+      },
+      "parameters": {
+        "IN": {
+          "en": "IN",
+          "de": "IN"
+        }
+      },
+      "fixtures": {
+        "invalid": ["DOCX IN 'report.txt'", "IMG IN 'report.txt'"],
+        "valid": ["DOCX IN 'report.plb'", "IMG IN 'report.plb'", "DOCX", "IMG"],
+        "dynamic": ["DOCX IN #file", "IMG IN #file"]
+      }
+    }
+  ],
+  "plbconverter-output-extension": [
+    {
+      "versions": ["2018", "2020"],
+      "commands": {
+        "en": ["DOCX"],
+        "de": ["DOCX"]
+      },
+      "parameters": {
+        "OUT": {
+          "en": "OUT",
+          "de": "OUT"
+        }
+      },
+      "fixtures": {
+        "invalid": ["DOCX OUT 'report.txt'"],
+        "valid": ["DOCX OUT 'report.docx'", "DOCX"],
+        "dynamic": ["DOCX OUT #file", "DOCX OUT 'basename_without_extension'"]
+      }
+    }
+  ],
+  "plbconverter-template-extension": [
+    {
+      "versions": ["2018", "2020"],
+      "commands": {
+        "en": ["DOCX", "OPT"],
+        "de": ["DOCX", "OPT"]
+      },
+      "parameters": {
+        "TMPL": {
+          "en": "TMPL",
+          "de": "TMPL"
+        }
+      },
+      "fixtures": {
+        "invalid": ["DOCX TMPL 'template.txt'", "OPT TMPL 'template.dotx'"],
+        "valid": ["DOCX TMPL 'template.docx'", "OPT TMPL 'template.docx'", "DOCX", "OPT OVRT YES"],
+        "dynamic": ["DOCX TMPL #template", "OPT TMPL #template"]
+      }
+    }
+  ],
+  "plbconverter-image-filename-placeholders": [
+    {
+      "versions": ["2020"],
+      "commands": {
+        "en": ["IMG"],
+        "de": ["IMG"]
+      },
+      "parameters": {
+        "FNR": {
+          "en": "FNR",
+          "de": "FNR"
+        }
+      },
+      "fixtures": {
+        "invalid": ["IMG FNR 'picture.%ext%'", "IMG FNR 'picture_%number%.png'"],
+        "valid": ["IMG FNR 'picture_%number%.%ext%'", "IMG"],
+        "dynamic": ["IMG FNR #pattern"]
+      }
+    }
+  ]
+}

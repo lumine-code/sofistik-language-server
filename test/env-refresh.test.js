@@ -149,10 +149,7 @@ test("real protocol accepts canonical definition aliases and preserves an unsupp
   const watched = process.platform === "win32" ? encoded.toUpperCase() : encoded;
   client.notify("workspace/didChangeWatchedFiles", { changes: [{ uri: watched, type: 2 }] });
   const diagnostics = await client.request("textDocument/diagnostic", { textDocument: { uri } });
-  assert.match(
-    diagnostics.items.find((item) => item.code === "unsupported-project-version").message,
-    /2099/,
-  );
+  assert.match(diagnostics.items.find((item) => item.code === "G302").message, /2099/);
   assert.deepEqual(await client.request("workspace/symbol", { query: "should_not_index" }), []);
 });
 
@@ -205,15 +202,12 @@ test("real protocol refreshes automatic selections on requests and save without 
   assert.ok(after.some((item) => item.label === "FEABENCH"));
   const diagnostics = await client.request("textDocument/diagnostic", { textDocument: { uri } });
   assert.equal(
-    diagnostics.items.some((item) => item.code === "unknown-module"),
+    diagnostics.items.some((item) => item.code === "G301"),
     false,
   );
   await setSelection("2099");
   client.notify("textDocument/didSave", { textDocument: { uri } });
   const unsupported = await client.request("textDocument/diagnostic", { textDocument: { uri } });
-  assert.match(
-    unsupported.items.find((item) => item.code === "unsupported-project-version").message,
-    /2099/,
-  );
+  assert.match(unsupported.items.find((item) => item.code === "G302").message, /2099/);
   assert.ok(refreshes > 0);
 });

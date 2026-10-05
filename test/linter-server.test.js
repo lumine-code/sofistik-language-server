@@ -161,7 +161,7 @@ test("watched sofistik.def macro changes reanalyze programs without an environme
   );
 });
 
-test("watched numeric NOQA changes alter linter exclusions without changing the release", async (t) => {
+test("watched Ruff-style NOQA changes alter linter exclusions without changing the release", async (t) => {
   const definition = "SOF_VERSION=2026\nSOF_LANGUAGE=EN\n";
   const variable = codeFor("variable-before-declaration");
   const load = codeFor("load-without-load-case");

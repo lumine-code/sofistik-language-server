@@ -200,7 +200,7 @@ test("sibling definition changes invalidate enums; file headers never override f
     { data: [] },
   );
   const diagnostics = await client.request("textDocument/diagnostic", { textDocument: { uri } });
-  assert.ok(diagnostics.items.some((item) => item.code === "unsupported-project-version"));
+  assert.ok(diagnostics.items.some((item) => item.code === "G302"));
   const symbols = await client.request("textDocument/documentSymbol", { textDocument: { uri } });
   assert.ok(flattenSymbols(symbols).some((item) => item.name.toLowerCase() === "size"));
   await fs.writeFile(definitionPath, "SOF_VERSION = 2026\n");

@@ -378,7 +378,7 @@ test("repeated missing names and contexts have bounded diagnostic output", () =>
 
 test("repeated issues retain separate source records for per-line suppression", () => {
   const result = analyze(
-    "+PROG SOFILOAD\nLINE P1 #missing ! noqa: 2001,3001\nLINE P1 #missing\nEND\n",
+    "+PROG SOFILOAD\nLINE P1 #missing ! noqa: G101,SL001\nLINE P1 #missing\nEND\n",
   );
   assert.deepEqual(codes(result), [
     "variable-before-declaration",

@@ -270,7 +270,7 @@ test("sofistik.def changes invalidate expansion even when release and language a
   );
 });
 
-test("changing numeric NOQA in sofistik.def replaces only the ignored rule set", async (t) => {
+test("changing Ruff-style NOQA in sofistik.def replaces only the ignored rule set", async (t) => {
   const { root, uri, open, service } = await fixture(t, { delay: 20 });
   const variable = codeFor("variable-before-declaration");
   const load = codeFor("load-without-load-case");
