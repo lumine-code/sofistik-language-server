@@ -106,3 +106,56 @@ test("a reusable macro can be suppressed at its definition or at one invocation"
   sources.set(child, "GRP NO #missing ! noqa: G101");
   assert.deepEqual(filterDiagnostics([diagnostic], { uri, sources }), []);
 });
+
+test("precise primary locations retain independent program and invocation NOQA anchors", () => {
+  const diagnostic = finding();
+  diagnostic.uri = uri;
+  diagnostic.range = location(uri, 1).range;
+  diagnostic.data.programAnchor = location(uri, 0);
+  const sources = new Map([[uri, "+PROG ASE ! noqa: G101\nGRP NO #missing"]]);
+  assert.deepEqual(filterDiagnostics([diagnostic], { uri, sources }), []);
+  sources.set(uri, "+PROG ASE\nGRP NO #missing");
+  const [item] = filterDiagnostics([diagnostic], { uri, sources });
+  assert.equal(item.uri, uri);
+  assert.deepEqual(item.data.programAnchor, location(uri, 0));
+});
+
+test("a scalar definition's NOQA does not suppress all unrelated uses of its value", () => {
+  const diagnostic = finding(2);
+  diagnostic.range = location(uri, 2).range;
+  diagnostic.data.programAnchor = location(uri, 1);
+  diagnostic.relatedInformation = [
+    { location: location(uri, 0), message: "Preprocessor value defined here." },
+  ];
+  const sources = new Map([[uri, "#DEFINE x=#missing ! noqa: G101\n+PROG ASE\nGRP NO $(x)"]]);
+  assert.equal(filterDiagnostics([diagnostic], { uri, sources }).length, 1);
+});
+
+test("continued records honor a pragma on their final physical line", () => {
+  const diagnostic = finding(1, "rely-var-distribution-xor");
+  diagnostic.range = {
+    start: { line: 1, character: 0 },
+    end: { line: 2, character: 19 },
+  };
+  diagnostic.data.recordOrigin = { uri, range: diagnostic.range };
+  const sources = new Map([
+    [uri, "+PROG RELY\nVAR NAME rv TYPE NORM $$\nTID 1 P1 1 P2 0.1 ! noqa: RL002"],
+  ]);
+  assert.deepEqual(filterDiagnostics([diagnostic], { uri, sources }), []);
+});
+
+test("source fragments do not borrow suppressions from unrelated lines inside their union", () => {
+  const diagnostic = finding(1);
+  diagnostic.range = {
+    start: { line: 1, character: 0 },
+    end: { line: 4, character: 10 },
+  };
+  diagnostic.data.recordOrigin = { uri, range: diagnostic.range };
+  diagnostic.data.focusOrigin = diagnostic.data.recordOrigin;
+  diagnostic.data.recordOrigins = [location(uri, 1), location(uri, 4)];
+  diagnostic.data.focusOrigins = diagnostic.data.recordOrigins;
+  const sources = new Map([[uri, "+PROG TEMPLATE\nLET#a #missing $$\n! noqa: G101\n\n+ #other"]]);
+  assert.equal(filterDiagnostics([diagnostic], { uri, sources }).length, 1);
+  sources.set(uri, "+PROG TEMPLATE\nLET#a #missing $$\n\n\n+ #other ! noqa: G101");
+  assert.deepEqual(filterDiagnostics([diagnostic], { uri, sources }), []);
+});

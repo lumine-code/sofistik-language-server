@@ -44,8 +44,11 @@ test("stdio diagnostics select the ERR release and German bindings after definit
   await configure("2025", "EN");
   const english = (await diagnostics()).find((item) => item.code === code);
   assert.ok(english);
-  assert.equal(english.range.start.line, 0);
-  assert.equal(english.relatedInformation.at(-1).location.range.start.line, 1);
+  assert.deepEqual(english.range, {
+    start: { line: 1, character: 6 },
+    end: { line: 1, character: 8 },
+  });
+  assert.equal(english.data.programAnchor.range.start.line, 0);
 
   await configure("2025", "DE");
   client.change(uri, [{ text: "+PROG DBMERG\nLF NR -1\nENDE\n" }], 2);
@@ -86,7 +89,7 @@ test("stdio exposes prefix codes and honors local and project NOQA for new ERR f
   assert.ok((await diagnostics()).some((item) => item.code === code));
 });
 
-test("stdio keeps numeric expression values unknown and attaches definite row errors to PROG", async (t) => {
+test("stdio keeps expression values unknown and points to definite invalid table values", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const code = codeFor("aqb-creep-humidity-range");
   client.open(uri, "+PROG AQB\nEIGE RH 110/2\nEND\n");
@@ -97,6 +100,9 @@ test("stdio keeps numeric expression values unknown and attaches definite row er
   client.change(uri, [{ text: "+PROG AQB\nEIGE RH TEMP\n110 20\n50 20\nEND\n" }], 2);
   const rows = (await diagnostics()).filter((item) => item.code === code);
   assert.equal(rows.length, 1);
-  assert.equal(rows[0].range.start.line, 0);
-  assert.equal(rows[0].relatedInformation.at(-1).location.range.start.line, 2);
+  assert.deepEqual(rows[0].range, {
+    start: { line: 2, character: 0 },
+    end: { line: 2, character: 3 },
+  });
+  assert.equal(rows[0].data.programAnchor.range.start.line, 0);
 });

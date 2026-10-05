@@ -8,6 +8,8 @@ G identifies general checks. Other prefixes identify canonical calculation modul
 
 Use NOQA = G101,SL001 in the adjacent sofistik.def, or a source comment ! noqa: G101. A bare noqa or NOQA = ALL suppresses all static findings. Selectors without digits select one complete module prefix: AQ selects AQUA, while AQB remains separate. A partial numbered selector such as G1 selects that numbered family. Imported calculation findings retain their original codes and are not suppressed by these static selectors.
 
+Source ranges identify the original variable, proven invalid value or record, even when preprocessing changes its length or removes preceding branches. A substituted value selects its full use site and links its actual definitions. Reusable blocks select the failing invocation and link the precise body location; ordinary file includes publish findings in the included file. A pragma on any original physical line of the offending record retains its scope independently of the displayed range. A program header selects its variable and module checks; preprocessing failures use their offending line, invocation or project selector. A scalar definition's pragma does not silence unrelated uses through a related-location link.
+
 ## Prefixes
 
 | Prefix | Module       |

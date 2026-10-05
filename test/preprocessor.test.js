@@ -133,7 +133,7 @@ test("external parameters and NAME/PROJECT defaults remain redefinable", async (
   assert.equal(result.text, "TXA main configured initial\nTXA local\n");
 });
 
-test("unresolved include produces a root diagnostic and a position-specific uncertainty", async () => {
+test("unresolved include identifies its source and keeps invocation and uncertainty metadata", async () => {
   const result = await preprocess(entry("PROG AQUA\nEND\n#include child.dat\nPROG ASE\nEND\n"), {
     readSource: async (uri) =>
       uri.endsWith("child.dat") ? { uri, text: "#include missing.dat\n" } : null,
@@ -141,12 +141,10 @@ test("unresolved include produces a root diagnostic and a position-specific unce
   assert.equal(result.text, "PROG AQUA\nEND\nPROG ASE\nEND\n");
   assert.equal(result.complete, false);
   assert.deepEqual(result.uncertainties, [{ start: 14, end: 14, kind: "include" }]);
-  assert.equal(result.diagnostics[0].uri, URI);
-  assert.equal(result.diagnostics[0].range.start.line, 2);
-  assert.equal(
-    result.diagnostics[0].relatedInformation[0].location.uri,
-    "file:///project/child.dat",
-  );
+  assert.equal(result.diagnostics[0].uri, "file:///project/child.dat");
+  assert.equal(result.diagnostics[0].range.start.line, 0);
+  assert.equal(result.diagnostics[0].data.invocation.uri, URI);
+  assert.equal(result.diagnostics[0].data.invocation.range.start.line, 2);
   assert.ok(result.dependencies.includes("file:///project/missing.dat"));
 });
 
@@ -311,15 +309,16 @@ test("truncated block definitions report the line limit without invented syntax 
   assert.equal(result.text, "");
 });
 
-test("line limits in included sources retain the outermost invocation anchor", async () => {
+test("line limits in included sources identify the exact source with invocation metadata", async () => {
   const result = await preprocess(entry("#include large.dat\n"), {
     maxSourceLines: 2,
     readSource: async (uri) => ({ uri, text: "PROG AQUA\nEND\nPROG ASE\nEND\n" }),
   });
   assert.deepEqual(codes(result), ["expansion-limit"]);
-  assert.equal(result.diagnostics[0].uri, URI);
-  assert.equal(result.diagnostics[0].range.start.line, 0);
-  assert.equal(result.diagnostics[0].relatedInformation[0].location.range.start.line, 2);
+  assert.equal(result.diagnostics[0].uri, "file:///project/large.dat");
+  assert.equal(result.diagnostics[0].range.start.line, 2);
+  assert.equal(result.diagnostics[0].data.invocation.uri, URI);
+  assert.equal(result.diagnostics[0].data.invocation.range.start.line, 0);
   assert.equal(result.text, "PROG AQUA\nEND\n");
 });
 

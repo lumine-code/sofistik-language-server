@@ -227,7 +227,7 @@ test("implicit unit overrides inhibit converted bounds and persist across interm
   const result = await analyze(new LintEngine(), source);
   const findings = result.diagnostics.filter((issue) => issue.code === "feacheck-soft-input");
   assert.equal(findings.length, 1);
-  assert.equal(findings[0].range.start.line, 5);
+  assert.equal(findings[0].range.start.line, 6);
   const uncertain = await analyze(
     new LintEngine(),
     "+PROG FEACHECK\n#include 'missing.inc'\nSOFT SRX1 -1\nEND\n",

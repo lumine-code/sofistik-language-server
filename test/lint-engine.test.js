@@ -8,13 +8,22 @@ const uri = "file:///main.dat";
 const analyze = (text, options = {}) => new LintEngine().analyze({ uri, text, ...options });
 const codes = (result) => result.diagnostics.map((item) => item.code);
 
+test("a standalone fragment keeps caller variables unknown until an explicit program", () => {
+  const result = analyze("LET#a #caller\n+PROG TEMPLATE\nLET#b #missing\nEND\n");
+  assert.deepEqual(codes(result), ["variable-before-declaration"]);
+  assert.equal(result.diagnostics[0].range.start.line, 2);
+});
+
 test("reports reads in order, including a self-referencing first assignment", () => {
   const result = analyze(
     "+PROG TEMPLATE\nLET#a #a+1\nLET#b #later\nLET#later 2\nLET#c #later\nEND\n",
   );
   assert.deepEqual(codes(result), ["variable-before-declaration", "variable-before-declaration"]);
   assert.match(result.diagnostics[0].message, /#A.*analyzed input/);
-  assert.equal(result.diagnostics[0].range.start.line, 0);
+  assert.deepEqual(result.diagnostics[0].range, {
+    start: { line: 1, character: 6 },
+    end: { line: 1, character: 8 },
+  });
   assert.equal(result.diagnostics[1].data.recordOrigin.range.start.line, 2);
 });
 
@@ -25,7 +34,7 @@ test("LET resets at PROG while ordered STO exports survive and END is conservati
   assert.deepEqual(codes(result), ["variable-before-declaration", "variable-before-declaration"]);
   assert.match(result.diagnostics[0].message, /#LOCAL/);
   assert.match(result.diagnostics[1].message, /#NEVER/);
-  assert.equal(result.diagnostics[0].range.start.line, 5);
+  assert.equal(result.diagnostics[0].range.start.line, 7);
 });
 
 test("STO without a RHS reads and exports a local value, even before a comment", () => {
@@ -183,7 +192,7 @@ test("inactive -PROG bodies emit no diagnostics and do not export STO values", (
   );
   assert.equal(result.metrics.modules, 2);
   assert.deepEqual(codes(result), ["variable-before-declaration"]);
-  assert.equal(result.diagnostics[0].range.start.line, 5);
+  assert.equal(result.diagnostics[0].range.start.line, 6);
 });
 
 test("$PROG remains a comment and preserves the actual module and its context", () => {
@@ -235,7 +244,7 @@ test("uncertain expansion suppresses local certainty and a new PROG restores con
     uncertainties: [{ start: text.indexOf("LINE"), end: text.indexOf("LINE"), kind: "include" }],
   });
   assert.deepEqual(codes(result), ["load-without-load-case"]);
-  assert.equal(result.diagnostics[0].range.start.line, 2);
+  assert.equal(result.diagnostics[0].range.start.line, 3);
 });
 
 test("APPLY external uncertainty does not switch off local context rules", () => {
@@ -270,14 +279,14 @@ test("module cache depends on preceding STO and remaps reused issues after sourc
   assert.equal(initial.metrics.analyzedModules, 2);
   const moved = engine.analyze({ uri, text: `$ moved\n${first}` });
   assert.equal(moved.metrics.reusedModules, 2);
-  assert.equal(moved.diagnostics[0].range.start.line, 4);
+  assert.equal(moved.diagnostics[0].range.start.line, 5);
   assert.equal(moved.diagnostics[0].data.recordOrigin.range.start.line, 5);
   const changed = engine.analyze({ uri, text: first.replace("STO#p", "LET#p") });
   assert.equal(changed.metrics.analyzedModules, 2);
   assert.equal(changed.diagnostics.length, 2);
 });
 
-test("source mapping anchors an included program at its outermost invocation", () => {
+test("source mapping anchors a reusable block at its outermost invocation", () => {
   const text = "+PROG SOFILOAD\nLINE P1 1\nEND\n";
   const included = "file:///included.dat";
   const invocation = {
@@ -296,6 +305,7 @@ test("source mapping anchors an included program at its outermost invocation", (
         range: { start: { line, character: 0 }, end: { line, character: raw.length } },
       },
       invocation,
+      blockInvocation: invocation,
     });
     offset += raw.length + 1;
   }
@@ -327,7 +337,7 @@ test("ordinary local edits reparse one module and rebase unchanged following rec
   assert.equal(result.metrics.scannedLines, 4);
   assert.equal(result.metrics.reusedLexicalModules, 2);
   assert.equal(result.metrics.analyzedModules, 1);
-  assert.equal(result.diagnostics[1].range.start.line, 7);
+  assert.equal(result.diagnostics[1].range.start.line, 8);
   assert.equal(result.diagnostics[1].data.recordOrigin.range.start.line, 8);
 });
 
@@ -359,7 +369,7 @@ test("END edits preserve explicit PROG boundaries and conservative local scope",
   assert.equal(result.metrics.modules, 2);
   assert.equal(result.metrics.reusedLexicalModules, 1);
   assert.equal(result.diagnostics.length, 1);
-  assert.equal(result.diagnostics[0].range.start.line, 4);
+  assert.equal(result.diagnostics[0].range.start.line, 5);
 });
 
 test("cancellation returns no partially accumulated diagnostics", () => {

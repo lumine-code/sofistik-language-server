@@ -58,8 +58,9 @@ test("real server shares debounced diagnostics with pull while completion stays 
     (item) => item.code === codeFor("variable-before-declaration"),
   );
   assert.ok(issue);
-  assert.equal(issue.range.start.line, 0);
-  assert.equal(issue.relatedInformation.at(-1).location.range.start.line, 1);
+  assert.equal(issue.range.start.line, 1);
+  assert.ok(issue.relatedInformation.some((item) => item.location.range.start.line === 0));
+  assert.equal(issue.data.focusOrigin.range.start.line, 1);
   const pushed = await notification(
     client,
     ({ method, params: item }) =>
@@ -128,7 +129,7 @@ test("editing and closing an unsaved include reanalyzes the parent using the cur
   const changed = await diagnostics("model.dat");
   const issue = lint(changed.items).find((item) => item.code === codeFor("load-without-load-case"));
   assert.ok(issue);
-  assert.equal(issue.range.start.line, 0);
+  assert.equal(issue.range.start.line, 2);
   client.notify("textDocument/didClose", { textDocument: { uri: included } });
   assert.deepEqual(lint((await diagnostics("model.dat")).items), []);
 });
@@ -219,7 +220,7 @@ test("sofistik.def comments do not contribute ignored codes or make FLAG=0 true"
     lint(report.items).map((item) => item.code),
     [load],
   );
-  assert.equal(lint(report.items)[0].range.start.line, 9);
+  assert.equal(lint(report.items)[0].range.start.line, 10);
 });
 
 test("a line-level noqa for a missing variable does not hide its next use", async (t) => {
@@ -233,8 +234,8 @@ test("a line-level noqa for a missing variable does not hide its next use", asyn
     issues.map((item) => item.code),
     [variable],
   );
-  assert.equal(issues[0].range.start.line, 0);
-  assert.equal(issues[0].relatedInformation.at(-1).location.range.start.line, 2);
+  assert.equal(issues[0].range.start.line, 2);
+  assert.equal(issues[0].data.focusOrigin.range.start.line, 2);
 });
 
 test("dependency watches cover Unicode txt includes and missing inputs outside the workspace", async (t) => {
@@ -295,11 +296,118 @@ test("dependency watches cover Unicode txt includes and missing inputs outside t
   client.notify("workspace/didChangeWatchedFiles", {
     changes: [{ uri: pathToFileURL(local).href, type: 2 }],
   });
-  const changed = lint((await diagnostics("model.dat")).items);
+  const changedReport = await diagnostics("model.dat");
+  const changed = lint(changedReport.relatedDocuments?.[pathToFileURL(local).href]?.items || []);
   assert.ok(changed.some((item) => item.code === codeFor("load-without-load-case")));
-  assert.ok(
-    changed.some((item) =>
-      item.relatedInformation.some(({ location }) => location.uri === pathToFileURL(local).href),
-    ),
+  assert.ok(changed.some((item) => item.data.focusOrigin.uri === pathToFileURL(local).href));
+});
+
+test("ordinary included findings publish at their source and appear in related pull reports", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t, { "part.dat": BAD });
+  const root = uri("model.dat");
+  const child = uri("part.dat");
+  client.open(root, '#INCLUDE "part.dat"\n');
+  const report = await diagnostics("model.dat");
+  assert.deepEqual(lint(report.items), []);
+  const childIssues = lint(report.relatedDocuments[child].items);
+  assert.equal(childIssues.length, 1);
+  assert.equal(childIssues[0].range.start.line, 1);
+  assert.equal(Object.hasOwn(childIssues[0], "uri"), false);
+  const push = await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      lint(params.diagnostics).length > 0,
   );
+  assert.equal(push.version, null);
+  assert.deepEqual(lint(push.diagnostics), childIssues);
+  assert.deepEqual(lint((await diagnostics("part.dat")).items), childIssues);
+
+  client.change(root, [{ text: GOOD }], 2);
+  const removed = await diagnostics("model.dat");
+  assert.deepEqual(removed.relatedDocuments[child].items, []);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      params.diagnostics.length === 0,
+  );
+  assert.deepEqual((await diagnostics("part.dat")).items, []);
+});
+
+test("shared include reports remain after closing one root and clear after the last closes", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t, { "shared.dat": BAD });
+  const child = uri("shared.dat");
+  const first = uri("a.dat");
+  const second = uri("b.dat");
+  client.open(first, '#INCLUDE "shared.dat"\n');
+  client.open(second, '#INCLUDE "shared.dat"\n');
+  await diagnostics("a.dat");
+  await diagnostics("b.dat");
+  assert.equal(lint((await diagnostics("shared.dat")).items).length, 1);
+  client.notify("textDocument/didClose", { textDocument: { uri: first } });
+  assert.equal(lint((await diagnostics("b.dat")).relatedDocuments[child].items).length, 1);
+  client.notify("textDocument/didClose", { textDocument: { uri: second } });
+  const closed = await diagnostics("b.dat");
+  assert.deepEqual(closed.items, []);
+  assert.equal(closed.relatedDocuments, undefined);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      params.diagnostics.length === 0,
+  );
+  assert.deepEqual((await diagnostics("shared.dat")).items, []);
+});
+
+test("an opened fragment keeps caller variables uncertain and receives contextual source findings", async (t) => {
+  const fragment = `LET#x #caller\n${LOAD}`;
+  const { uri, client, diagnostics } = await fixture(t, { "part.inc": fragment });
+  const child = uri("part.inc");
+  client.open(child, fragment, 4);
+  client.open(uri("model.dat"), '+PROG SOFILOAD\nLET#caller 1\n#INCLUDE "part.inc"\nEND\n');
+  const rootReport = await diagnostics("model.dat");
+  const included = lint(rootReport.relatedDocuments[child].items);
+  assert.deepEqual(
+    included.map((item) => item.code),
+    [codeFor("load-without-load-case")],
+  );
+  assert.equal(included[0].range.start.line, 1);
+  const childReport = lint((await diagnostics("part.inc")).items);
+  assert.deepEqual(
+    childReport.map((item) => item.code),
+    [codeFor("load-without-load-case")],
+  );
+  const push = await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      lint(params.diagnostics).length > 0,
+  );
+  assert.equal(push.version, 4);
+});
+
+test("an opened include uses caller macros and restores its standalone report after closing the caller", async (t) => {
+  const childSource = "+PROG ASE\nLET#a $(caller)\nEND\n";
+  const { uri, client, diagnostics } = await fixture(t, { "child.inc": childSource });
+  const child = uri("child.inc");
+  const parent = uri("main.dat");
+  client.open(child, childSource);
+  assert.ok(
+    (await diagnostics("child.inc")).items.some((item) => item.code === codeFor("undefined-macro")),
+  );
+  client.open(parent, '#DEFINE caller=1\n#INCLUDE "child.inc"\n');
+  assert.deepEqual((await diagnostics("main.dat")).relatedDocuments[child].items, []);
+  assert.deepEqual((await diagnostics("child.inc")).items, []);
+  client.notify("textDocument/didClose", { textDocument: { uri: parent } });
+  assert.ok(
+    (await diagnostics("child.inc")).items.some((item) => item.code === codeFor("undefined-macro")),
+  );
+  client.open(parent, '#DEFINE caller=1\n#INCLUDE "child.inc"\n', 2);
+  assert.deepEqual((await diagnostics("main.dat")).relatedDocuments[child].items, []);
+  assert.deepEqual((await diagnostics("child.inc")).items, []);
 });

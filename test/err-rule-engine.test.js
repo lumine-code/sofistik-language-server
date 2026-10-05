@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { compileRules } = require("../lib/err-rule-engine");
 const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
+const { LintEngine } = require("../lib/lint-engine");
 
 const keywords = {
   getCommandSchema(module, command) {
@@ -48,7 +49,9 @@ function run(pack, params, options = {}) {
   const messages = [];
   const flow = options.flow || { context: {}, unknownContext: false };
   const record = { name: options.name || "LOAD", params, ...options.record };
-  engine.check(record, flow, (id, message, source) => messages.push({ id, message, source }));
+  engine.check(record, flow, (id, message, source, focus) =>
+    messages.push({ id, message, source, focus }),
+  );
   return { messages, flow, engine };
 }
 
@@ -408,4 +411,157 @@ test("actual FEACHECK fraction units become unknown while AQB fixed humidity sta
   flow.unknownUnits = false;
   check("FEACHECK", { name: "SOFT", params: { MR1L: ["2"], MR1U: ["1"] } });
   assert.ok(messages.includes("feacheck-soft-input"));
+});
+
+test("a decisive numeric alternative focuses its actual value instead of a false sibling", () => {
+  const pack = registry(
+    variant({
+      op: "any",
+      conditions: [
+        { op: "lt", param: "first", value: 0 },
+        { op: "gt", param: "second", value: 1 },
+      ],
+    }),
+  );
+  const record = {
+    start: 10,
+    end: 40,
+    commandRange: { start: 10, end: 14 },
+    paramRanges: { A: { start: 17, end: 18 }, B: { start: 21, end: 24 } },
+  };
+  const selected = run(pack, { A: ["0"], B: ["2.5"] }, { record });
+  assert.deepEqual(selected.messages[0].focus, { start: 21, end: 24 });
+  const ambiguous = run(pack, { A: ["-1"], B: ["2.5"] }, { record });
+  assert.equal(ambiguous.messages[0].focus, undefined);
+});
+
+test("required fields and context prerequisites focus the command without inventing a missing span", () => {
+  const record = { start: 10, end: 30, commandRange: { start: 10, end: 14 }, paramRanges: {} };
+  const missing = registry(variant({ op: "absent", param: "first" }));
+  assert.deepEqual(run(missing, {}, { record }).messages[0].focus, record.commandRange);
+  const context = registry(variant({ op: "context", key: "active", value: false }));
+  assert.deepEqual(run(context, {}, { record }).messages[0].focus, record.commandRange);
+  const conditional = registry(
+    variant({
+      op: "all",
+      conditions: [
+        { op: "eq", param: "mode", value: "DAT" },
+        { op: "absent", param: "first" },
+      ],
+    }),
+  );
+  assert.deepEqual(
+    run(
+      conditional,
+      { MODE: ["DAT"] },
+      { record: { ...record, paramRanges: { MODE: { start: 20, end: 23 } } } },
+    ).messages[0].focus,
+    record.commandRange,
+  );
+});
+
+test("cross-field comparisons and invalid ranges keep whole-record fallback", () => {
+  const compare = registry(
+    variant({ op: "compare", left: "first", right: "second", relation: "gt" }),
+  );
+  const record = {
+    start: 10,
+    end: 30,
+    commandRange: { start: 10, end: 14 },
+    paramRanges: { A: { start: 17, end: 18 }, B: { start: 21, end: 22 } },
+  };
+  assert.equal(run(compare, { A: ["2"], B: ["1"] }, { record }).messages[0].focus, undefined);
+  const numeric = registry(variant({ op: "lt", param: "first", value: 0 }));
+  assert.equal(
+    run(numeric, { A: ["-1"] }, { record: { ...record, paramRanges: { A: { start: 0, end: 2 } } } })
+      .messages[0].focus,
+    undefined,
+  );
+});
+
+test("real ERR numeric and selector families retain exact parameter spans in related information", () => {
+  const engine = new LintEngine();
+  const humidity = engine
+    .analyze({ uri: "file:///focus.dat", text: "+PROG AQB\nEIGE RH 110\nEND\n" })
+    .diagnostics.find((item) => item.code === "aqb-creep-humidity-range");
+  assert.ok(humidity);
+  assert.deepEqual(humidity.data.focusOrigin.range, {
+    start: { line: 1, character: 8 },
+    end: { line: 1, character: 11 },
+  });
+  const selector = engine
+    .analyze({ uri: "file:///focus.dat", text: "+PROG COLUMN\nFIRE R 45\nEND\n" })
+    .diagnostics.find((item) => item.code === "column-fire-class-supported");
+  assert.ok(selector);
+  assert.deepEqual(selector.data.focusOrigin.range, {
+    start: { line: 1, character: 7 },
+    end: { line: 1, character: 9 },
+  });
+});
+
+test("real ERR missing-field and missing-parent families retain command blame", () => {
+  const engine = new LintEngine();
+  const required = engine
+    .analyze({ uri: "file:///focus.dat", text: "+PROG RELY\nVAR TYPE NORM P1 1 P2 0.1\nEND\n" })
+    .diagnostics.find((item) => item.code === "rely-var-name-required");
+  assert.ok(required);
+  assert.deepEqual(required.data.focusOrigin.range, {
+    start: { line: 1, character: 0 },
+    end: { line: 1, character: 3 },
+  });
+  const parent = engine
+    .analyze({ uri: "file:///focus.dat", text: "+PROG AQUA\nVERT NO 1 Y 0 Z 0\nEND\n" })
+    .diagnostics.find((item) => item.code === "vertex-without-polygon");
+  assert.ok(parent);
+  assert.deepEqual(parent.data.focusOrigin.range, {
+    start: { line: 1, character: 0 },
+    end: { line: 1, character: 4 },
+  });
+});
+
+test("parameter focus follows semicolon records, continuations and implicit table rows", () => {
+  const engine = new LintEngine();
+  const cases = [
+    { source: "+PROG AQB\nEIGE RH 50; EIGE RH 110\nEND\n", line: 1, start: 20, end: 23 },
+    { source: "+PROG AQB\nEIGE MNO 1 $$\nRH 110\nEND\n", line: 2, start: 3, end: 6 },
+    { source: "+PROG AQB\nEIGE RH TEMP\n110 20\nEND\n", line: 2, start: 0, end: 3 },
+  ];
+  for (const item of cases) {
+    const issue = engine
+      .analyze({ uri: "file:///focus.dat", text: item.source })
+      .diagnostics.find((diagnostic) => diagnostic.code === "aqb-creep-humidity-range");
+    assert.ok(issue, item.source);
+    assert.deepEqual(
+      issue.data.focusOrigin.range,
+      {
+        start: { line: item.line, character: item.start },
+        end: { line: item.line, character: item.end },
+      },
+      item.source,
+    );
+  }
+});
+
+test("real multi-field conflicts retain the complete record as their focus", () => {
+  const engine = new LintEngine();
+  const cases = [
+    {
+      module: "DBPRIN",
+      body: "ITEM TYPE BEAM KIND STIF",
+      rule: "dbprin-beam-stiffness-unsupported",
+    },
+    { module: "FEACHECK", body: "SOFT MR1L 2 MR1U 1", rule: "feacheck-soft-input" },
+  ];
+  for (const item of cases) {
+    const issue = engine
+      .analyze({ uri: "file:///focus.dat", text: `+PROG ${item.module}\n${item.body}\nEND\n` })
+      .diagnostics.find((diagnostic) => diagnostic.code === item.rule);
+    assert.ok(issue);
+    const whole = {
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: item.body.length },
+    };
+    assert.deepEqual(issue.data.focusOrigin.range, whole);
+    assert.deepEqual(issue.data.recordOrigin.range, whole);
+  }
 });
