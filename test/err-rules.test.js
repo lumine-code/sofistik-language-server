@@ -202,6 +202,49 @@ test("audit covers every source catalogue and rule evidence matches committed re
   }
 });
 
+test("new general control codes retain verified native evidence for every enabled release", () => {
+  const selected = {
+    "invalid-control-nesting": "G307",
+    "missing-control-condition": "G308",
+    "unclosed-control": "G309",
+  };
+  const metadata = provider.getMetadata();
+  const { codeFor } = require("../lib/lint-codes");
+  for (const [id, code] of Object.entries(selected)) {
+    assert.equal(codeFor(id), code);
+    const references = audit.generalEvidence[id];
+    assert.ok(references.length);
+    assert.deepEqual(
+      [...new Set(references.map((reference) => reference.version))].sort(),
+      registry.releases,
+    );
+    for (const reference of references) {
+      const source = metadata.provenance.releases[reference.version].catalogues.find(
+        (item) => item.file === "sofistik.err",
+      );
+      assert.equal(reference.sha256, source.sha256);
+      assert.ok(reference.line > 0);
+    }
+  }
+});
+
+test("new implicit RHOI bounds retain unit uncertainty across disabled programs", async () => {
+  const source =
+    "+PROG AQUA\nNORM UNIT 1\nEND\n-PROG TEMPLATE\nEND\n+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 1.2\nEND\n";
+  for (const version of ["2025", "2026"]) {
+    const engine = new LintEngine();
+    for (let repeat = 0; repeat < 2; repeat++) {
+      const result = await analyze(engine, source, version);
+      assert.equal(
+        result.diagnostics.some(({ code }) => code === "feabench-gena-spectral-radius"),
+        false,
+      );
+    }
+  }
+  const fixed = await analyze(new LintEngine(), source, "2024");
+  assert.ok(fixed.diagnostics.some(({ code }) => code === "feabench-gena-spectral-radius"));
+});
+
 test("numeric rules preserve unresolved expressions and units without calculating CADINP", async () => {
   const engine = new LintEngine();
   for (const value of ["110/2", "#humidity", "110[%]", "'110'", "''110''"]) {

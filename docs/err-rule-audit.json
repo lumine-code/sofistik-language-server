@@ -30,11 +30,13 @@
       "candidateIds": [
         "ase-step-storage-single-step",
         "ase-launch-translation-rotation-conflict",
-        "ase-launch-axis-overdefined"
+        "ase-launch-axis-overdefined",
+        "ase-step-alf-nonnegative",
+        "ase-lc-dead-load-direction-conflict"
       ],
       "status": "safe-candidates",
       "excluded": [
-        "Nonlinear/design-code restrictions, primary load cases and system dimensionality require CDB. Control numeric selectors tied to program modes/defaults are excluded."
+        "Nonlinear/design-code restrictions, primary load cases and system dimensionality require CDB. GRP2 restrictions from native ERR 666/946 conflict with the 2026 manual's combined-factor formulas and remain deferred. Legacy STEP ALF is checked only without an explicit BET override."
       ]
     },
     {
@@ -107,10 +109,14 @@
     {
       "module": "CSA",
       "catalogVersions": ["2023", "2024", "2025", "2026"],
-      "candidateIds": ["csa-load-set-number-positive"],
+      "candidateIds": [
+        "csa-load-set-number-positive",
+        "csa-takeda-unloading-range",
+        "csa-takeda-reloading-range"
+      ],
       "status": "safe-candidates",
       "excluded": [
-        "Takeda alpha/beta bounds are explicit, but mapping alpha/beta exactly to TAY/TAZ/TBY/TBZ is not spelled out in the ERR; deferred pending manual corroboration. TASK family legality depends on inherited task state and defaults."
+        "Takeda coefficient bounds are verified only for the 2026 EXPO SMAT / MTYP MTAK form. TASK family legality still depends on inherited task state and defaults."
       ]
     },
     {
@@ -232,7 +238,8 @@
         "sofimshc-grp-base-gdiv",
         "sof-gax-property-context",
         "sof-gar-property-context",
-        "sof-structural-property-context"
+        "sof-structural-property-context",
+        "sofimshc-sarb-bedding-conflict"
       ],
       "excluded": [
         "Geometric radii, mesh subdivisions, axis station order and referenced entities require geometry/CDB semantics. Family-specific property validation needs authoritative grouping beyond generic message230."
@@ -577,7 +584,10 @@
         "feabench-moving-speed-positive",
         "feabench-dtc-positive-controls",
         "feabench-dtc-reduction-range",
-        "feabench-eigenvalue-count-positive"
+        "feabench-eigenvalue-count-positive",
+        "feabench-moving-analysis-linearity",
+        "feabench-gena-spectral-radius",
+        "feabench-moving-position-style"
       ]
     },
     {
@@ -27176,10 +27186,3080 @@
         "line": 20,
         "sha256": "8579ae1e40a130e2854cd4a0f280a82ed34a176b557302c8a38fb01bda93f525"
       }
+    ],
+    "ase-step-alf-nonnegative": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/ase.err",
+        "code": "829",
+        "line": 2548,
+        "sha256": "3079af63b5bd5c71114a73b43db63de13ba71db93f6dd14183742a86ef5f3889",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "181050",
+          "bytes": 245080,
+          "catalogueSha256": "3079af63b5bd5c71114a73b43db63de13ba71db93f6dd14183742a86ef5f3889"
+        }
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/ase.err",
+        "code": "829",
+        "line": 2717,
+        "sha256": "a94e7d18b1956fb94d92d834ce6ccb021993c05dffb776e8c38600f6ee5c1f74",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 268898,
+          "catalogueSha256": "a94e7d18b1956fb94d92d834ce6ccb021993c05dffb776e8c38600f6ee5c1f74"
+        }
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/ase.err",
+        "code": "829",
+        "line": 2804,
+        "sha256": "547812a06342d449dcb8647761c36cd560d43f56329b637aa4a50b80c0380771",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 280675,
+          "catalogueSha256": "547812a06342d449dcb8647761c36cd560d43f56329b637aa4a50b80c0380771"
+        }
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/ase.err",
+        "code": "829",
+        "line": 2838,
+        "sha256": "8656b88c60f3cb5a8df86ddc258f3186683dd625a7c807de5b8f4e3f0fdb7501",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 292872,
+          "catalogueSha256": "8656b88c60f3cb5a8df86ddc258f3186683dd625a7c807de5b8f4e3f0fdb7501"
+        }
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/ase.err",
+        "code": "829",
+        "line": 2850,
+        "sha256": "457f498e670a775fd4403b9915c13f906cbf1bc3671c8590521c2cce46b9910f",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 296020,
+          "catalogueSha256": "457f498e670a775fd4403b9915c13f906cbf1bc3671c8590521c2cce46b9910f"
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/ase.err",
+        "code": "829",
+        "line": 2876,
+        "sha256": "00a74924c4630419e916b584cc9a8f99d2f39cefa779d2ba150546f9d7c476ed",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 302029,
+          "catalogueSha256": "00a74924c4630419e916b584cc9a8f99d2f39cefa779d2ba150546f9d7c476ed"
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/ase.err",
+        "code": "829",
+        "line": 2893,
+        "sha256": "f5d53d1ce4a0260d11b6640d9fac1c76d107db2c3a0f75badea12f7d813a4501",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 303511,
+          "catalogueSha256": "f5d53d1ce4a0260d11b6640d9fac1c76d107db2c3a0f75badea12f7d813a4501"
+        }
+      }
+    ],
+    "ase-lc-dead-load-direction-conflict": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/ase.err",
+        "code": "629",
+        "line": 2431,
+        "sha256": "3079af63b5bd5c71114a73b43db63de13ba71db93f6dd14183742a86ef5f3889",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "181050",
+          "bytes": 245080,
+          "catalogueSha256": "3079af63b5bd5c71114a73b43db63de13ba71db93f6dd14183742a86ef5f3889"
+        }
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/ase.err",
+        "code": "629",
+        "line": 2442,
+        "sha256": "a94e7d18b1956fb94d92d834ce6ccb021993c05dffb776e8c38600f6ee5c1f74",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 268898,
+          "catalogueSha256": "a94e7d18b1956fb94d92d834ce6ccb021993c05dffb776e8c38600f6ee5c1f74"
+        }
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/ase.err",
+        "code": "629",
+        "line": 2473,
+        "sha256": "547812a06342d449dcb8647761c36cd560d43f56329b637aa4a50b80c0380771",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 280675,
+          "catalogueSha256": "547812a06342d449dcb8647761c36cd560d43f56329b637aa4a50b80c0380771"
+        }
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/ase.err",
+        "code": "629",
+        "line": 2496,
+        "sha256": "8656b88c60f3cb5a8df86ddc258f3186683dd625a7c807de5b8f4e3f0fdb7501",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 292872,
+          "catalogueSha256": "8656b88c60f3cb5a8df86ddc258f3186683dd625a7c807de5b8f4e3f0fdb7501"
+        }
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/ase.err",
+        "code": "629",
+        "line": 2498,
+        "sha256": "457f498e670a775fd4403b9915c13f906cbf1bc3671c8590521c2cce46b9910f",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 296020,
+          "catalogueSha256": "457f498e670a775fd4403b9915c13f906cbf1bc3671c8590521c2cce46b9910f"
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/ase.err",
+        "code": "629",
+        "line": 2496,
+        "sha256": "00a74924c4630419e916b584cc9a8f99d2f39cefa779d2ba150546f9d7c476ed",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 302029,
+          "catalogueSha256": "00a74924c4630419e916b584cc9a8f99d2f39cefa779d2ba150546f9d7c476ed"
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/ase.err",
+        "code": "629",
+        "line": 2498,
+        "sha256": "f5d53d1ce4a0260d11b6640d9fac1c76d107db2c3a0f75badea12f7d813a4501",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "200070",
+          "bytes": 303511,
+          "catalogueSha256": "f5d53d1ce4a0260d11b6640d9fac1c76d107db2c3a0f75badea12f7d813a4501"
+        }
+      }
+    ],
+    "csa-takeda-unloading-range": [
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/csa.err",
+        "code": "015",
+        "line": 66,
+        "sha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "010170",
+          "bytes": 4030,
+          "catalogueSha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9"
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/csa.err",
+        "code": "016",
+        "line": 68,
+        "sha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "010170",
+          "bytes": 4030,
+          "catalogueSha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9"
+        }
+      }
+    ],
+    "csa-takeda-reloading-range": [
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/csa.err",
+        "code": "017",
+        "line": 70,
+        "sha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "010170",
+          "bytes": 4030,
+          "catalogueSha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9"
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/csa.err",
+        "code": "018",
+        "line": 72,
+        "sha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "010170",
+          "bytes": 4030,
+          "catalogueSha256": "ef22cb73b1639f7c10de834ef09127961eb29072d9890aa16378e78ad8fba9a9"
+        }
+      }
+    ],
+    "sofimshc-sarb-bedding-conflict": [
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sofimshc.err",
+        "code": "279",
+        "line": 578,
+        "sha256": "d042f9415a653f682084e3e9190cfcbf654901cf18cadf16a6a3d8ff54c7775d",
+        "sourceMetadata": {
+          "file": "sofistik-data/schema/meta.json",
+          "sha256": "0dcd24573f80587ba5869b8330df90e4510d66028167bd117fb0bda48418ab1a",
+          "catalogueVersion": "250370",
+          "bytes": 69607,
+          "catalogueSha256": "d042f9415a653f682084e3e9190cfcbf654901cf18cadf16a6a3d8ff54c7775d"
+        }
+      }
+    ],
+    "feabench-moving-analysis-linearity": [
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sof_fea_analysis.err",
+        "code": "335D",
+        "line": 304,
+        "sha256": "b4fcf0e49f62fc63c7b38164dbbc0a4688f60725fabcc4b70667a3f696c348f9",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2024.en.json",
+            "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2024.de.json",
+            "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2024/SOFiSTiK 2024/feabench.pdf",
+          "pages": [87]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2024/feabench.err",
+          "sha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "metaSha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sof_fea_analysis.err",
+        "code": "335E",
+        "line": 305,
+        "sha256": "b4fcf0e49f62fc63c7b38164dbbc0a4688f60725fabcc4b70667a3f696c348f9",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2024.en.json",
+            "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2024.de.json",
+            "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2024/SOFiSTiK 2024/feabench.pdf",
+          "pages": [87]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2024/feabench.err",
+          "sha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "metaSha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "335D",
+        "line": 326,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [103]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "335E",
+        "line": 327,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [103]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "335D",
+        "line": 334,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [133]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "335E",
+        "line": 335,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 2,
+                    "name": "PHYS",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["LINE", "NONL"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 3,
+                    "name": "GEOM",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["TH1", "TH2", "TH3"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [133]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      }
+    ],
+    "feabench-gena-spectral-radius": [
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sof_fea_analysis.err",
+        "code": "321D",
+        "line": 262,
+        "sha256": "b4fcf0e49f62fc63c7b38164dbbc0a4688f60725fabcc4b70667a3f696c348f9",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2024.en.json",
+            "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2024.de.json",
+            "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2024/SOFiSTiK 2024/feabench.pdf",
+          "pages": [93, 96, 97]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2024/feabench.err",
+          "sha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "metaSha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sof_fea_analysis.err",
+        "code": "321E",
+        "line": 263,
+        "sha256": "b4fcf0e49f62fc63c7b38164dbbc0a4688f60725fabcc4b70667a3f696c348f9",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2024.en.json",
+            "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2024.de.json",
+            "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2024/SOFiSTiK 2024/feabench.pdf",
+          "pages": [93, 96, 97]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2024/feabench.err",
+          "sha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "metaSha256": "ff789779c2a070e4e6228a25629b427c454adcbc4884bb3d9bb0b98ee71afcb6",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "321D",
+        "line": 284,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [109, 112, 113]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "321E",
+        "line": 285,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [109, 112, 113]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "321D",
+        "line": 292,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [114, 117, 118]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "321E",
+        "line": 293,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "STEP": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "keyword",
+                    "dataTypeCode": null,
+                    "enumValues": ["GENA", "HHTA", "NEWC", "STTC", "USER", "WBZA"],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 7,
+                    "name": "RHOI",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  },
+                  {
+                    "position": 8,
+                    "name": "ALFF",
+                    "kind": "keyword",
+                    "dataTypeCode": "1299",
+                    "enumValues": [],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [114, 117, 118]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      }
+    ],
+    "feabench-moving-position-style": [
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "347D",
+        "line": 362,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [103, 104]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sof_fea_analysis.err",
+        "code": "347E",
+        "line": 364,
+        "sha256": "8de7ff893225f46fc8a8453647da1e9e5bbaaac252fa038add841cb07348831b",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2025.en.json",
+            "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2025.de.json",
+            "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": ["BUCK", "CHKS", "EIGE", "FEA", "MCS", "MLT", "RSA", "SLVL"],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2025/SOFiSTiK 2025/feabench.pdf",
+          "pages": [103, 104]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2025/feabench.err",
+          "sha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "metaSha256": "e55850ca7ecb6d6528a78846cb9b7d3abd464f18d2d016196b00cd5db2292da3",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "347D",
+        "line": 370,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [133, 135]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sof_fea_analysis.err",
+        "code": "347E",
+        "line": 372,
+        "sha256": "b63ec344ffdce427f3f1c86e048fe5a32e3139de35f8b634ff32144fdda8bbeb",
+        "schema": {
+          "en": {
+            "file": "sofistik-data/schema/sofistik.2026.en.json",
+            "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          },
+          "de": {
+            "file": "sofistik-data/schema/sofistik.2026.de.json",
+            "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+            "records": {
+              "TASK": [
+                [
+                  {
+                    "position": 1,
+                    "name": "TYPE",
+                    "kind": "enum",
+                    "dataTypeCode": null,
+                    "enumValues": [
+                      "BUCK",
+                      "CHKS",
+                      "EIGE",
+                      "FEA",
+                      "FFA",
+                      "MCS",
+                      "MLT",
+                      "RSA",
+                      "SLVL"
+                    ],
+                    "enumRedirect": null
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "manual": {
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/feabench.pdf",
+          "pages": [133, 135]
+        },
+        "hostGrammarSource": {
+          "file": "sofistik-data/build/2026/feabench.err",
+          "sha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "metaSha256": "7ca797a25b1eb2140d250aa9c32d25084d463c841ee6c13a6a6711f481da7da9",
+          "matchesMeta": true
+        }
+      }
     ]
   },
   "exclusions": [
     "STAR NSTR bounds use the shared general rules instead of duplicate diagnostics.",
-    "SHEARWALL CHCK legacy safety fields remain deferred: the current manual documents only STAT, so their backend use is not confirmed."
+    "SHEARWALL CHCK legacy safety fields remain deferred: the current manual documents only STAT, so their backend use is not confirmed.",
+    "ASE GRP2 native ERR 666/946 remain deferred: the 2026 manual combines these factors; the actual triggering modes are unverified."
+  ],
+  "additionalReviews": {
+    "ase-step-alf-nonnegative": {
+      "variants": [
+        {
+          "schemaEvidence": [
+            {
+              "version": "2018",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2018.en.json",
+              "sha256": "0dc6455a5317e59f4ce229e5b399f6e4c95d95bc4639e7e9bd7b46f912c7268f",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2018",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2018.de.json",
+              "sha256": "011b5a559904444ae1e06df40cbd7d42a9ae60b734cc56159326d311c3c64193",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2020",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2020.en.json",
+              "sha256": "781c342cda77cf65eb4559de50dc63c8cab5d6f95f44a68a70471295695146b7",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2020",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2020.de.json",
+              "sha256": "ee0f8228285c9aa42143b34f7c51c8d3a351612bc89ef98453bebb2573d13a11",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2022",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2022.en.json",
+              "sha256": "8e4fee1f2fe8515d47db248b89639b206d7b11cb15fcc9e656e8057a2dc9ecc5",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2022",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2022.de.json",
+              "sha256": "c30659418b8d623cd4909d93d7f51c6079375b3942249283ca0fa336db2b01fb",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2023",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2023.en.json",
+              "sha256": "a86f1095b035576cafbd0f7917f6fbd72b9e057f4942d03233fc434f4def6f7c",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2023",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2023.de.json",
+              "sha256": "da25d6292c4a534af6d6f15c304e3781a662f9ca41555eab462a0699e78f5e39",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2024",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2024.en.json",
+              "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2024",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2024.de.json",
+              "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2025",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2025.en.json",
+              "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2025",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2025.de.json",
+              "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "en",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2026.en.json",
+              "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "de",
+              "module": "ASE",
+              "command": "STEP",
+              "file": "sofistik-data/schema/sofistik.2026.de.json",
+              "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+              "fields": [
+                {
+                  "name": "ALF",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "BET",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            }
+          ],
+          "manualEvidence": [
+            {
+              "version": "2026",
+              "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/ase_1.pdf",
+              "sha256": "fe37540771e62adf98c901d606f8d701415ffa678931e9803b6552db54ffc899",
+              "section": "3.5 STEP",
+              "pdfPages": [133],
+              "findings": [
+                "ALF is a legacy coefficient. No claim is made about alpha/Newmark-beta semantics.",
+                "Require BET absent rather than assuming which coefficient takes precedence when both old and new fields are supplied.",
+                "Only explicit known literal ALF is assessed; no inferred default."
+              ]
+            }
+          ],
+          "notes": [
+            "ALF is a legacy coefficient. No claim is made about alpha/Newmark-beta semantics.",
+            "Require BET absent rather than assuming which coefficient takes precedence when both old and new fields are supplied.",
+            "Only explicit known literal ALF is assessed; no inferred default."
+          ]
+        }
+      ]
+    },
+    "ase-lc-dead-load-direction-conflict": {
+      "variants": [
+        {
+          "schemaEvidence": [
+            {
+              "version": "2018",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2018.en.json",
+              "sha256": "0dc6455a5317e59f4ce229e5b399f6e4c95d95bc4639e7e9bd7b46f912c7268f",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2018",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2018.de.json",
+              "sha256": "011b5a559904444ae1e06df40cbd7d42a9ae60b734cc56159326d311c3c64193",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2020",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2020.en.json",
+              "sha256": "781c342cda77cf65eb4559de50dc63c8cab5d6f95f44a68a70471295695146b7",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2020",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2020.de.json",
+              "sha256": "ee0f8228285c9aa42143b34f7c51c8d3a351612bc89ef98453bebb2573d13a11",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2022",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2022.en.json",
+              "sha256": "8e4fee1f2fe8515d47db248b89639b206d7b11cb15fcc9e656e8057a2dc9ecc5",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2022",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2022.de.json",
+              "sha256": "c30659418b8d623cd4909d93d7f51c6079375b3942249283ca0fa336db2b01fb",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2023",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2023.en.json",
+              "sha256": "a86f1095b035576cafbd0f7917f6fbd72b9e057f4942d03233fc434f4def6f7c",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2023",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2023.de.json",
+              "sha256": "da25d6292c4a534af6d6f15c304e3781a662f9ca41555eab462a0699e78f5e39",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2024",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2024.en.json",
+              "sha256": "8b0935fc530356a6613fd3282fdbdaa06dcc69b991b82ae59b3b68db45ea6ddb",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2024",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2024.de.json",
+              "sha256": "5375867effaa3130eb19d4dbabb443afe2a4b0b1c0eaf3597f1b373217707026",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2025",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2025.en.json",
+              "sha256": "8a13f27a7aa1ba8492d4f85a2f26a12a098168a186a3da9c3118d5f1df4c361f",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2025",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2025.de.json",
+              "sha256": "fa293613038b316a902921b1daafdbc88982628a963fd346af3a88ca7c6a0ecc",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "en",
+              "module": "ASE",
+              "command": "LC",
+              "file": "sofistik-data/schema/sofistik.2026.en.json",
+              "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+              "fields": [
+                {
+                  "name": "FACD",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "DLZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "de",
+              "module": "ASE",
+              "command": "LF",
+              "file": "sofistik-data/schema/sofistik.2026.de.json",
+              "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+              "fields": [
+                {
+                  "name": "FAKG",
+                  "position": 3,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGX",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGY",
+                  "position": 5,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "EGZ",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            }
+          ],
+          "manualEvidence": [
+            {
+              "version": "2026",
+              "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/ase_1.pdf",
+              "sha256": "fe37540771e62adf98c901d606f8d701415ffa678931e9803b6552db54ffc899",
+              "section": "3.29 LC",
+              "pdfPages": [185],
+              "findings": [
+                "FACD and directional dead-load factors default to zero. Mere presence is not a conflict.",
+                "The rule requires an explicit finite nonzero factor in both representations.",
+                "All four fields are dimensionless; unrelated UNIT changes do not manufacture dimensional uncertainty."
+              ]
+            }
+          ],
+          "notes": [
+            "FACD and directional dead-load factors default to zero. Mere presence is not a conflict.",
+            "The rule requires an explicit finite nonzero factor in both representations.",
+            "All four fields are dimensionless; unrelated UNIT changes do not manufacture dimensional uncertainty."
+          ]
+        }
+      ]
+    },
+    "csa-takeda-unloading-range": {
+      "variants": [
+        {
+          "schemaEvidence": [
+            {
+              "version": "2026",
+              "language": "en",
+              "module": "CSA",
+              "command": "EXPO",
+              "file": "sofistik-data/schema/sofistik.2026.en.json",
+              "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+              "fields": [
+                {
+                  "name": "OPT",
+                  "position": 1,
+                  "dataTypeCode": null,
+                  "enumValues": ["SMAT"]
+                },
+                {
+                  "name": "MTYP",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": ["HYPE", "MTAK", "PLAS"]
+                },
+                {
+                  "name": "TAY",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "TAZ",
+                  "position": 7,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "de",
+              "module": "CSA",
+              "command": "EXPO",
+              "file": "sofistik-data/schema/sofistik.2026.de.json",
+              "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+              "fields": [
+                {
+                  "name": "OPT",
+                  "position": 1,
+                  "dataTypeCode": null,
+                  "enumValues": ["SMAT"]
+                },
+                {
+                  "name": "MTYP",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": ["HYPE", "MTAK", "PLAS"]
+                },
+                {
+                  "name": "TAY",
+                  "position": 6,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "TAZ",
+                  "position": 7,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            }
+          ],
+          "manualEvidence": [
+            {
+              "version": "2026",
+              "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/csa.pdf",
+              "sha256": "fec9893b096d2cf9742ea5b53bc1e30a8fb3049555addd55e958d5e65c340d96",
+              "section": "6.6 EXPO",
+              "pdfPages": [33],
+              "findings": [
+                "Manual explicitly maps unloading alpha to TAY/TAZ and gives the closed interval [0,1].",
+                "EXPO OPT SMAT and MTYP MTAK must both be explicit. Default MTYP HYPE does not activate Takeda checks.",
+                "Defaults of all four coefficients are zero; omission is not judged.",
+                "The four Takeda coefficient fields and corresponding native errors are present only in the 2026 catalogue; earlier EXPO forms do not qualify."
+              ]
+            }
+          ],
+          "notes": [
+            "Manual explicitly maps unloading alpha to TAY/TAZ and gives the closed interval [0,1].",
+            "EXPO OPT SMAT and MTYP MTAK must both be explicit. Default MTYP HYPE does not activate Takeda checks.",
+            "Defaults of all four coefficients are zero; omission is not judged.",
+            "The four Takeda coefficient fields and corresponding native errors are present only in the 2026 catalogue; earlier EXPO forms do not qualify."
+          ]
+        }
+      ]
+    },
+    "csa-takeda-reloading-range": {
+      "variants": [
+        {
+          "schemaEvidence": [
+            {
+              "version": "2026",
+              "language": "en",
+              "module": "CSA",
+              "command": "EXPO",
+              "file": "sofistik-data/schema/sofistik.2026.en.json",
+              "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+              "fields": [
+                {
+                  "name": "OPT",
+                  "position": 1,
+                  "dataTypeCode": null,
+                  "enumValues": ["SMAT"]
+                },
+                {
+                  "name": "MTYP",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": ["HYPE", "MTAK", "PLAS"]
+                },
+                {
+                  "name": "TBY",
+                  "position": 8,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "TBZ",
+                  "position": 9,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "de",
+              "module": "CSA",
+              "command": "EXPO",
+              "file": "sofistik-data/schema/sofistik.2026.de.json",
+              "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+              "fields": [
+                {
+                  "name": "OPT",
+                  "position": 1,
+                  "dataTypeCode": null,
+                  "enumValues": ["SMAT"]
+                },
+                {
+                  "name": "MTYP",
+                  "position": 4,
+                  "dataTypeCode": null,
+                  "enumValues": ["HYPE", "MTAK", "PLAS"]
+                },
+                {
+                  "name": "TBY",
+                  "position": 8,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "TBZ",
+                  "position": 9,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                }
+              ]
+            }
+          ],
+          "manualEvidence": [
+            {
+              "version": "2026",
+              "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/csa.pdf",
+              "sha256": "fec9893b096d2cf9742ea5b53bc1e30a8fb3049555addd55e958d5e65c340d96",
+              "section": "6.6 EXPO",
+              "pdfPages": [33],
+              "findings": [
+                "Manual explicitly maps reloading beta to TBY/TBZ and gives the closed interval [-1,1].",
+                "EXPO OPT SMAT and MTYP MTAK must both be explicit. Zero defaults and HYPE/PLAS modes must not be diagnosed.",
+                "Only 2026 has the required native errors and schema fields."
+              ]
+            }
+          ],
+          "notes": [
+            "Manual explicitly maps reloading beta to TBY/TBZ and gives the closed interval [-1,1].",
+            "EXPO OPT SMAT and MTYP MTAK must both be explicit. Zero defaults and HYPE/PLAS modes must not be diagnosed.",
+            "Only 2026 has the required native errors and schema fields."
+          ]
+        }
+      ]
+    },
+    "sofimshc-sarb-bedding-conflict": {
+      "variants": [
+        {
+          "schemaEvidence": [
+            {
+              "version": "2026",
+              "language": "en",
+              "module": "SOFIMSHC",
+              "command": "SARB",
+              "file": "sofistik-data/schema/sofistik.2026.en.json",
+              "sha256": "82b1f6dcdf037e3b10a95b34ef038c475329cab612bdf4223178c9eb99623226",
+              "fields": [
+                {
+                  "name": "MNO",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "CA",
+                  "position": 16,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CL",
+                  "position": 17,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CD",
+                  "position": 18,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CX",
+                  "position": 20,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CY",
+                  "position": 21,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CZ",
+                  "position": 22,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMX",
+                  "position": 23,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMY",
+                  "position": 24,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMZ",
+                  "position": 25,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                }
+              ]
+            },
+            {
+              "version": "2026",
+              "language": "de",
+              "module": "SOFIMSHC",
+              "command": "SARB",
+              "file": "sofistik-data/schema/sofistik.2026.de.json",
+              "sha256": "9fabd0524d5b2ff27d73e53661fa4a1dfd24f958523468df607f26ce9cf64158",
+              "fields": [
+                {
+                  "name": "MNR",
+                  "position": 10,
+                  "dataTypeCode": null,
+                  "enumValues": []
+                },
+                {
+                  "name": "CA",
+                  "position": 16,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CL",
+                  "position": 17,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CD",
+                  "position": 18,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CX",
+                  "position": 20,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CY",
+                  "position": 21,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CZ",
+                  "position": 22,
+                  "dataTypeCode": "1096",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMX",
+                  "position": 23,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMY",
+                  "position": 24,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                },
+                {
+                  "name": "CMZ",
+                  "position": 25,
+                  "dataTypeCode": "1099",
+                  "enumValues": []
+                }
+              ]
+            }
+          ],
+          "manualEvidence": [
+            {
+              "version": "2026",
+              "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/sofimshc_1.pdf",
+              "sha256": "f42b2be8325f1a8160df094b2b85500926da0dda5a25367b29dbcae2808b859b",
+              "section": "5.13 SARB",
+              "pdfPages": [96, 97],
+              "findings": [
+                "The manual documents two alternative bedding representations, with all stiffness fields and MNO defaulting to zero.",
+                "Require an explicit known nonzero Cartesian component and explicit known nonzero CA/CL/CD or a positive integer MNO/MNR.",
+                "Omission, zero placeholders, negative/fractional material selectors, expressions and ambiguous fields are not inferred as active bedding.",
+                "Dimensional stiffness fields have implicit unit codes 1096/1099. Existing engine UNIT uncertainty suppresses numeric interpretation until known.",
+                "Native ERR 279 and the required Cartesian stiffness schema fields exist only in 2026."
+              ]
+            }
+          ],
+          "notes": [
+            "The manual documents two alternative bedding representations, with all stiffness fields and MNO defaulting to zero.",
+            "Require an explicit known nonzero Cartesian component and explicit known nonzero CA/CL/CD or a positive integer MNO/MNR.",
+            "Omission, zero placeholders, negative/fractional material selectors, expressions and ambiguous fields are not inferred as active bedding.",
+            "Dimensional stiffness fields have implicit unit codes 1096/1099. Existing engine UNIT uncertainty suppresses numeric interpretation until known.",
+            "Native ERR 279 and the required Cartesian stiffness schema fields exist only in 2026."
+          ]
+        }
+      ]
+    },
+    "feabench-moving-analysis-linearity": {
+      "notes": [
+        "Only an explicit MLT task and explicit conflicting PHYS/GEOM selectors are diagnosed.",
+        "Omitted PHYS/GEOM values are not synthesized or treated as errors.",
+        "The 2026 task table documents LINE and TH1 defaults; native335 confirms the same restriction in2024/2025."
+      ],
+      "variants": [{}]
+    },
+    "feabench-gena-spectral-radius": {
+      "notes": [
+        "The input-description tables and native321 use strict endpoints; the theoretical parameter table allows endpoints mathematically but does not change the documented CADINP input restriction.",
+        "RHOI defaults to0.8. This rule only checks an explicitly provided finite literal.",
+        "Do not extend this rule to HHTA: a directly supplied ALFF overrides RHOI, and the HHTA input table has a different lower bound.",
+        "The 2024 RHOI schema has no implicit datatype;2025/2026 use1299 and the existing unknown-unit guard applies."
+      ],
+      "variants": [{}]
+    },
+    "feabench-moving-position-style": {
+      "notes": [
+        "Native347 is present only in the2025/2026catalogues; no2024fallback.",
+        "TASK resets both styles. END/PROG inherit the existing framework context resets.",
+        "Only explicit style classifications produce findings. Omitted, variable, arithmetic, list or unit-annotated SVAL values remain unknown; they never become guessed STRT/END defaults.",
+        "At uncertain IF joins, the existing nullable $err state prevents proving that both styles occurred.",
+        "String membership is explicitly guarded by not(number), because a numeric value compared with a string-only set intentionally yields unknown."
+      ],
+      "variants": [{}, {}]
+    }
+  },
+  "generalEvidence": {
+    "invalid-control-nesting": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/sofistik.err",
+        "code": "102",
+        "line": 558,
+        "sha256": "a3c3ee58f16f6eafcbce7301afbfddb5c273af0750268a0ffd8d361fee7a531d"
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "6450eb4695aed20d42ad652845bd788f2f875a8350c0084402e61665e1236218"
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "7f2234afa50fde189ddd80d9422338614937cd02557c2935dfa8b4cc9cd17098"
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "c36d5dd1588b4d77aa7da0e868cac0f1d91133951d990bc0ebacdb318f8f3510"
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sofistik.err",
+        "code": "102",
+        "line": 568,
+        "sha256": "f177b43322370b5fdbac428e4037fc7a30fe68fad9f1d62ac6454d368cd4ae7b"
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sofistik.err",
+        "code": "102",
+        "line": 568,
+        "sha256": "c5d66af8c7290fb97639372debcc60b67235de705d9587208a21d81795136519"
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sofistik.err",
+        "code": "102",
+        "line": 581,
+        "sha256": "2f3ccb40f84ea3141e57fad1f0f7e2fc2abb3647895dfa4983dde5a0da392821"
+      }
+    ],
+    "missing-control-condition": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/sofistik.err",
+        "code": "104",
+        "line": 562,
+        "sha256": "a3c3ee58f16f6eafcbce7301afbfddb5c273af0750268a0ffd8d361fee7a531d"
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/sofistik.err",
+        "code": "104",
+        "line": 568,
+        "sha256": "6450eb4695aed20d42ad652845bd788f2f875a8350c0084402e61665e1236218"
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/sofistik.err",
+        "code": "104",
+        "line": 568,
+        "sha256": "7f2234afa50fde189ddd80d9422338614937cd02557c2935dfa8b4cc9cd17098"
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/sofistik.err",
+        "code": "104",
+        "line": 568,
+        "sha256": "c36d5dd1588b4d77aa7da0e868cac0f1d91133951d990bc0ebacdb318f8f3510"
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sofistik.err",
+        "code": "104",
+        "line": 572,
+        "sha256": "f177b43322370b5fdbac428e4037fc7a30fe68fad9f1d62ac6454d368cd4ae7b"
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sofistik.err",
+        "code": "104",
+        "line": 572,
+        "sha256": "c5d66af8c7290fb97639372debcc60b67235de705d9587208a21d81795136519"
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sofistik.err",
+        "code": "104",
+        "line": 585,
+        "sha256": "2f3ccb40f84ea3141e57fad1f0f7e2fc2abb3647895dfa4983dde5a0da392821"
+      }
+    ],
+    "unclosed-control": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/sofistik.err",
+        "code": "117",
+        "line": 601,
+        "sha256": "a3c3ee58f16f6eafcbce7301afbfddb5c273af0750268a0ffd8d361fee7a531d"
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/sofistik.err",
+        "code": "117",
+        "line": 607,
+        "sha256": "6450eb4695aed20d42ad652845bd788f2f875a8350c0084402e61665e1236218"
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/sofistik.err",
+        "code": "117",
+        "line": 607,
+        "sha256": "7f2234afa50fde189ddd80d9422338614937cd02557c2935dfa8b4cc9cd17098"
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/sofistik.err",
+        "code": "117",
+        "line": 607,
+        "sha256": "c36d5dd1588b4d77aa7da0e868cac0f1d91133951d990bc0ebacdb318f8f3510"
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sofistik.err",
+        "code": "117",
+        "line": 611,
+        "sha256": "f177b43322370b5fdbac428e4037fc7a30fe68fad9f1d62ac6454d368cd4ae7b"
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sofistik.err",
+        "code": "117",
+        "line": 611,
+        "sha256": "c5d66af8c7290fb97639372debcc60b67235de705d9587208a21d81795136519"
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sofistik.err",
+        "code": "117",
+        "line": 624,
+        "sha256": "2f3ccb40f84ea3141e57fad1f0f7e2fc2abb3647895dfa4983dde5a0da392821"
+      }
+    ],
+    "orphan-control": [
+      {
+        "version": "2018",
+        "file": "sofistik-data/build/2018/sofistik.err",
+        "code": "102",
+        "line": 558,
+        "sha256": "a3c3ee58f16f6eafcbce7301afbfddb5c273af0750268a0ffd8d361fee7a531d"
+      },
+      {
+        "version": "2020",
+        "file": "sofistik-data/build/2020/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "6450eb4695aed20d42ad652845bd788f2f875a8350c0084402e61665e1236218"
+      },
+      {
+        "version": "2022",
+        "file": "sofistik-data/build/2022/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "7f2234afa50fde189ddd80d9422338614937cd02557c2935dfa8b4cc9cd17098"
+      },
+      {
+        "version": "2023",
+        "file": "sofistik-data/build/2023/sofistik.err",
+        "code": "102",
+        "line": 564,
+        "sha256": "c36d5dd1588b4d77aa7da0e868cac0f1d91133951d990bc0ebacdb318f8f3510"
+      },
+      {
+        "version": "2024",
+        "file": "sofistik-data/build/2024/sofistik.err",
+        "code": "102",
+        "line": 568,
+        "sha256": "f177b43322370b5fdbac428e4037fc7a30fe68fad9f1d62ac6454d368cd4ae7b"
+      },
+      {
+        "version": "2025",
+        "file": "sofistik-data/build/2025/sofistik.err",
+        "code": "102",
+        "line": 568,
+        "sha256": "c5d66af8c7290fb97639372debcc60b67235de705d9587208a21d81795136519"
+      },
+      {
+        "version": "2026",
+        "file": "sofistik-data/build/2026/sofistik.err",
+        "code": "102",
+        "line": 581,
+        "sha256": "2f3ccb40f84ea3141e57fad1f0f7e2fc2abb3647895dfa4983dde5a0da392821"
+      }
+    ]
+  },
+  "controlReviewNotes": [
+    "CADINP manual2026 section1.2.18 pp1-13/1-14 documents a9999 bound for a bareLOOP; therefore missing-condition checks apply to IF and ELSEIF, not to an otherwise bareLOOP.",
+    "A singleEND ends an input block and can occur before the true program boundary; missing closers are checked at explicit nextPROG/EOF only.",
+    "Empty-stack orphan closers now retain G305 but are checked in the expanded control stack; raw FinderIndex diagnostics remain available to its direct consumers and are filtered by the live lint service. Nonempty mismatches and duplicate/late branches are also evaluated after preprocessing.",
+    "Unknown expansions or runtimeAPPLY suppress downstream syntax certainty until an explicit nextPROG. Disabled programs and opaqueTEXT/legacytext bodies do not create control-stack frames.",
+    "Checks are independent of variable-flow branch analysis and do not evaluate CADINP arithmetic."
   ]
 }

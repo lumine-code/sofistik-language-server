@@ -57,6 +57,8 @@ The preprocessor supports case-insensitive, deferred `#DEFINE` substitutions, ne
 
 Variable checks distinguish ordered local `LET` declarations, persistent `STO` exports, `DEL`, external `RCL`, built-in names, arrays and conditional control flow. They report missing declarations in the analyzed input, rather than asserting that an existing CDB lacks a variable. Runtime CADINP expressions are not evaluated. Local variables reset at a new `PROG`; intermediate `END` input blocks reset command contexts such as the active load case while retaining local variables. Module caches include incoming persistent symbols, the selected schema and rule version. Compact lexical records are reused when the expanded program is unchanged or only one program body changes.
 
+Native `IF` and `LOOP` checks use the expanded caller context to detect orphan controls, incorrect nesting, missing conditions and unclosed blocks. Intermediate `END` records preserve control scope; the next `PROG` or end of input is a confirmed boundary. Bare `LOOP` retains its documented default iteration limit. Unsupported releases, unknown modules and unresolved input do not produce invented structural errors.
+
 Findings point to the offending variable, literal value or record in the original source, including included files. Substituted text points to its complete `$(...)` use and links the definitions used during expansion; composite tokens include the adjacent copied source text. Reusable blocks point to the failing invocation and link the exact body location, so separate calls retain their own context. Program headers remain related locations and independent suppression anchors. Inactive preprocessor branches produce no module findings. Existing calculation-log imports retain their original calculation codes and are independent of the static linter.
 
 Static diagnostic codes use a short module prefix and three digits, such as G101, AQ001 and SL001. G identifies general checks. Add NOQA = G101,SL001 to the adjacent sofistik.def to suppress selected codes, or NOQA = ALL for all static findings. Source comments ! noqa: G101 and $ noqa: G101 apply at the original offending line; a pragma on a program header applies to its variable and module checks, and one on an invocation applies to that expansion. Preprocessing failures use the offending line, invocation or project selector. A module selector such as SL selects all its rules; AQ and AQB remain distinct. Quoted text is not a pragma.
@@ -72,7 +74,7 @@ GRP NO #imported VAL FULL ! noqa: G101
 END
 ```
 
-The release-specific ERR catalogue contains 115 verified rule families with native EN/DE bindings. The runtime compiles only the selected release and module into command buckets; each rule's supported releases are explicit. See [the complete rule and prefix catalogue](docs/lint-rules.md) and [the source audit](docs/err-rule-audit.json).
+The release-specific ERR catalogue contains 123 verified rule families with native EN/DE bindings. The runtime compiles only the selected release and module into command buckets; each rule's supported releases are explicit. See [the complete rule and prefix catalogue](docs/lint-rules.md) and [the source audit](docs/err-rule-audit.json).
 
 ## Contributing
 

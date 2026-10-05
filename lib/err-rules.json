@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "ruleVersion": 2,
+  "ruleVersion": 3,
   "releases": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
   "modulePrefixes": {
     "BASIC": "G",
@@ -7467,6 +7467,749 @@
         }
       ],
       "code": "PL004"
+    },
+    {
+      "id": "ase-step-alf-nonnegative",
+      "code": "AS004",
+      "module": "ASE",
+      "message": "STEP ALF must be nonnegative when BET is omitted.",
+      "variants": [
+        {
+          "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+          "commands": {
+            "en": ["STEP"],
+            "de": ["STEP"]
+          },
+          "parameters": {
+            "ALF": {
+              "en": "ALF",
+              "de": "ALF"
+            },
+            "BET": {
+              "en": "BET",
+              "de": "BET"
+            }
+          },
+          "when": {
+            "op": "absent",
+            "param": "BET"
+          },
+          "invalid": {
+            "op": "lt",
+            "param": "ALF",
+            "value": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ase-lc-dead-load-direction-conflict",
+      "code": "AS005",
+      "module": "ASE",
+      "message": "LC FACD cannot be active together with DLX, DLY or DLZ.",
+      "variants": [
+        {
+          "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+          "commands": {
+            "en": ["LC"],
+            "de": ["LF"]
+          },
+          "parameters": {
+            "FACD": {
+              "en": "FACD",
+              "de": "FAKG"
+            },
+            "DLX": {
+              "en": "DLX",
+              "de": "EGX"
+            },
+            "DLY": {
+              "en": "DLY",
+              "de": "EGY"
+            },
+            "DLZ": {
+              "en": "DLZ",
+              "de": "EGZ"
+            }
+          },
+          "invalid": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "number",
+                    "param": "FACD"
+                  },
+                  {
+                    "op": "ne",
+                    "param": "FACD",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "op": "any",
+                "conditions": [
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "DLX"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "DLX",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "DLY"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "DLY",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "DLZ"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "DLZ",
+                        "value": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "csa-takeda-unloading-range",
+      "code": "CS005",
+      "module": "CSA",
+      "message": "Takeda unloading coefficients TAY and TAZ must be between 0 and 1.",
+      "variants": [
+        {
+          "versions": ["2026"],
+          "commands": {
+            "en": ["EXPO"],
+            "de": ["EXPO"]
+          },
+          "parameters": {
+            "OPT": {
+              "en": "OPT",
+              "de": "OPT"
+            },
+            "MTYP": {
+              "en": "MTYP",
+              "de": "MTYP"
+            },
+            "TAY": {
+              "en": "TAY",
+              "de": "TAY"
+            },
+            "TAZ": {
+              "en": "TAZ",
+              "de": "TAZ"
+            }
+          },
+          "when": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "eq",
+                "param": "OPT",
+                "value": "SMAT"
+              },
+              {
+                "op": "eq",
+                "param": "MTYP",
+                "value": "MTAK"
+              }
+            ]
+          },
+          "invalid": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "lt",
+                "param": "TAY",
+                "value": 0
+              },
+              {
+                "op": "gt",
+                "param": "TAY",
+                "value": 1
+              },
+              {
+                "op": "lt",
+                "param": "TAZ",
+                "value": 0
+              },
+              {
+                "op": "gt",
+                "param": "TAZ",
+                "value": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "csa-takeda-reloading-range",
+      "code": "CS006",
+      "module": "CSA",
+      "message": "Takeda reloading factors TBY and TBZ must be between -1 and 1.",
+      "variants": [
+        {
+          "versions": ["2026"],
+          "commands": {
+            "en": ["EXPO"],
+            "de": ["EXPO"]
+          },
+          "parameters": {
+            "OPT": {
+              "en": "OPT",
+              "de": "OPT"
+            },
+            "MTYP": {
+              "en": "MTYP",
+              "de": "MTYP"
+            },
+            "TBY": {
+              "en": "TBY",
+              "de": "TBY"
+            },
+            "TBZ": {
+              "en": "TBZ",
+              "de": "TBZ"
+            }
+          },
+          "when": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "eq",
+                "param": "OPT",
+                "value": "SMAT"
+              },
+              {
+                "op": "eq",
+                "param": "MTYP",
+                "value": "MTAK"
+              }
+            ]
+          },
+          "invalid": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "lt",
+                "param": "TBY",
+                "value": -1
+              },
+              {
+                "op": "gt",
+                "param": "TBY",
+                "value": 1
+              },
+              {
+                "op": "lt",
+                "param": "TBZ",
+                "value": -1
+              },
+              {
+                "op": "gt",
+                "param": "TBZ",
+                "value": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sofimshc-sarb-bedding-conflict",
+      "code": "SHC004",
+      "module": "SOFIMSHC",
+      "message": "Do not combine CX/CY/CZ/CMX/CMY/CMZ bedding with CA/CL/CD or a material number.",
+      "variants": [
+        {
+          "versions": ["2026"],
+          "commands": {
+            "en": ["SARB"],
+            "de": ["SARB"]
+          },
+          "parameters": {
+            "CX": {
+              "en": "CX",
+              "de": "CX"
+            },
+            "CY": {
+              "en": "CY",
+              "de": "CY"
+            },
+            "CZ": {
+              "en": "CZ",
+              "de": "CZ"
+            },
+            "CMX": {
+              "en": "CMX",
+              "de": "CMX"
+            },
+            "CMY": {
+              "en": "CMY",
+              "de": "CMY"
+            },
+            "CMZ": {
+              "en": "CMZ",
+              "de": "CMZ"
+            },
+            "CA": {
+              "en": "CA",
+              "de": "CA"
+            },
+            "CL": {
+              "en": "CL",
+              "de": "CL"
+            },
+            "CD": {
+              "en": "CD",
+              "de": "CD"
+            },
+            "MNO": {
+              "en": "MNO",
+              "de": "MNR"
+            }
+          },
+          "invalid": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "any",
+                "conditions": [
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CX"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CX",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CY"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CY",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CZ"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CZ",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CMX"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CMX",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CMY"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CMY",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CMZ"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CMZ",
+                        "value": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "op": "any",
+                "conditions": [
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CA"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CA",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CL"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CL",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "number",
+                        "param": "CD"
+                      },
+                      {
+                        "op": "ne",
+                        "param": "CD",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "integer",
+                        "param": "MNO"
+                      },
+                      {
+                        "op": "gt",
+                        "param": "MNO",
+                        "value": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "feabench-moving-analysis-linearity",
+      "code": "FB008",
+      "module": "FEABENCH",
+      "message": "TASK MLT requires physically and geometrically linear behavior.",
+      "variants": [
+        {
+          "versions": ["2024", "2025", "2026"],
+          "commands": {
+            "en": ["TASK"],
+            "de": ["TASK"]
+          },
+          "parameters": {
+            "TYPE": {
+              "en": "TYPE",
+              "de": "TYPE"
+            },
+            "PHYS": {
+              "en": "PHYS",
+              "de": "PHYS"
+            },
+            "GEOM": {
+              "en": "GEOM",
+              "de": "GEOM"
+            }
+          },
+          "when": {
+            "op": "eq",
+            "param": "TYPE",
+            "value": "MLT"
+          },
+          "invalid": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "eq",
+                "param": "PHYS",
+                "value": "NONL"
+              },
+              {
+                "op": "in",
+                "param": "GEOM",
+                "values": ["TH2", "TH3"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "feabench-gena-spectral-radius",
+      "code": "FB009",
+      "module": "FEABENCH",
+      "message": "An explicit STEP TYPE GENA RHOI must be strictly between 0 and 1.",
+      "variants": [
+        {
+          "versions": ["2024", "2025", "2026"],
+          "commands": {
+            "en": ["STEP"],
+            "de": ["STEP"]
+          },
+          "parameters": {
+            "TYPE": {
+              "en": "TYPE",
+              "de": "TYPE"
+            },
+            "RHOI": {
+              "en": "RHOI",
+              "de": "RHOI"
+            }
+          },
+          "when": {
+            "op": "eq",
+            "param": "TYPE",
+            "value": "GENA"
+          },
+          "invalid": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "lte",
+                "param": "RHOI",
+                "value": 0
+              },
+              {
+                "op": "gte",
+                "param": "RHOI",
+                "value": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "feabench-moving-position-style",
+      "code": "FB010",
+      "module": "FEABENCH",
+      "message": "Moving-load trains in one MLT task cannot mix numeric SVAL with STRT/END start positions.",
+      "variants": [
+        {
+          "versions": ["2025", "2026"],
+          "commands": {
+            "en": ["TASK"],
+            "de": ["TASK"]
+          },
+          "parameters": {
+            "TYPE": {
+              "en": "TYPE",
+              "de": "TYPE"
+            }
+          },
+          "updates": [
+            {
+              "key": "feabench-moving-position-style:task",
+              "fromParam": "TYPE"
+            },
+            {
+              "key": "feabench-moving-position-style:numeric",
+              "value": false
+            },
+            {
+              "key": "feabench-moving-position-style:edge",
+              "value": false
+            }
+          ]
+        },
+        {
+          "versions": ["2025", "2026"],
+          "commands": {
+            "en": ["MOVL"],
+            "de": ["MOVL"]
+          },
+          "parameters": {
+            "SVAL": {
+              "en": "SVAL",
+              "de": "SVAL"
+            }
+          },
+          "when": {
+            "op": "context",
+            "key": "feabench-moving-position-style:task",
+            "value": "MLT"
+          },
+          "invalid": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "number",
+                    "param": "SVAL"
+                  },
+                  {
+                    "op": "context",
+                    "key": "feabench-moving-position-style:edge",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "not",
+                        "condition": {
+                          "op": "number",
+                          "param": "SVAL"
+                        }
+                      },
+                      {
+                        "op": "in",
+                        "param": "SVAL",
+                        "values": ["STRT", "END"]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "context",
+                    "key": "feabench-moving-position-style:numeric",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          "updates": [
+            {
+              "key": "feabench-moving-position-style:numeric",
+              "value": true,
+              "when": {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "command",
+                    "values": ["MOVL"]
+                  },
+                  {
+                    "op": "context",
+                    "key": "feabench-moving-position-style:task",
+                    "value": "MLT"
+                  },
+                  {
+                    "op": "number",
+                    "param": "SVAL"
+                  }
+                ]
+              }
+            },
+            {
+              "key": "feabench-moving-position-style:edge",
+              "value": true,
+              "when": {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "command",
+                    "values": ["MOVL"]
+                  },
+                  {
+                    "op": "context",
+                    "key": "feabench-moving-position-style:task",
+                    "value": "MLT"
+                  },
+                  {
+                    "op": "all",
+                    "conditions": [
+                      {
+                        "op": "not",
+                        "condition": {
+                          "op": "number",
+                          "param": "SVAL"
+                        }
+                      },
+                      {
+                        "op": "in",
+                        "param": "SVAL",
+                        "values": ["STRT", "END"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

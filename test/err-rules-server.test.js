@@ -106,3 +106,78 @@ test("stdio keeps expression values unknown and points to definite invalid table
   });
   assert.equal(rows[0].data.programAnchor.range.start.line, 0);
 });
+
+test("new Takeda bounds activate only for 2026 and preserve parameter focus and header NOQA", async (t) => {
+  const { uri, client, diagnostics, configure } = await fixture(t, "2025");
+  const source = "+PROG CSA\nTASK TYPE PHNG\nEXPO OPT SMAT MTYP MTAK TAY 1.2\nEND\n";
+  client.open(uri, source);
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "CS005"),
+    false,
+  );
+  await configure("2026", "EN");
+  const issue = (await diagnostics()).find(({ code }) => code === "CS005");
+  assert.ok(issue);
+  assert.deepEqual(issue.range, {
+    start: { line: 2, character: 28 },
+    end: { line: 2, character: 31 },
+  });
+  client.change(uri, [{ text: source.replace("+PROG CSA", "+PROG CSA ! noqa: CS005") }], 2);
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "CS005"),
+    false,
+  );
+  await configure("2026", "DE");
+  client.change(
+    uri,
+    [{ text: "+PROG CSA\nTASK TYPE PHNG\nEXPO OPT SMAT MTYP MTAK TAZ -0.1\nENDE\n" }],
+    3,
+  );
+  assert.ok((await diagnostics()).some(({ code }) => code === "CS005"));
+});
+
+test("new control diagnostics use unique codes without duplicate orphan reports", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  client.open(uri, "+PROG TEMPLATE\nIF 1\nENDLOOP\nENDIF\nEND\n");
+  const issues = await diagnostics();
+  assert.equal(issues.filter(({ code }) => code === "G307").length, 1);
+  assert.equal(
+    issues.some(({ code }) => code === "G305"),
+    false,
+  );
+  const issue = issues.find(({ code }) => code === "G307");
+  assert.deepEqual(issue.range, {
+    start: { line: 2, character: 0 },
+    end: { line: 2, character: 7 },
+  });
+  client.change(
+    uri,
+    [{ text: "+PROG TEMPLATE ! noqa: G307,G309\nIF 1\nENDLOOP\nENDIF\nEND\n" }],
+    2,
+  );
+  assert.equal(
+    (await diagnostics()).some(({ code }) => ["G307", "G309"].includes(code)),
+    false,
+  );
+});
+
+test("orphan controls are checked only after preprocessing and inherit program NOQA", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  client.open(uri, "+PROG TEMPLATE\n#IF 0\nENDIF\n#ENDIF\nEND\n");
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "G305"),
+    false,
+  );
+  client.change(uri, [{ text: "+PROG TEMPLATE\nENDIF\nEND\n" }], 2);
+  const issues = (await diagnostics()).filter(({ code }) => code === "G305");
+  assert.equal(issues.length, 1);
+  assert.deepEqual(issues[0].range, {
+    start: { line: 1, character: 0 },
+    end: { line: 1, character: 5 },
+  });
+  client.change(uri, [{ text: "+PROG TEMPLATE ! noqa: G305\nENDIF\nEND\n" }], 3);
+  assert.equal(
+    (await diagnostics()).some(({ code }) => code === "G305"),
+    false,
+  );
+});

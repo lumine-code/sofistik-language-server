@@ -5412,5 +5412,559 @@
         "dynamic": ["IMG FNR #pattern"]
       }
     }
+  ],
+  "ase-step-alf-nonnegative": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["STEP"],
+        "de": ["STEP"]
+      },
+      "parameters": {
+        "ALF": {
+          "en": "ALF",
+          "de": "ALF"
+        },
+        "BET": {
+          "en": "BET",
+          "de": "BET"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF -0.3\nEND\n",
+            "+PROG ASE\nUNIT 1096 1\nSTEP N 50 DT 0.05 ALF -0.3\nEND\n"
+          ],
+          "valid": [
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF 0\nEND\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 BET 0.4\nEND\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF -0.3 BET 0.4\nEND\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 THE 0.7\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG ASE\nLET#coefficient 1\nSTEP N 50 DT 0.05 ALF #coefficient\nEND\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF 0.1-0.4\nEND\n",
+            "+PROG ASE\nLET#coefficient 1\nSTEP N 50 DT 0.05 ALF -0.3 BET #coefficient\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF -0.3\nENDE\n",
+            "+PROG ASE\nUNIT 1096 1\nSTEP N 50 DT 0.05 ALF -0.3\nENDE\n"
+          ],
+          "valid": [
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF 0\nENDE\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 BET 0.4\nENDE\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF -0.3 BET 0.4\nENDE\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 THE 0.7\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG ASE\nLET#coefficient 1\nSTEP N 50 DT 0.05 ALF #coefficient\nENDE\n",
+            "+PROG ASE\nSTEP N 50 DT 0.05 ALF 0.1-0.4\nENDE\n",
+            "+PROG ASE\nLET#coefficient 1\nSTEP N 50 DT 0.05 ALF -0.3 BET #coefficient\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "ase-lc-dead-load-direction-conflict": [
+    {
+      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
+      "commands": {
+        "en": ["LC"],
+        "de": ["LF"]
+      },
+      "parameters": {
+        "FACD": {
+          "en": "FACD",
+          "de": "FAKG"
+        },
+        "DLX": {
+          "en": "DLX",
+          "de": "EGX"
+        },
+        "DLY": {
+          "en": "DLY",
+          "de": "EGY"
+        },
+        "DLZ": {
+          "en": "DLZ",
+          "de": "EGZ"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG ASE\nLC NO 1 FACD 1 DLX 1\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD 1 DLY -1\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD -1 DLZ 1\nEND\n",
+            "+PROG ASE\nUNIT 1096 1\nLC NO 1 FACD 1 DLX 1\nEND\n"
+          ],
+          "valid": [
+            "+PROG ASE\nLC NO 1 FACD 0 DLX 1\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD 1 DLX 0 DLY 0 DLZ 0\nEND\n",
+            "+PROG ASE\nLC NO 1 DLZ 1\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD 1\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG ASE\nLET#factor 1\nLC NO 1 FACD #factor DLX 1\nEND\n",
+            "+PROG ASE\nLET#factor 1\nLC NO 1 FACD 1 DLX #factor\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD 1+0 DLX 1\nEND\n",
+            "+PROG ASE\nLC NO 1 FACD 1[-] DLX 1\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG ASE\nLF NR 1 FAKG 1 EGX 1\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG 1 EGY -1\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG -1 EGZ 1\nENDE\n",
+            "+PROG ASE\nUNIT 1096 1\nLF NR 1 FAKG 1 EGX 1\nENDE\n"
+          ],
+          "valid": [
+            "+PROG ASE\nLF NR 1 FAKG 0 EGX 1\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG 1 EGX 0 EGY 0 EGZ 0\nENDE\n",
+            "+PROG ASE\nLF NR 1 EGZ 1\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG 1\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG ASE\nLET#factor 1\nLF NR 1 FAKG #factor EGX 1\nENDE\n",
+            "+PROG ASE\nLET#factor 1\nLF NR 1 FAKG 1 EGX #factor\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG 1+0 EGX 1\nENDE\n",
+            "+PROG ASE\nLF NR 1 FAKG 1[-] EGX 1\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "csa-takeda-unloading-range": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["EXPO"],
+        "de": ["EXPO"]
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "MTYP": {
+          "en": "MTYP",
+          "de": "MTYP"
+        },
+        "TAY": {
+          "en": "TAY",
+          "de": "TAY"
+        },
+        "TAZ": {
+          "en": "TAZ",
+          "de": "TAZ"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY -0.01\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAZ 1.01\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nUNIT 1096 1\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 1.5\nEND\n"
+          ],
+          "valid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 0 TAZ 1\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP HYPE TAY 1.5\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 TAY 1.5\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG CSA\nLET#coefficient 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY #coefficient\nEND\n",
+            "+PROG CSA\nLET#material 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP #material TAY 1.5\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 1+0.5\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY -0.01\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAZ 1.01\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nUNIT 1096 1\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 1.5\nENDE\n"
+          ],
+          "valid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 0 TAZ 1\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP HYPE TAY 1.5\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 TAY 1.5\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG CSA\nLET#coefficient 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY #coefficient\nENDE\n",
+            "+PROG CSA\nLET#material 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP #material TAY 1.5\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TAY 1+0.5\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "csa-takeda-reloading-range": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["EXPO"],
+        "de": ["EXPO"]
+      },
+      "parameters": {
+        "OPT": {
+          "en": "OPT",
+          "de": "OPT"
+        },
+        "MTYP": {
+          "en": "MTYP",
+          "de": "MTYP"
+        },
+        "TBY": {
+          "en": "TBY",
+          "de": "TBY"
+        },
+        "TBZ": {
+          "en": "TBZ",
+          "de": "TBZ"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1.01\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBZ 1.01\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nUNIT 1096 1\nEXPO OPT SMAT NO 1 MTYP MTAK TBZ -1.5\nEND\n"
+          ],
+          "valid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1 TBZ 1\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY 0 TBZ 0\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP PLAS TBY -2\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG CSA\nLET#coefficient 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY #coefficient\nEND\n",
+            "+PROG CSA\nLET#material 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP #material TBY -2\nEND\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1-0.5\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1.01\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBZ 1.01\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nUNIT 1096 1\nEXPO OPT SMAT NO 1 MTYP MTAK TBZ -1.5\nENDE\n"
+          ],
+          "valid": [
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1 TBZ 1\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY 0 TBZ 0\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP PLAS TBY -2\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG CSA\nLET#coefficient 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY #coefficient\nENDE\n",
+            "+PROG CSA\nLET#material 1\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP #material TBY -2\nENDE\n",
+            "+PROG CSA\nTASK TYPE PHNG\nPHNG TYPE MM\nEXPO OPT SMAT NO 1 MTYP MTAK TBY -1-0.5\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "sofimshc-sarb-bedding-conflict": [
+    {
+      "versions": ["2026"],
+      "commands": {
+        "en": ["SARB"],
+        "de": ["SARB"]
+      },
+      "parameters": {
+        "CX": {
+          "en": "CX",
+          "de": "CX"
+        },
+        "CY": {
+          "en": "CY",
+          "de": "CY"
+        },
+        "CZ": {
+          "en": "CZ",
+          "de": "CZ"
+        },
+        "CMX": {
+          "en": "CMX",
+          "de": "CMX"
+        },
+        "CMY": {
+          "en": "CMY",
+          "de": "CMY"
+        },
+        "CMZ": {
+          "en": "CMZ",
+          "de": "CMZ"
+        },
+        "CA": {
+          "en": "CA",
+          "de": "CA"
+        },
+        "CL": {
+          "en": "CL",
+          "de": "CL"
+        },
+        "CD": {
+          "en": "CD",
+          "de": "CD"
+        },
+        "MNO": {
+          "en": "MNO",
+          "de": "MNR"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 CA 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CMY 1 CD 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CZ 1 MNO 1\nEND\n"
+          ],
+          "valid": [
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 CA 0 CL 0 CD 0 MNO 0\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 0 CY 0 CZ 0 CMX 0 CMY 0 CMZ 0 CA 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CA 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 MNO -1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 MNO 1.5\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#stiffness 1\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX #stiffness CA 1\nEND\n",
+            "+PROG SOFIMSHC\nLET#stiffness 1\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 CA #stiffness\nEND\n",
+            "+PROG SOFIMSHC\nLET#material 1\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1 MNO #material\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1+0 CA 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nSARB TYPE OUT CX 1[kN/m2] CA 1\nEND\n",
+            "+PROG SOFIMSHC\nSAR NO 1 MNO 1 T 200\nUNIT 1096 1\nSARB TYPE OUT CX 1 CA 1\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CMY 1 CD 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CZ 1 MNR 1\nENDE\n"
+          ],
+          "valid": [
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 CA 0 CL 0 CD 0 MNR 0\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 0 CY 0 CZ 0 CMX 0 CMY 0 CMZ 0 CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 MNR -1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 MNR 1.5\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG SOFIMSHC\nLET#stiffness 1\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX #stiffness CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nLET#stiffness 1\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 CA #stiffness\nENDE\n",
+            "+PROG SOFIMSHC\nLET#material 1\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1 MNR #material\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1+0 CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nSARB TYP OUT CX 1[kN/m2] CA 1\nENDE\n",
+            "+PROG SOFIMSHC\nSAR NR 1 MNR 1 T 200\nUNIT 1096 1\nSARB TYP OUT CX 1 CA 1\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feabench-moving-analysis-linearity": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "PHYS": {
+          "en": "PHYS",
+          "de": "PHYS"
+        },
+        "GEOM": {
+          "en": "GEOM",
+          "de": "GEOM"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS NONL GEOM TH1\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS LINE GEOM TH2\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT GEOM TH3\nEND\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS LINE GEOM TH1\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE FEA PHYS NONL GEOM TH2\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nTASK TYPE #task PHYS NONL GEOM TH2\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS #physical GEOM #geometry\nEND\n",
+            "+PROG FEABENCH\n#IF 0\nTASK TYPE MLT PHYS NONL\n#ENDIF\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS NONL GEOM TH1\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS LINE GEOM TH2\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT GEOM TH3\nENDE\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS LINE GEOM TH1\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE FEA PHYS NONL GEOM TH2\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nTASK TYPE #task PHYS NONL GEOM TH2\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT PHYS #physical GEOM #geometry\nENDE\n",
+            "+PROG FEABENCH\n#IF 0\nTASK TYPE MLT PHYS NONL\n#ENDIF\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feabench-gena-spectral-radius": [
+    {
+      "versions": ["2024", "2025", "2026"],
+      "commands": {
+        "en": ["STEP"],
+        "de": ["STEP"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        },
+        "RHOI": {
+          "en": "RHOI",
+          "de": "RHOI"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 0\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 1\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI -0.1\nEND\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 0.8\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE HHTA TVAL 1 DT 0.01 RHOI 0.3 ALFF 0.2\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE NEWC TVAL 1 DT 0.01 RHOI 2\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nSTEP TYPE #method TVAL 1 DT 0.01 RHOI 2\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI #radius\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 1-0.2\nEND\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 80[%]\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 0\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 1\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI -0.1\nENDE\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 0.8\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE HHTA TVAL 1 DT 0.01 RHOI 0.3 ALFF 0.2\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE NEWC TVAL 1 DT 0.01 RHOI 2\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nSTEP TYPE #method TVAL 1 DT 0.01 RHOI 2\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI #radius\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 1-0.2\nENDE\n",
+            "+PROG FEABENCH\nSTEP TYPE GENA TVAL 1 DT 0.01 RHOI 80[%]\nENDE\n"
+          ]
+        }
+      }
+    }
+  ],
+  "feabench-moving-position-style": [
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["TASK"],
+        "de": ["TASK"]
+      },
+      "parameters": {
+        "TYPE": {
+          "en": "TYPE",
+          "de": "TYPE"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [],
+          "valid": ["+PROG FEABENCH\nTASK TYPE MLT\nEND\n", "+PROG FEABENCH\nTASK TYPE FEA\nEND\n"],
+          "dynamic": ["+PROG FEABENCH\nTASK TYPE #task\nEND\n"]
+        },
+        "de": {
+          "invalid": [],
+          "valid": [
+            "+PROG FEABENCH\nTASK TYPE MLT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE FEA\nENDE\n"
+          ],
+          "dynamic": ["+PROG FEABENCH\nTASK TYPE #task\nENDE\n"]
+        }
+      }
+    },
+    {
+      "versions": ["2025", "2026"],
+      "commands": {
+        "en": ["MOVL"],
+        "de": ["MOVL"]
+      },
+      "parameters": {
+        "SVAL": {
+          "en": "SVAL",
+          "de": "SVAL"
+        }
+      },
+      "fixtures": {
+        "en": {
+          "invalid": [
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL END\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL 0\nEND\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL 5\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL STRT\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL END\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nTASK TYPE MLT\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nLET#condition 0\nIF #condition\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nELSE\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDIF\nEND\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nTASK TYPE #task\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL #start\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0[mm]\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nEND\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nLET#condition 0\nIF #condition\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nELSE\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDIF\nMOVL LCT 30 TRCK SLN ID 3 V 10 SVAL STRT\nEND\n"
+          ]
+        },
+        "de": {
+          "invalid": [
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL END\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL 0\nENDE\n"
+          ],
+          "valid": [
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL 5\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL STRT\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL END\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nTASK TYPE MLT\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nLET#condition 0\nIF #condition\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nELSE\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDIF\nENDE\n"
+          ],
+          "dynamic": [
+            "+PROG FEABENCH\nTASK TYPE #task\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL #start\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0[mm]\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nMOVL LCT 10 TRCK SLN ID 1 V 10\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDE\n",
+            "+PROG FEABENCH\nTASK TYPE MLT\nLET#condition 0\nIF #condition\nMOVL LCT 10 TRCK SLN ID 1 V 10 SVAL 0\nELSE\nMOVL LCT 20 TRCK SLN ID 2 V 10 SVAL STRT\nENDIF\nMOVL LCT 30 TRCK SLN ID 3 V 10 SVAL STRT\nENDE\n"
+          ]
+        }
+      }
+    }
   ]
 }

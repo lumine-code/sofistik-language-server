@@ -58,37 +58,42 @@ Source ranges identify the original variable, proven invalid value or record, ev
 
 ## General and existing context checks
 
-| Code  | Rule                                                            |
-| ----- | --------------------------------------------------------------- |
-| G001  | Source, expansion or work limit exceeded.                       |
-| G002  | Substitution nesting limit exceeded.                            |
-| G003  | Unclosed substitution.                                          |
-| G004  | Undefined preprocessor parameter.                               |
-| G005  | Recursive substitution.                                         |
-| G006  | Block used as a scalar substitution.                            |
-| G007  | Unsupported preprocessor condition.                             |
-| G008  | Conditional branch without a matching IF.                       |
-| G009  | Unclosed block definition.                                      |
-| G010  | Invalid preprocessor parameter name.                            |
-| G011  | Include nesting limit exceeded.                                 |
-| G012  | Unresolved include.                                             |
-| G013  | Unsupported preprocessor directive.                             |
-| G014  | Unclosed preprocessor conditional.                              |
-| G101  | Variable has no known declaration before its use.               |
-| G102  | Known array index has no preceding declaration.                 |
-| G301  | Module is absent from the selected release's command catalogue. |
-| G302  | Selected release has no bundled command schema.                 |
-| G303  | Input exceeds the language-service size limit.                  |
-| G304  | ENDDEF has no matching DEFINE.                                  |
-| G305  | Control terminator has no matching opening record.              |
-| G306  | Unterminated quoted value.                                      |
-| SL001 | SOFILOAD loading record without an active load case.            |
-| SL002 | SOFILOAD supplementary LTD record without a task.               |
-| SL003 | SOFILOAD LTD MOD without a known source selection.              |
-| SL004 | SOFILOAD LTD MOD without a known target selection.              |
-| SL005 | SOFILOAD LTDG without a task.                                   |
-| SL006 | SOFILOAD tributary record without a tributary area.             |
-| MX001 | MAXIMA member without an active combination.                    |
+| Code | Rule |
+| --- | --- |
+| G001 | Source, expansion or work limit exceeded. |
+| G002 | Substitution nesting limit exceeded. |
+| G003 | Unclosed substitution. |
+| G004 | Undefined preprocessor parameter. |
+| G005 | Recursive substitution. |
+| G006 | Block used as a scalar substitution. |
+| G007 | Unsupported preprocessor condition. |
+| G008 | Conditional branch without a matching IF. |
+| G009 | Unclosed block definition. |
+| G010 | Invalid preprocessor parameter name. |
+| G011 | Include nesting limit exceeded. |
+| G012 | Unresolved include. |
+| G013 | Unsupported preprocessor directive. |
+| G014 | Unclosed preprocessor conditional. |
+| G101 | Variable has no known declaration before its use. |
+| G102 | Known array index has no preceding declaration. |
+| G301 | Module is absent from the selected release's command catalogue. |
+| G302 | Selected release has no bundled command schema. |
+| G303 | Input exceeds the language-service size limit. |
+| G304 | ENDDEF has no matching DEFINE. |
+| G305 | Control terminator has no matching opening record. |
+| G306 | Unterminated quoted value. |
+| G307 | Native control branch or terminator conflicts with the open IF/LOOP structure. |
+| G308 | IF or ELSEIF has no condition expression. Bare LOOP retains its documented default bound. |
+| G309 | Native IF/LOOP remains open at a confirmed program boundary. Intermediate END does not close its scope. |
+| SL001 | SOFILOAD loading record without an active load case. |
+| SL002 | SOFILOAD supplementary LTD record without a task. |
+| SL003 | SOFILOAD LTD MOD without a known source selection. |
+| SL004 | SOFILOAD LTD MOD without a known target selection. |
+| SL005 | SOFILOAD LTDG without a task. |
+| SL006 | SOFILOAD tributary record without a tributary area. |
+| MX001 | MAXIMA member without an active combination. |
+
+Native control checks run only for the verified releases. They inspect structure without evaluating CADINP conditions, preserve controls across intermediate END input blocks, and stop claiming certainty when expansion or runtime input can change that structure. Bare LOOP is valid with its documented default iteration limit. G307 relates a conflicting closer or branch to its opener; G309 selects the unclosed opener. The new module families likewise check only definite local values or known task state: zero bedding/load defaults stay inactive, BET suppresses the legacy ALF check, and moving-load position styles reset at TASK, END and PROG boundaries.
 
 ## ERR-derived module rules
 
@@ -211,6 +216,14 @@ A rule listed for a release still requires its language's native command and par
 | PL002 | PLBCONVERTER | An explicitly named Word output file must use the .docx extension. | 2018, 2020 |
 | PL003 | PLBCONVERTER | An explicitly named Word template must use the .docx extension. | 2018, 2020 |
 | PL004 | PLBCONVERTER | An explicit image filename rule must contain both %number% and %ext%. | 2020 |
+| AS004 | ASE | STEP ALF must be nonnegative when BET is omitted. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| AS005 | ASE | LC FACD cannot be active together with DLX, DLY or DLZ. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| CS005 | CSA | Takeda unloading coefficients TAY and TAZ must be between 0 and 1. | 2026 |
+| CS006 | CSA | Takeda reloading factors TBY and TBZ must be between -1 and 1. | 2026 |
+| SHC004 | SOFIMSHC | Do not combine CX/CY/CZ/CMX/CMY/CMZ bedding with CA/CL/CD or a material number. | 2026 |
+| FB008 | FEABENCH | TASK MLT requires physically and geometrically linear behavior. | 2024, 2025, 2026 |
+| FB009 | FEABENCH | An explicit STEP TYPE GENA RHOI must be strictly between 0 and 1. | 2024, 2025, 2026 |
+| FB010 | FEABENCH | Moving-load trains in one MLT task cannot mix numeric SVAL with STRT/END start positions. | 2025, 2026 |
 
 ## Audit coverage
 
@@ -222,14 +235,14 @@ The JSON audit retains source paths, message locations and binary SHA-256 digest
 | --- | --- | --- |
 | AQB | safe-candidates | Element ordering/selection, cross sections, reinforcement and design outcomes depend on CDB or engineering semantics. Not all COMB types are valid parents of AND; only definite absence is covered. |
 | AQUA | safe-candidates | Most material/section geometry and stress-strain checks need geometry, CDB or defaults. SECT-before-all-section-shapes remains unclassified without a precise shape family. |
-| ASE | safe-candidates | Nonlinear/design-code restrictions, primary load cases and system dimensionality require CDB. Control numeric selectors tied to program modes/defaults are excluded. |
+| ASE | safe-candidates | Nonlinear/design-code restrictions, primary load cases and system dimensionality require CDB. GRP2 restrictions from native ERR 666/946 conflict with the 2026 manual's combined-factor formulas and remain deferred. Legacy STEP ALF is checked only without an explicit BET override. |
 | BDK | safe-candidates | Buckling curves, selected design code, cross-section classes and lateral restraint checks depend on the structural model. |
 | BEAM | no-safe-text-rule | All concrete candidate messages found refer to design elements, CDB load combinations, structural geometry or design results; no dependable additional text-only ERR rule identified. |
 | BEMESS | safe-candidates | Design-code-dependent reinforcement checks, punching geometry, force/result presence and strength calculations are excluded. MREI missing FFCT, DDES/WK dependencies and changing CTRL modes need default/inheritance documentation before absence rules. |
 | COLUMN | safe-candidates | System, cross section, convergence and reinforcement diagnostics depend on CDB. Only an explicit positive FIRE class is assessed. |
 | COMPOSITE | safe-candidates | Several ERR messages use outdated option names NON/NOFF while schema uses MNON/MNOF. Do not map those options by guessing. ULS full-complement enforcement would wrongly judge ELA2/BOT2; only clearly conflicting serviceability modes are included. |
 | COMREL | no-safe-text-rule | This ERR is a separate STRUREL/COMREL block-format catalogue (YINITI/YINITV etc.), not a CADINP command catalogue. The shipped provider has no COMREL command schemas. Its numeric/parser diagnostics must not be applied to PROG CADINP. |
-| CSA | safe-candidates | Takeda alpha/beta bounds are explicit, but mapping alpha/beta exactly to TAY/TAZ/TBY/TBZ is not spelled out in the ERR; deferred pending manual corroboration. TASK family legality depends on inherited task state and defaults. |
+| CSA | safe-candidates | Takeda coefficient bounds are verified only for the 2026 EXPO SMAT / MTYP MTAK form. TASK family legality still depends on inherited task state and defaults. |
 | CSM | safe-candidates | Tendon stages, actions/design-code compatibility, equivalent loads and target solvability require CDB or design semantics. Creep-time defaults and PARAM inheritance are excluded. |
 | DYNA | safe-candidates | Eigenvalue count, damping model activation, CDB accelerations, spectra direction completeness and eigensolver results are excluded. Frequency-domain STEP is not treated as transient. |
 | DYNR | safe-candidates | Stored vs external function conflicts and accelerations depend on CDB. Missing function values/time monotonicity need precise continuation/default semantics. |
@@ -285,3 +298,5 @@ The JSON audit retains source paths, message locations and binary SHA-256 digest
 STAR NSTR bounds use the shared general rules instead of duplicate diagnostics.
 
 SHEARWALL CHCK legacy safety fields remain deferred: the current manual documents only STAT, so their backend use is not confirmed.
+
+ASE GRP2 native ERR 666/946 remain deferred: the 2026 manual combines these factors; the actual triggering modes are unverified.
