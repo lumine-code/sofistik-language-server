@@ -101,6 +101,55 @@ test("real stdio server exercises advertised language features and incremental l
   assert.equal(client.stderr, "");
 });
 
+test("semantic tokens retain a MAXIMA enum when whitespace is inserted at its end", async (t) => {
+  const { uri, client } = await fixture(t);
+  client.change(uri, [{ text: "+prog maxima\nhead trace\ntrac 2345,2346 spri\nend" }], 2);
+  const assertTokens = async (data) => {
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/full", { textDocument: { uri } }),
+      { data },
+    );
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/range", {
+        textDocument: { uri },
+        range: { start: { line: 2, character: 0 }, end: { line: 3, character: 0 } },
+      }),
+      { data },
+    );
+  };
+  const spriToken = [2, 15, 4, 0, 0];
+  await assertTokens(spriToken);
+  client.change(
+    uri,
+    [{ range: { start: { line: 2, character: 19 }, end: { line: 2, character: 19 } }, text: " " }],
+    3,
+  );
+  await assertTokens(spriToken);
+  client.change(
+    uri,
+    [{ range: { start: { line: 2, character: 19 }, end: { line: 2, character: 20 } }, text: "" }],
+    4,
+  );
+  await assertTokens(spriToken);
+  client.change(
+    uri,
+    [{ range: { start: { line: 2, character: 19 }, end: { line: 2, character: 19 } }, text: "\n" }],
+    5,
+  );
+  await assertTokens(spriToken);
+  client.change(
+    uri,
+    [
+      {
+        range: { start: { line: 2, character: 15 }, end: { line: 2, character: 19 } },
+        text: "unknown",
+      },
+    ],
+    6,
+  );
+  await assertTokens([]);
+});
+
 test("semantic tokens preserve string highlighting while quoted enums keep completion and hover", async (t) => {
   const { uri, client } = await fixture(t);
   const quotedValues = ["'FULL'", '"FULL"', "''FULL''", '""FULL""'];
