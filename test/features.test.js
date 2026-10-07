@@ -1,10 +1,10 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
+const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
 const { createIndex } = require("../lib/finder");
 const { signatureHelp, completion, hover, semanticTokens } = require("../lib/features");
 
-const keywords = new SofistikDataProvider().forRelease("2026", "en");
+const keywords = new SofistikSchemaProvider().forRelease("2026", "en");
 
 function projectFor(module, record) {
   const text = `+PROG ${module}\n${record}\nEND\n`;

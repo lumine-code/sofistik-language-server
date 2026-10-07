@@ -4,12 +4,12 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 const test = require("node:test");
-const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
+const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
 const { LintEngine } = require("../lib/lint-engine");
 const { preprocess } = require("../lib/preprocessor");
 const { codeFor, filterDiagnostics } = require("../lib/lint-codes");
 
-const provider = new SofistikDataProvider();
+const provider = new SofistikSchemaProvider();
 const fixtureRoot = path.resolve("invalid-number-fixtures");
 const uri = pathToFileURL(path.join(fixtureRoot, "main.dat")).href;
 const fileUri = (name) => pathToFileURL(path.join(fixtureRoot, name)).href;

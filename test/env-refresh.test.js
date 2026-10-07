@@ -5,7 +5,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
+const { SofistikContextResolver } = require("@lumine-code/sofistik-context");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { LspClient } = require("./lsp-client");
 
@@ -26,7 +26,7 @@ test("refresh observes installed-selection TTL and atomically updates every open
   let installed = ["2024"];
   let definition = null;
   let scans = 0;
-  const resolver = new SofistikEnvironmentResolver({
+  const resolver = new SofistikContextResolver({
     root: installationRoot,
     now: () => now,
     installationCacheMs: 100,

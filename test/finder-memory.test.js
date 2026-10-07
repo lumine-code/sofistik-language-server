@@ -5,7 +5,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { createIndex, createNavigationIndex, applyTextChanges } = require("../lib/finder");
-const { provider } = require("@lumine-code/sofistik-data");
+const { provider } = require("@lumine-code/sofistik-schema");
 
 function constrainedIndex(source) {
   const result = spawnSync(

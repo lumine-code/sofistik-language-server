@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
 const { createIndex } = require("../lib/finder");
-const { provider } = require("@lumine-code/sofistik-data");
+const { provider } = require("@lumine-code/sofistik-schema");
 
 const target = () => ({
   version: "2026",

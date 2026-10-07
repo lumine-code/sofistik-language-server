@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { provider } = require("@lumine-code/sofistik-data");
+const { provider } = require("@lumine-code/sofistik-schema");
 const { createIndex, createNavigationIndex } = require("../lib/finder");
 const { documentSymbols, workspaceSymbols } = require("../lib/features");
 

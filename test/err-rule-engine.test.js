@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const { compileRules } = require("../lib/err-rule-engine");
-const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
+const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
 const { LintEngine } = require("../lib/lint-engine");
 
 const keywords = {
@@ -398,7 +398,7 @@ test("unit metadata stays scoped to its native command when observers share para
 });
 
 test("actual FEACHECK fraction units become unknown while AQB fixed humidity stays assessable", () => {
-  const provider = new SofistikDataProvider();
+  const provider = new SofistikSchemaProvider();
   const keywords = provider.forRelease("2026", "en");
   const messages = [];
   const flow = { context: {}, unknownContext: false, unknownUnits: true };

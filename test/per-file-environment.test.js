@@ -3,7 +3,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
+const { SofistikContextResolver } = require("@lumine-code/sofistik-context");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { completion, hover, signatureHelp } = require("../lib/features");
 const { LspClient } = require("./lsp-client");
@@ -32,7 +32,7 @@ async function projectFixture(t, files) {
     fixtureResult.root,
     {},
     {
-      resolver: new SofistikEnvironmentResolver({
+      resolver: new SofistikContextResolver({
         fallbackVersion: "2026",
         root: path.join(fixtureResult.root, "absent"),
         cwd: () => fixtureResult.root,

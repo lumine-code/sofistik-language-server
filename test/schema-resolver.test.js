@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
 const { SchemaResolver } = require("../lib/schema-resolver");
-const { provider } = require("@lumine-code/sofistik-data");
+const { provider } = require("@lumine-code/sofistik-schema");
 
 test("uses aliases and exact module override before BASIC fallback", () => {
   const resolver = new SchemaResolver(provider().forRelease("2026", "en"));

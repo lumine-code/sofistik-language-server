@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
-const corpus = require("@lumine-code/sofistik-data/fixtures/cadinp-structure.json");
+const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
+const corpus = require("@lumine-code/sofistik-schema/fixtures/cadinp-structure.json");
 const { createIndex, createNavigationIndex } = require("../lib/finder");
 const { documentStructure } = require("../lib/structure");
 
@@ -23,7 +23,7 @@ function selections(index) {
 
 for (const fixture of corpus.cases) {
   test(`shared CADINP structure: ${fixture.name}`, () => {
-    const keywords = new SofistikDataProvider().forRelease(corpus.version, corpus.language);
+    const keywords = new SofistikSchemaProvider().forRelease(corpus.version, corpus.language);
     const expected = { programs: fixture.programs, commands: fixture.commands };
     const index = createIndex(fixture.source, { keywords });
     assert.deepEqual(selections(index), expected);

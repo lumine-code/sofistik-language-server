@@ -6,7 +6,7 @@ The server keeps source storage, environment selection, lexical navigation, expa
 | --- | --- |
 | SourceStore | Open and closed document generations, compact or full indexes, bounded disk reads, decoding and source epochs. |
 | SourceResolver | Canonical include URIs and file identity; every relative include is resolved beside its owning source. |
-| EnvironmentContext | Directory selections composed from sofistik-env and sofistik-data, supported-release decisions and preprocessing definitions with their origins. |
+| EnvironmentContext | Directory selections composed from sofistik-context and sofistik-schema, supported-release decisions and preprocessing definitions with their origins. |
 | NavigationIndex | Raw include reachability, caller-specific lexical contexts, declaration bindings and navigation caches. |
 | AnalysisService | Replaceable jobs, the persistent worker, accepted analysis results, expanded dependency tracking and diagnostic contributions. |
 | AnalysisSnapshot | The entry generation, environment identity, encoding, definition input and each source actually read during analysis. |
@@ -19,7 +19,7 @@ Raw navigation stays available while analysis is pending. It indexes the user's 
 
 The analysis worker expands preprocessor input in source order, tracks uncertainty and source provenance, then passes that expansion through the same lexical scanner to the lint engine. Its source map remains inside the worker; only the expansion, diagnostics, dependencies and metrics cross the worker boundary. Diagnostic pulls and preprocessor previews join the same scheduled analysis.
 
-Tree-sitter remains responsible for editor parsing, highlighting, folds and basic tags in language-sofistik. The server has no native-parser or WebAssembly runtime dependency. Both engines test the same cadinp-structure.json corpus distributed by sofistik-data; fresh, compact and incremental server indexes and fresh/incremental Tree-sitter parses must agree on program and explicit-command selections.
+Tree-sitter remains responsible for editor parsing, highlighting, folds and basic tags in language-sofistik. The server has no native-parser or WebAssembly runtime dependency. Both engines test the same cadinp-structure.json corpus distributed by sofistik-schema; fresh, compact and incremental server indexes and fresh/incremental Tree-sitter parses must agree on program and explicit-command selections.
 
 ## Analysis generations
 

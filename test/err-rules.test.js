@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { SofistikDataProvider } = require("@lumine-code/sofistik-data");
+const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
 const { LintEngine } = require("../lib/lint-engine");
 const { compileRules } = require("../lib/err-rule-engine");
 const { preprocess } = require("../lib/preprocessor");
@@ -10,7 +10,7 @@ const registry = require("../lib/err-rules.json");
 const fixtures = require("./err-rule-fixtures.json");
 const audit = require("../docs/err-rule-audit.json");
 
-const provider = new SofistikDataProvider();
+const provider = new SofistikSchemaProvider();
 const modulesFor = (rule) => (Array.isArray(rule.module) ? rule.module : [rule.module]);
 const testedVariants = new Set();
 let matrixCases = 0;

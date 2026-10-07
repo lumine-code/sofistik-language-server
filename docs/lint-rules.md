@@ -232,7 +232,7 @@ A rule listed for a release still requires its language's native command and par
 
 The audit covers all 61 distinct local ERR resources across 2018, 2020 and 2022–2026, including shared DLL catalogues and historical-only files. A resource without a precise CADINP binding or a reliable text-only condition does not manufacture a module rule. General language checks remain available for those modules.
 
-The JSON audit retains source paths, message locations and binary SHA-256 digests matching sofistik-data's committed provenance. Raw licensed catalogues and their message bodies are not shipped. See err-rule-audit.json for evidence and deferred categories.
+The JSON audit retains source paths, message locations and binary SHA-256 digests matching sofistik-schema's committed provenance. Raw licensed catalogues and their message bodies are not shipped. See err-rule-audit.json for evidence and deferred categories.
 
 | Resource | Review result | Excluded or deferred checks |
 | --- | --- | --- |

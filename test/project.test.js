@@ -3,7 +3,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
+const { SofistikContextResolver } = require("@lumine-code/sofistik-context");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { hover } = require("../lib/features");
 
@@ -11,7 +11,7 @@ async function fixture(t, files, definition = "SOF_VERSION = 2026\n") {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-project-"));
   if (definition !== null) await fs.writeFile(path.join(root, "sofistik.def"), definition);
   for (const [name, text] of Object.entries(files)) await fs.writeFile(path.join(root, name), text);
-  const resolver = new SofistikEnvironmentResolver({
+  const resolver = new SofistikContextResolver({
     fallbackVersion: "2026",
     root: path.join(root, "absent-installation"),
   });
