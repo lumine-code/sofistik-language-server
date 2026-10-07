@@ -62,7 +62,7 @@ async function fixture(t, options = {}) {
   project.sources = new SourceStore(project);
   project.sources.documents = project.documents;
   project.sources.documentEpochs = project.documentEpochs;
-  project.environment = new EnvironmentContext(project);
+  project.environment = new EnvironmentContext();
   const touch = (sourceUri) => project.sources.touchDocument(sourceUri);
   const open = (name, text) => {
     const sourceUri = uri(name);
