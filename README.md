@@ -11,6 +11,7 @@ Provides SOFiSTiK CADINP language services over LSP.
 - **Navigation**: shows document symbols as programs containing commands and declarations, and finds workspace symbols, variable and macro definitions, references and static include targets.
 - **Indexing progress**: reports background workspace indexing and file counts through standard LSP work-done progress while open-buffer language features remain available.
 - **Diagnostics**: reports unsupported releases, preprocessor problems, variable uses without known declarations and verified module context checks.
+- **Preprocessor preview**: returns the same expanded CADINP source analyzed by the linter.
 - **Enum highlighting**: supplements the editor grammar with context-specific enum member tokens.
 - **Calculation logs**: imports existing error-position logs on request without running SOFiSTiK.
 - **Offline operation**: runs without an installed SOFiSTiK release or network access.
@@ -48,6 +49,8 @@ Document symbols use a PROG → command hierarchy with complete structural range
 Parameter hover shows the record context and positional slot on its first line, such as `ASE · GRP · VAL /2`, followed by the complete catalogue enum list when available. Values following a named parameter advance through the subsequent slots: `GRP NUMB 57 OFF SPRI` in WING resolves to `NUMB /1`, `OPTI /2` and `ETYP /3`. Comma-separated alternatives share one slot: both `BEAM` and `GLN` in `GRP NUMB 31+#grp YES BEAM,GLN` are `ETYP /3`, with separate completion, hover and enum tokens. Lists wrap naturally without truncation. Release, language and raw catalogue type codes are omitted. A uniquely resolved variable or macro reference shows its source declaration instead; modules, record names and empty space do not produce metadata-only tooltips.
 
 `workspace/executeCommand` with `sofistik.readCalculationDiagnostics` and arguments `[{ "uri": "file:///path/model.dat" }]` reads the corresponding `.error_positions` JSONL. Static and imported diagnostics are published together; editing the source clears the imported findings. Log import never starts a calculation.
+
+`workspace/executeCommand` with `sofistik.expandPreprocessor` and arguments `[{ "uri": "file:///path/model.dat" }]` returns `{ uri, version, text, complete, uncertainties }` for an open document, including untitled buffers. It waits for and reuses the linter's current analysis, with adjacent `sofistik.def` declarations and open include buffers taking precedence over disk copies. `text` is the expanded source; `complete` is false when unresolved input, unsupported directives or limits leave the expansion uncertain, and `uncertainties` lists their kinds and expanded offsets. A source change during the request returns `ContentModified` rather than outdated text. No calculation programs or runtime CADINP expressions are executed.
 
 ## Linting
 
