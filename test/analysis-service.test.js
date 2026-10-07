@@ -7,7 +7,9 @@ const path = require("node:path");
 const { performance } = require("node:perf_hooks");
 const { pathToFileURL } = require("node:url");
 const test = require("node:test");
-const { LintService } = require("../lib/lint-service");
+const { SourceStore } = require("../lib/source-store");
+const { EnvironmentContext } = require("../lib/environment-context");
+const { AnalysisService } = require("../lib/analysis-service");
 const { codeFor } = require("../lib/lint-codes");
 
 const GOOD = "+PROG ASE\nLET#size 1\nEND\n";
@@ -38,7 +40,7 @@ async function bounded(promise, label, milliseconds = 10000) {
 }
 
 async function fixture(t, options = {}) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-lint-service-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-analysis-service-"));
   const uri = (name) => pathToFileURL(path.join(root, name)).href;
   const disk = new Map();
   const reads = [];
@@ -57,8 +59,11 @@ async function fixture(t, options = {}) {
       return disk.get(sourceUri) ?? null;
     },
   };
-  const touch = (sourceUri) =>
-    project.documentEpochs.set(sourceUri, (project.documentEpochs.get(sourceUri) || 0) + 1);
+  project.sources = new SourceStore(project);
+  project.sources.documents = project.documents;
+  project.sources.documentEpochs = project.documentEpochs;
+  project.environment = new EnvironmentContext(project);
+  const touch = (sourceUri) => project.sources.touchDocument(sourceUri);
   const open = (name, text) => {
     const sourceUri = uri(name);
     const entry = {
@@ -77,7 +82,7 @@ async function fixture(t, options = {}) {
     entry.version++;
     touch(entry.uri);
   };
-  const service = new LintService(project, {
+  const service = new AnalysisService(project, {
     ...options,
     onResult: (sourceUri, targets) => {
       published.push(sourceUri);

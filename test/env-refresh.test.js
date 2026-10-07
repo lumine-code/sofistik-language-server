@@ -5,7 +5,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-data");
+const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { LspClient } = require("./lsp-client");
 

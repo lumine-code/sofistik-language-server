@@ -40,6 +40,8 @@ Included files use their own directory's release, language and edition while ret
 
 The server consumes the `sofistik` workspace configuration section: `textCase` is `upper` or `lower`, and `encoding` defaults to `utf-8` for closed files. Open documents always use the client's text. Unsupported declared releases are reported rather than silently substituted.
 
+File includes resolve relative to the source containing the directive, including nested includes. Navigation and preprocessing use the same canonical URI and prefer an open buffer to its disk copy; an unresolved relative include never searches the workspace root.
+
 Closed inputs and include fragments retain a compact navigation index; full token indexes are kept only for open documents. Inputs larger than 32 MiB are excluded from language services to prevent generated outputs from exhausting the server's memory. Skipped disk inputs are reported in the server log, and opening an oversized input shows a diagnostic. Reducing its size restores language services automatically.
 
 Semantic tokens classify only confidently resolved, unquoted enum values as `enumMember`. Quoted values keep the editor grammar's string highlighting. Dynamic includes, CDB values and unevaluated preprocessing may leave navigation ambiguous; this finder does not execute CADINP or replace the calculation programs' validation.
@@ -50,7 +52,7 @@ Parameter hover shows the record context and positional slot on its first line, 
 
 `workspace/executeCommand` with `sofistik.readCalculationDiagnostics` and arguments `[{ "uri": "file:///path/model.dat" }]` reads the corresponding `.error_positions` JSONL. Static and imported diagnostics are published together; editing the source clears the imported findings. Log import never starts a calculation.
 
-`workspace/executeCommand` with `sofistik.expandPreprocessor` and arguments `[{ "uri": "file:///path/model.dat" }]` returns `{ uri, version, text, complete, uncertainties }` for an open document, including untitled buffers. It waits for and reuses the linter's current analysis, with adjacent `sofistik.def` declarations and open include buffers taking precedence over disk copies. `text` is the expanded source; `complete` is false when unresolved input, unsupported directives or limits leave the expansion uncertain, and `uncertainties` lists their kinds and expanded offsets. A source change during the request returns `ContentModified` rather than outdated text. No calculation programs or runtime CADINP expressions are executed.
+`workspace/executeCommand` with `sofistik.expandPreprocessor` and arguments `[{ "uri": "file:///path/model.dat" }]` returns `{ uri, version, text, complete, uncertainties }` for an open document, including untitled buffers. It waits for and reuses the current analysis, with adjacent `sofistik.def` declarations and open include buffers taking precedence over disk copies. `text` is the expanded source; `complete` is false when unresolved input, unsupported directives or limits leave the expansion uncertain, and `uncertainties` lists their kinds and expanded offsets. A source change during the request returns `ContentModified` rather than outdated text. No calculation programs or runtime CADINP expressions are executed.
 
 ## Linting
 
@@ -80,6 +82,8 @@ END
 ```
 
 The release-specific ERR catalogue contains 123 verified rule families with native EN/DE bindings. The runtime compiles only the selected release and module into command buckets; each rule's supported releases are explicit. See [the complete rule and prefix catalogue](docs/lint-rules.md) and [the source audit](docs/err-rule-audit.json).
+
+See [the internal architecture](docs/architecture.md) for component ownership, analysis snapshots and the shared structural corpus.
 
 ## Contributing
 

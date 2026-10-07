@@ -3,7 +3,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-data");
+const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { hover } = require("../lib/features");
 
@@ -12,6 +12,7 @@ async function fixture(t, files, definition = "SOF_VERSION = 2026\n") {
   if (definition !== null) await fs.writeFile(path.join(root, "sofistik.def"), definition);
   for (const [name, text] of Object.entries(files)) await fs.writeFile(path.join(root, name), text);
   const resolver = new SofistikEnvironmentResolver({
+    fallbackVersion: "2026",
     root: path.join(root, "absent-installation"),
   });
   const project = new SofistikProject(root, {}, { resolver });
@@ -35,7 +36,7 @@ test("offline project resolution ignores headers and uses the newest data withou
   assert.equal(target.version, "2026");
   assert.equal(target.language, "en");
   assert.equal(target.installed, false);
-  assert.equal(target.versionSource, "bundled");
+  assert.equal(target.versionSource, "fallback");
   assert.equal((await project.loadDocument(uri("main.dat"))).index.enumTokens().length, 1);
 });
 

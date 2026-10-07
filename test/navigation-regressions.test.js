@@ -259,7 +259,7 @@ test("disposal discards asynchronous discoveries and leaves caches empty", async
   assert.deepEqual(await pending, []);
   assert.equal(project.documents.size, 0);
   assert.equal(project.views.size, 0);
-  assert.equal(project.allViews, null);
+  assert.equal(project.navigation.allViews, null);
 });
 
 test("context readiness and open-buffer completion do not await background disk indexing", async (t) => {

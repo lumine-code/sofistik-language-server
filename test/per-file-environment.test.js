@@ -3,7 +3,7 @@ const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-data");
+const { SofistikEnvironmentResolver } = require("@lumine-code/sofistik-env");
 const { SofistikProject, canonicalUri } = require("../lib/project");
 const { completion, hover, signatureHelp } = require("../lib/features");
 const { LspClient } = require("./lsp-client");
@@ -33,6 +33,7 @@ async function projectFixture(t, files) {
     {},
     {
       resolver: new SofistikEnvironmentResolver({
+        fallbackVersion: "2026",
         root: path.join(fixtureResult.root, "absent"),
         cwd: () => fixtureResult.root,
       }),
@@ -71,7 +72,7 @@ test("one workspace resolves each file's sibling definition without ancestor inh
       [target.version, target.language, target.edition],
       ["2026", "en", "professional"],
     );
-    assert.equal(target.versionSource, "bundled");
+    assert.equal(target.versionSource, "fallback");
   }
   assert.equal(first.index.target.keywords, first.target.keywords);
   assert.equal(second.index.target.keywords, second.target.keywords);
@@ -180,7 +181,7 @@ test("watched sibling definitions rebuild and clear imported diagnostics only in
   await fs.unlink(path.join(root, "first/sofistik.def"));
   assert.deepEqual(await project.watched([{ uri: notification, type: 3 }]), [first.uri]);
   assert.equal(first.target.version, "2026");
-  assert.equal(first.target.versionSource, "bundled");
+  assert.equal(first.target.versionSource, "fallback");
   assert.equal(first.index.enumTokens().length, 1);
   assert.equal(second.index, secondIndex);
   assert.equal(project.documents.has(notification), false);
@@ -190,7 +191,7 @@ test("untitled input skips cwd and workspace definitions and keeps the installed
   const { project } = await projectFixture(t, { "sofistik.def": "SOF_VERSION = 1999\n" });
   const entry = project.open({ uri: "untitled:model", text: SOURCE, version: 1 });
   assert.equal(entry.target.version, "2026");
-  assert.equal(entry.target.versionSource, "bundled");
+  assert.equal(entry.target.versionSource, "fallback");
   assert.equal(entry.index.enumTokens().length, 1);
   assert.deepEqual(await project.refreshTargets(), []);
 });

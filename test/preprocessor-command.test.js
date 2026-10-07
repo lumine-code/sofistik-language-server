@@ -56,26 +56,26 @@ async function fixture(t, files = {}, { blockInclude = false } = {}) {
   let entryPath;
   if (blockInclude) {
     entryPath = path.join(root, "server.cjs");
-    const servicePath = path.resolve(__dirname, "../lib/lint-service.js");
+    const servicePath = path.resolve(__dirname, "../lib/analysis-service.js");
     const serverPath = path.resolve(__dirname, "../lib/server.js");
     // Block after the include snapshot is registered, so changing that buffer
     // invalidates the precise job being awaited without relying on timing.
     await fs.writeFile(
       entryPath,
       `const fs = require("node:fs");
-const { LintService } = require(${JSON.stringify(servicePath)});
+const { AnalysisService } = require(${JSON.stringify(servicePath)});
 const barriers = ${JSON.stringify(barriers)};
 const rootUri = ${JSON.stringify(uri("model.dat"))};
 const includeUri = ${JSON.stringify(uri("part.dat"))};
-const readSource = LintService.prototype.readSource;
-const wait = LintService.prototype.wait;
+const readSource = AnalysisService.prototype.readSource;
+const wait = AnalysisService.prototype.wait;
 let blocked = false;
-LintService.prototype.wait = function(uri, token) {
+AnalysisService.prototype.wait = function(uri, token) {
   const pending = wait.call(this, uri, token);
   if (uri === rootUri) fs.writeFileSync(barriers.waiting, "");
   return pending;
 };
-LintService.prototype.readSource = async function(job, uri) {
+AnalysisService.prototype.readSource = async function(job, uri) {
   const source = await readSource.call(this, job, uri);
   if (!blocked && job.uri === rootUri && uri === includeUri) {
     blocked = true;
