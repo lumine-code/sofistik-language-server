@@ -98,6 +98,75 @@ test("real server shares debounced diagnostics with pull while completion stays 
   assert.deepEqual((await diagnostics("model.dat")).items, current.items);
 });
 
+test("inline generator errors publish, match pull diagnostics and clear after correction", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const model = uri("model.dat");
+  const increment = codeFor("inline-generator-increment");
+  const unclosed = codeFor("unclosed-inline-generator");
+  assert.equal(increment, "G311");
+  assert.equal(unclosed, "G312");
+  client.open(
+    model,
+    [
+      "+PROG SOFILOAD",
+      "LC (1 11 1) TITL (101 111)",
+      "LC (1 11) TITL (101 111 1)",
+      "LC (1 11 1) TITL (101 111 1)",
+      "LC (1 11) TITL (101 111",
+      "LC (1 11)",
+      "END",
+      "",
+    ].join("\n"),
+  );
+  const first = await diagnostics("model.dat");
+  const issues = lint(first.items);
+  assert.ok(issues.some((item) => item.code === increment && item.range.start.line === 3));
+  assert.ok(issues.some((item) => item.code === unclosed && item.range.start.line === 4));
+  assert.ok(issues.some((item) => item.code === increment && item.range.start.line === 5));
+  assert.ok(
+    issues.every(
+      (item) =>
+        ![increment, unclosed].includes(item.code) || ![1, 2].includes(item.range.start.line),
+    ),
+  );
+  const pushed = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" &&
+      item.uri === model &&
+      item.version === 1 &&
+      lint(item.diagnostics).some((issue) => issue.code === increment),
+  );
+  assert.deepEqual(lint(pushed.diagnostics), issues);
+
+  client.change(
+    model,
+    [
+      {
+        text: [
+          "+PROG SOFILOAD",
+          "LC (1 11 1) TITL (101 111)",
+          "LC (1 11) TITL (101 111 1)",
+          "LC (1 11 1) TITL (101 111)",
+          "LC (1 11) TITL (101 111 1)",
+          "LC (1 11 1)",
+          "END",
+          "",
+        ].join("\n"),
+      },
+    ],
+    2,
+  );
+  const corrected = await diagnostics("model.dat");
+  assert.deepEqual(lint(corrected.items), []);
+  const cleared = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" && item.uri === model && item.version === 2,
+  );
+  assert.deepEqual(lint(cleared.diagnostics), []);
+});
+
 test("a program expanded from a macro reports at its invocation and relates its offending record", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const source = [

@@ -86,6 +86,8 @@ Source ranges identify the original variable, proven invalid value or record, ev
 | G308 | IF or ELSEIF has no condition expression. Bare LOOP retains its documented default bound. |
 | G309 | Native IF/LOOP remains open at a confirmed program boundary. Intermediate END does not close its scope. |
 | G310 | A number-like atom has repeated decimal points in its mantissa, such as 1.00.0, 1..2 or .1.2. |
+| G311 | Exactly one inline generator in a logical record must contain a third increment argument; all other generators must contain two arguments. |
+| G312 | A recognized inline generator with at least two arguments lacks its closing parenthesis. |
 | SL001 | SOFILOAD loading record without an active load case. |
 | SL002 | SOFILOAD supplementary LTD record without a task. |
 | SL003 | SOFILOAD LTD MOD without a known source selection. |
@@ -95,6 +97,8 @@ Source ranges identify the original variable, proven invalid value or record, ev
 | MX001 | MAXIMA member without an active combination. |
 
 Native control checks run only for the verified releases. They inspect structure without evaluating CADINP conditions, preserve controls across intermediate END input blocks, and stop claiming certainty when expansion or runtime input can change that structure. Bare LOOP is valid with its documented default iteration limit. G307 relates a conflicting closer or branch to its opener; G309 selects the unclosed opener. The new module families likewise check only definite local values or known task state: zero bedding/load defaults stay inactive, BET suppresses the legacy ALF check, and moving-load position styles reset at TASK, END and PROG boundaries.
+
+G311 and G312 check inline generator syntax in each logical record after preprocessing without evaluating argument expressions. A lone generator must supply its increment; when several generators occur, only one may supply it. Each generator takes two or three arguments. Both `LC (1 11 1) TITL (101 111)` and `LC (1 11) TITL (101 111 1)` are valid. `LC (1 11 1) TITL (101 111 1)` and `LC (1 11)` violate G311; `LC (1 11) TITL (101 111` also has an unclosed generator reported by G312. G311 selects the first generator when no increment exists, each additional generator that supplies an increment, or a generator with too many arguments; G312 selects the unclosed generator. Findings retain original-source mappings through macros and includes and use the same record, program and project suppression scopes as other static checks. Unresolved preprocessing in the record prevents a definite generator finding. Use `! noqa: G311,G312` on the offending record or `NOQA = G311,G312` in the adjacent `sofistik.def` to suppress these checks.
 
 ## ERR-derived module rules
 
