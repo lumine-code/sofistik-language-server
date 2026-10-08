@@ -190,6 +190,85 @@ test("completion after a comma inserts a new alternative without replacing the c
   }
 });
 
+test("a dangling comma before TYPE preserves SOFILOAD enum highlighting and field context", async () => {
+  for (const record of [
+    "area qgrp 51, type dtxy +#dT_N_exp",
+    "area qgrp 51,type dtxy +#dT_N_exp",
+    "area qgrp 51, type=dtxy +#dT_N_exp",
+    "area qgrp 51, $$ annotation\n type dtxy +#dT_N_exp",
+  ]) {
+    const project = projectFor("SOFILOAD", record);
+    const entry = await project.loadDocument();
+    const lines = record.split("\n");
+    const line = lines.length;
+    const character = lines.at(-1).indexOf("dtxy");
+    const position = { line, character: character + 2 };
+    assert.deepEqual(
+      semanticTokens(entry),
+      { data: [1, 5, 4, 0, 0, line - 1, line === 1 ? character - 5 : character, 4, 0, 0] },
+      record,
+    );
+    const result = await hover(project, "untitled:fixture", position);
+    assert.equal(result.contents.value.split("\n")[0], "SOFILOAD · AREA · TYPE /11", record);
+    const signature = await signatureHelp(project, "untitled:fixture", position);
+    assert.equal(signature.activeParameter, 10, record);
+    const items = await completion(project, "untitled:fixture", position);
+    assert.equal(items.find((item) => item.label === "DTXY")?.kind, 20, record);
+  }
+});
+
+test("comma-adjacent parameter names remain values in enum lists and nested functions", async () => {
+  for (const record of ["GRP NO 57 VAL YES,NO FACS 1", "GRP NO 57 VAL YES, NO FACS 1"]) {
+    const project = projectFor("ASE", record);
+    const entry = await project.loadDocument();
+    const character = record.lastIndexOf("NO");
+    const context = entry.index.contextAt({ line: 1, character: character + 1 });
+    assert.equal(context.role, "value", record);
+    assert.equal(context.param, "VAL", record);
+    assert.deepEqual(
+      entry.index.enumTokens().map((token) => token.value),
+      ["YES", "NO"],
+      record,
+    );
+  }
+  for (const record of [
+    "AREA QGRP MAX(51,TYPE) TYPE DTXY 2",
+    "AREA QGRP MAX(51, TYPE) TYPE DTXY 2",
+  ]) {
+    const project = projectFor("SOFILOAD", record);
+    const entry = await project.loadDocument();
+    const context = entry.index.contextAt({ line: 1, character: record.indexOf("TYPE") + 1 });
+    assert.equal(context.role, "value", record);
+    assert.equal(context.param, "NO", record);
+    assert.deepEqual(
+      entry.index.enumTokens().map((token) => token.value),
+      ["QGRP", "DTXY"],
+      record,
+    );
+  }
+});
+
+test("SOFILOAD enum tokens survive incremental insertion and removal of a dangling comma", async () => {
+  const project = projectFor("SOFILOAD", "area qgrp 51 type dtxy +#dT_N_exp");
+  const entry = await project.loadDocument();
+  const position = { line: 1, character: 12 };
+  for (const [version, text, width, character] of [
+    [2, ",", 0, 19],
+    [3, "", 1, 18],
+  ]) {
+    entry.index.applyChanges(
+      [
+        {
+          range: { start: position, end: { ...position, character: position.character + width } },
+          text,
+        },
+      ],
+      version,
+    );
+    assert.deepEqual(semanticTokens(entry), { data: [1, 5, 4, 0, 0, 0, character - 5, 4, 0, 0] });
+  }
+});
+
 test("parameter completion keeps canonical slot order and conveys it through sortText", async () => {
   const record = "GRP NO 1 VAL FULL ";
   const items = await completion(projectFor("ASE", record), "untitled:fixture", {

@@ -88,6 +88,7 @@ Source ranges identify the original variable, proven invalid value or record, ev
 | G310 | A number-like atom has repeated decimal points in its mantissa, such as 1.00.0, 1..2 or .1.2. |
 | G311 | Exactly one inline generator in a logical record must contain a third increment argument; all other generators must contain two arguments. |
 | G312 | A recognized inline generator with at least two arguments lacks its closing parenthesis. |
+| G313 | A value list ends with a comma before the next named parameter or the end of the logical record. |
 | SL001 | SOFILOAD loading record without an active load case. |
 | SL002 | SOFILOAD supplementary LTD record without a task. |
 | SL003 | SOFILOAD LTD MOD without a known source selection. |

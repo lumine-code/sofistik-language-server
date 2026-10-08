@@ -167,6 +167,67 @@ test("inline generator errors publish, match pull diagnostics and clear after co
   assert.deepEqual(lint(cleared.diagnostics), []);
 });
 
+test("a trailing list comma is diagnosed without losing the next SOFILOAD enum", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const model = uri("model.dat");
+  const trailingComma = codeFor("trailing-comma");
+  assert.equal(trailingComma, "G313");
+  client.open(
+    model,
+    [
+      "+PROG SOFILOAD",
+      "LET#dT_N_exp 1",
+      "LC 321 NONE TITL 'N-summer'",
+      "LINE BGRP 11,21,31,41 TYPE DT +#dT_N_exp",
+      "AREA QGRP 51, TYPE DTXY +#dT_N_exp",
+      "END",
+      "",
+    ].join("\n"),
+  );
+  const assertTokens = async (areaTypeStart) => {
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/full", { textDocument: { uri: model } }),
+      { data: [3, 5, 4, 0, 0, 0, 22, 2, 0, 0, 1, 5, 4, 0, 0, 0, areaTypeStart - 5, 4, 0, 0] },
+    );
+    assert.deepEqual(
+      await client.request("textDocument/semanticTokens/range", {
+        textDocument: { uri: model },
+        range: { start: { line: 4, character: 0 }, end: { line: 5, character: 0 } },
+      }),
+      { data: [4, 5, 4, 0, 0, 0, areaTypeStart - 5, 4, 0, 0] },
+    );
+  };
+  const first = await diagnostics("model.dat");
+  const issues = lint(first.items);
+  assert.equal(issues.length, 1);
+  assert.equal(issues[0].code, trailingComma);
+  assert.deepEqual(issues[0].range, {
+    start: { line: 4, character: 12 },
+    end: { line: 4, character: 13 },
+  });
+  await assertTokens(19);
+  const pushed = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" &&
+      item.uri === model &&
+      item.version === 1 &&
+      lint(item.diagnostics).some((issue) => issue.code === trailingComma),
+  );
+  assert.deepEqual(lint(pushed.diagnostics), issues);
+
+  client.change(model, [{ range: issues[0].range, text: "" }], 2);
+  const corrected = await diagnostics("model.dat");
+  assert.deepEqual(lint(corrected.items), []);
+  await assertTokens(18);
+  const cleared = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" && item.uri === model && item.version === 2,
+  );
+  assert.deepEqual(lint(cleared.diagnostics), []);
+});
+
 test("a program expanded from a macro reports at its invocation and relates its offending record", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const source = [
