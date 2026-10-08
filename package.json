@@ -43,8 +43,8 @@
     "verify": "npm run lint && npm run format:check && npm test && npm pack --dry-run"
   },
   "dependencies": {
-    "@lumine-code/sofistik-schema": "github:lumine-code/sofistik-schema#51580a8c7eec1c54ca1916576432a0f99a7f6ed6",
-    "@lumine-code/sofistik-context": "github:lumine-code/sofistik-context#1a23b04a747e4902e0934d4c60500987a50d514a",
+    "@lumine-code/sofistik-schema": "github:lumine-code/sofistik-schema#910d0583c4640a30d9370ddf52574ac71db84491",
+    "@lumine-code/sofistik-context": "github:lumine-code/sofistik-context#b3c11f0be26f32810a284b86bd066feddea3d207",
     "vscode-languageserver": "10.1.2"
   },
   "devDependencies": {
