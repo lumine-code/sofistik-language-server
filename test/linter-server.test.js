@@ -26,7 +26,29 @@ async function notification(client, predicate) {
   assert.fail("Expected server notification did not arrive.");
 }
 
-async function fixture(t, files = {}) {
+async function barrier(filePath, predicate = () => true) {
+  const deadline = Date.now() + 10000;
+  while (Date.now() < deadline) {
+    try {
+      const value = JSON.parse(await fs.readFile(filePath, "utf8"));
+      if (predicate(value)) return value;
+    } catch (error) {
+      if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.fail(`Expected analysis barrier ${path.basename(filePath)} did not arrive.`);
+}
+
+const pushesSince = (client, offset, uri) =>
+  client.notifications
+    .slice(offset)
+    .filter(
+      ({ method, params }) => method === "textDocument/publishDiagnostics" && params.uri === uri,
+    )
+    .map(({ params }) => params);
+
+async function fixture(t, files = {}, { blockAnalysis = [] } = {}) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-live-linter-"));
   for (const [name, text] of Object.entries({
     "sofistik.def": "SOF_VERSION=2026\nSOF_LANGUAGE=EN\n",
@@ -36,8 +58,61 @@ async function fixture(t, files = {}) {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, text);
   }
-  const client = new LspClient(root);
+  const gates = Object.fromEntries(
+    blockAnalysis.map((name) => [
+      name,
+      Object.fromEntries(
+        ["enabled", "entered", "release", "accepted", "pulling"].map((state) => [
+          state,
+          path.join(root, `${name}.${state}`),
+        ]),
+      ),
+    ]),
+  );
+  let entryPath;
+  if (blockAnalysis.length) {
+    entryPath = path.join(root, "server.cjs");
+    await fs.writeFile(
+      entryPath,
+      `const fs = require("node:fs");
+const path = require("node:path");
+const { fileURLToPath } = require("node:url");
+const { AnalysisService } = require(${JSON.stringify(path.resolve(__dirname, "../lib/analysis-service"))});
+const gates = ${JSON.stringify(gates)};
+const gateFor = (uri) => gates[path.basename(fileURLToPath(uri))];
+const defines = AnalysisService.prototype.defines;
+AnalysisService.prototype.defines = async function(job) {
+  const result = await defines.call(this, job);
+  const gate = gateFor(job.uri);
+  if (gate && fs.existsSync(gate.enabled)) {
+    fs.writeFileSync(gate.entered, JSON.stringify({ version: job.version, id: job.id }));
+    while (!job.cancelled && !this.stopped && !fs.existsSync(gate.release))
+      await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  return result;
+};
+const finish = AnalysisService.prototype.finish;
+AnalysisService.prototype.finish = function(message) {
+  const job = this.active;
+  finish.call(this, message);
+  const gate = job && gateFor(job.uri);
+  if (gate && message.type === "result" && this.results.get(job.uri)?.snapshot === job.snapshot)
+    fs.writeFileSync(gate.accepted, JSON.stringify({ version: job.version, id: job.id }));
+};
+const waitDiagnostics = AnalysisService.prototype.waitDiagnostics;
+AnalysisService.prototype.waitDiagnostics = function(uri, token) {
+  const pending = waitDiagnostics.call(this, uri, token);
+  const gate = gateFor(uri);
+  if (gate) fs.writeFileSync(gate.pulling, JSON.stringify({ pending: true }));
+  return pending;
+};
+require(${JSON.stringify(path.resolve(__dirname, "../lib/server"))}).startServer();
+`,
+    );
+  }
+  const client = new LspClient(root, { entryPath });
   t.after(async () => {
+    for (const gate of Object.values(gates)) await fs.writeFile(gate.release, "");
     await client.stop();
     assert.equal(path.dirname(root), os.tmpdir());
     await fs.rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
@@ -46,7 +121,7 @@ async function fixture(t, files = {}) {
   const uri = (name) => pathToFileURL(path.join(root, name)).href;
   const diagnostics = (name) =>
     client.request("textDocument/diagnostic", { textDocument: { uri: uri(name) } });
-  return { root, uri, client, diagnostics };
+  return { root, uri, client, diagnostics, gates };
 }
 
 test("real server shares debounced diagnostics with pull while completion stays available", async (t) => {
@@ -87,7 +162,7 @@ test("real server shares debounced diagnostics with pull while completion stays 
   );
   assert.ok((await completion).some((item) => item.label === "FULL"));
   const current = await pending;
-  assert.ok(performance.now() - start >= 200, "pull must preserve the server's quiet period");
+  assert.ok(performance.now() - start >= 75, "pull must preserve the server's quiet period");
   assert.deepEqual(lint(current.items), []);
   const changedPushes = client.notifications.filter(
     ({ method, params: item }) =>
@@ -96,6 +171,226 @@ test("real server shares debounced diagnostics with pull while completion stays 
   assert.ok(changedPushes.length);
   assert.ok(changedPushes.every(({ params: item }) => lint(item.diagnostics).length === 0));
   assert.deepEqual((await diagnostics("model.dat")).items, current.items);
+});
+
+test("unrelated typing retains published findings and a correction clears only after analysis", async (t) => {
+  const { uri, client, diagnostics, gates } = await fixture(
+    t,
+    {},
+    { blockAnalysis: ["model.dat"] },
+  );
+  const model = uri("model.dat");
+  const gate = gates["model.dat"];
+  client.open(model, BAD);
+  const initial = lint((await diagnostics("model.dat")).items);
+  assert.ok(initial.some((item) => item.code === codeFor("variable-before-declaration")));
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === model &&
+      lint(params.diagnostics).length,
+  );
+
+  await fs.writeFile(gate.enabled, "");
+  await fs.rm(gate.pulling, { force: true });
+  const offset = client.notifications.length;
+  client.change(model, [{ text: BAD.replace("GRP NO #size", "GRP NO 2") }], 2);
+  await barrier(gate.entered, ({ version }) => version === 2);
+  let settled = false;
+  const pending = diagnostics("model.dat").then((report) => {
+    settled = true;
+    return report;
+  });
+  await barrier(gate.pulling);
+  const completion = await client.request("textDocument/completion", params(model, 2, 13));
+  assert.ok(completion.some((item) => item.label === "FULL"));
+  assert.equal(settled, false);
+  assert.deepEqual(
+    pushesSince(client, offset, model),
+    [],
+    "typing must retain the previous client report",
+  );
+  await fs.writeFile(gate.release, "");
+  assert.deepEqual(lint((await pending).items), initial);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" && params.uri === model && params.version === 2,
+  );
+  assert.ok(pushesSince(client, offset, model).every((item) => lint(item.diagnostics).length));
+
+  await fs.rm(gate.release);
+  await fs.rm(gate.pulling, { force: true });
+  const correctionOffset = client.notifications.length;
+  client.change(model, [{ text: GOOD }], 3);
+  await barrier(gate.entered, ({ version }) => version === 3);
+  const corrected = diagnostics("model.dat");
+  await barrier(gate.pulling);
+  assert.deepEqual(
+    pushesSince(client, correctionOffset, model),
+    [],
+    "a pending correction must not clear eagerly",
+  );
+  await fs.writeFile(gate.release, "");
+  assert.deepEqual(lint((await corrected).items), []);
+  const cleared = await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" && params.uri === model && params.version === 3,
+  );
+  assert.deepEqual(cleared.diagnostics, []);
+});
+
+test("rapid edits publish only the final version and its current diagnostic positions", async (t) => {
+  const { uri, client, diagnostics, gates } = await fixture(
+    t,
+    {},
+    { blockAnalysis: ["model.dat"] },
+  );
+  const model = uri("model.dat");
+  const gate = gates["model.dat"];
+  client.open(model, BAD);
+  await diagnostics("model.dat");
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === model &&
+      lint(params.diagnostics).length,
+  );
+  await fs.writeFile(gate.enabled, "");
+  const offset = client.notifications.length;
+  client.change(model, [{ text: "\n" + BAD }], 2);
+  await barrier(gate.entered, ({ version }) => version === 2);
+  client.change(model, [{ text: "\n\n" + BAD }], 3);
+  client.change(model, [{ text: "\n\n\n" + BAD }], 4);
+  await barrier(gate.entered, ({ version }) => version === 4);
+  assert.deepEqual(pushesSince(client, offset, model), []);
+  const pending = diagnostics("model.dat");
+  await fs.writeFile(gate.release, "");
+  const current = lint((await pending).items);
+  assert.ok(current.length);
+  assert.equal(current[0].range.start.line, 4);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" && params.uri === model && params.version === 4,
+  );
+  const pushes = pushesSince(client, offset, model);
+  assert.ok(pushes.length);
+  assert.ok(pushes.every((item) => item.version === 4));
+  assert.ok(pushes.every((item) => lint(item.diagnostics)[0]?.range.start.line === 4));
+});
+
+test("removing an include publishes its empty related report only when the new root is ready", async (t) => {
+  const { uri, client, diagnostics, gates } = await fixture(
+    t,
+    { "part.dat": BAD },
+    { blockAnalysis: ["model.dat"] },
+  );
+  const model = uri("model.dat");
+  const child = uri("part.dat");
+  const gate = gates["model.dat"];
+  client.open(model, '#INCLUDE "part.dat"\n');
+  assert.ok(lint((await diagnostics("model.dat")).relatedDocuments[child].items).length);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      lint(params.diagnostics).length,
+  );
+  await fs.writeFile(gate.enabled, "");
+  const offset = client.notifications.length;
+  client.change(model, [{ text: GOOD }], 2);
+  await barrier(gate.entered, ({ version }) => version === 2);
+  const pending = diagnostics("model.dat");
+  assert.deepEqual(pushesSince(client, offset, child), []);
+  await fs.writeFile(gate.release, "");
+  const report = await pending;
+  assert.deepEqual(report.items, []);
+  assert.deepEqual(report.relatedDocuments[child].items, []);
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      params.diagnostics.length === 0,
+  );
+  assert.deepEqual((await diagnostics("part.dat")).items, []);
+});
+
+test("shared include push and related pull wait until both affected roots have current results", async (t) => {
+  const { root, uri, client, diagnostics, gates } = await fixture(
+    t,
+    { "shared.dat": BAD },
+    { blockAnalysis: ["a.dat", "b.dat"] },
+  );
+  const first = uri("a.dat");
+  const second = uri("b.dat");
+  const child = uri("shared.dat");
+  const includesBothCallers = (diagnostic) => {
+    const callers = new Set(diagnostic.relatedInformation?.map(({ location }) => location.uri));
+    return callers.has(first) && callers.has(second);
+  };
+  client.open(first, '#INCLUDE "shared.dat"\n');
+  client.open(second, '#INCLUDE "shared.dat"\n');
+  await diagnostics("a.dat");
+  const initial = await diagnostics("b.dat");
+  assert.ok(includesBothCallers(lint(initial.relatedDocuments[child].items)[0]));
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      includesBothCallers(lint(params.diagnostics)[0] || {}),
+  );
+  for (const gate of Object.values(gates)) {
+    await fs.rm(gate.entered, { force: true });
+    await fs.rm(gate.accepted, { force: true });
+    await fs.rm(gate.pulling, { force: true });
+    await fs.writeFile(gate.enabled, "");
+  }
+  const offset = client.notifications.length;
+  await fs.writeFile(path.join(root, "shared.dat"), "\n" + BAD);
+  client.notify("workspace/didChangeWatchedFiles", { changes: [{ uri: child, type: 2 }] });
+  await barrier(gates["a.dat"].entered);
+  let settled = false;
+  const pending = diagnostics("a.dat").then((report) => {
+    settled = true;
+    return report;
+  });
+  await barrier(gates["a.dat"].pulling);
+  await fs.writeFile(gates["a.dat"].release, "");
+  await barrier(gates["a.dat"].accepted);
+  await barrier(gates["b.dat"].entered);
+  assert.equal(
+    settled,
+    false,
+    "the first root's pull includes the second root's shared contribution",
+  );
+  assert.deepEqual(
+    pushesSince(client, offset, child),
+    [],
+    "one ready root must not publish a partial shared report",
+  );
+  await fs.writeFile(gates["b.dat"].release, "");
+  const current = lint((await pending).relatedDocuments[child].items);
+  assert.equal(current.length, 1);
+  assert.equal(current[0].range.start.line, 2);
+  assert.ok(includesBothCallers(current[0]));
+  await notification(
+    client,
+    ({ method, params }) =>
+      method === "textDocument/publishDiagnostics" &&
+      params.uri === child &&
+      lint(params.diagnostics)[0]?.range.start.line === 2,
+  );
+  const pushes = pushesSince(client, offset, child);
+  assert.ok(pushes.length);
+  assert.ok(pushes.every((item) => lint(item.diagnostics).length === 1));
+  assert.ok(pushes.every((item) => includesBothCallers(lint(item.diagnostics)[0])));
 });
 
 test("inline generator errors publish, match pull diagnostics and clear after correction", async (t) => {

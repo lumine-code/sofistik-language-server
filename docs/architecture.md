@@ -27,6 +27,14 @@ A job captures an immutable entry snapshot before it is queued, then captures kn
 
 A result is current only while its entry text, version, complete environment identity, encoding, definition epoch and observed source generations agree with the project. Cancelling a client pull does not cancel the shared analysis. A superseded job is discarded, and later work converges on the latest source generation.
 
+## Diagnostic publication
+
+Source changes schedule analysis after 100 ms of quiet; opening and saving start it immediately. Invalidating an analysis removes its internal result and contributions without publishing a temporary empty report. The client retains its previous diagnostics and moves their markers with edits until a complete current report replaces them. Old source positions are never republished under a newer document version.
+
+Publication readiness is checked per source URI, including pending callers of shared includes. A completed caller can publish its own findings while an include shared with another pending caller waits for the complete aggregate. Pull reports use the same readiness check for the requested source and related documents. Removed include targets remain in the report history so their findings are retracted when the replacement analysis is accepted. Closing a source or ending an analysis without a result also releases pending publication.
+
+Imported calculation findings are invalidated in the project as soon as the source changes. Their removal is presented with the next complete diagnostic report; a pending static analysis does not restore the imported findings.
+
 ## Invalidation
 
 Navigation caches record candidate file dependencies even when an include is missing. Editing, opening, closing or discovering a source invalidates caller views that reach it; unrelated raw graphs remain cached. Schema changes invalidate affected source directories. Aggregate declaration views are invalidated whenever their constituent generations can change.

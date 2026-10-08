@@ -141,6 +141,194 @@ test("pull waits for the server debounce and rapid edits replace the pending ana
   assert.deepEqual(published, [entry.uri]);
 });
 
+test("diagnostic pulls wait for every current root contributing to a shared include", async (t) => {
+  const { uri, disk, project, open, service, touch } = await fixture(t, { delay: 0 });
+  const child = uri("shared.dat");
+  const secondGate = uri("second-gate.inc");
+  disk.set(child, BAD);
+  disk.set(secondGate, "");
+  const first = open("a.dat", '#INCLUDE "shared.dat"\n');
+  const second = open("b.dat", '#INCLUDE "shared.dat"\n#INCLUDE "second-gate.inc"\n');
+  await service.schedule(first.uri, { immediate: true });
+  await service.schedule(second.uri, { immediate: true });
+  assert.equal(service.cached(child).length, 1);
+  const requested = deferred();
+  const content = deferred();
+  project.readInput = async (sourceUri) => {
+    if (sourceUri === secondGate) {
+      requested.resolve();
+      return content.promise;
+    }
+    return disk.get(sourceUri) ?? null;
+  };
+  disk.set(child, "\n" + BAD);
+  touch(child);
+  service.changed(child, { immediate: true });
+  assert.deepEqual(service.cached(child), [], "old include positions remain invalid internally");
+  assert.equal(service.pendingDiagnosticJobs(child).length, 2);
+  let settled = false;
+  const pending = service.waitDiagnostics(child).then((result) => {
+    settled = true;
+    return result;
+  });
+  await bounded(requested.promise, "second shared root still reading");
+  assert.equal(service.pendingDiagnosticJobs(child).length, 1);
+  assert.equal(service.cached(child)[0].range.start.line, 2);
+  assert.equal(settled, false, "a single current contribution is not a complete diagnostic report");
+  content.resolve("");
+  assert.equal(await bounded(pending, "both shared-root diagnostic contributions"), null);
+  assert.deepEqual(service.pendingDiagnosticJobs(child), []);
+  const issue = service.cached(child)[0];
+  assert.equal(issue.range.start.line, 2);
+  const callers = new Set(issue.relatedInformation.map(({ location }) => location.uri));
+  assert.ok(callers.has(first.uri));
+  assert.ok(callers.has(second.uri));
+});
+
+test("a skipped standalone include invalidates only after its caller's replacement is pending", async (t) => {
+  const { project, open, change, service } = await fixture(t, { delay: 0 });
+  const child = open("part.dat", BAD);
+  await service.schedule(child.uri, { immediate: true });
+  const parent = open("model.dat", '#INCLUDE "part.dat"\n');
+  await service.schedule(parent.uri, { immediate: true });
+  assert.equal(service.cached(child.uri).length, 1);
+  const readinessAtInvalidation = [];
+  service.onInvalidate = (targets) => {
+    if (targets.includes(child.uri))
+      readinessAtInvalidation.push(
+        service.pendingDiagnosticJobs(child.uri).some((job) => job.uri === parent.uri),
+      );
+  };
+  project.skippedInputs.add(child.uri);
+  change(child, "\n" + BAD);
+  const affected = service.changed(child.uri);
+  assert.ok(affected.includes(parent.uri));
+  assert.deepEqual(service.cached(child.uri), [], "stale internal positions cannot be reused");
+  assert.ok(readinessAtInvalidation.length);
+  assert.ok(
+    readinessAtInvalidation.every(Boolean),
+    "even a skipped include's clear must see its affected caller as pending",
+  );
+  await bounded(service.waitDiagnostics(child.uri), "skipped include's current caller report");
+  assert.equal(service.cached(child.uri)[0].range.start.line, 2);
+});
+
+test("canceling a shared-include diagnostic pull leaves its dependent analysis running", async (t) => {
+  const { uri, disk, open, service, touch } = await fixture(t, { delay: 80 });
+  const child = uri("part.dat");
+  disk.set(child, BAD);
+  const entry = open("model.dat", '#INCLUDE "part.dat"\n');
+  await service.schedule(entry.uri, { immediate: true });
+  disk.set(child, "\n" + BAD);
+  touch(child);
+  service.changed(child);
+  const listeners = new Set();
+  const token = {
+    isCancellationRequested: false,
+    onCancellationRequested(listener) {
+      listeners.add(listener);
+      return { dispose: () => listeners.delete(listener) };
+    },
+  };
+  const cancelled = service.waitDiagnostics(child, token);
+  token.isCancellationRequested = true;
+  for (const listener of listeners) listener();
+  assert.equal(await bounded(cancelled, "cancelled include pull"), null);
+  assert.equal(listeners.size, 0);
+  await bounded(
+    service.waitDiagnostics(child),
+    "background include analysis after pull cancellation",
+  );
+  assert.equal(service.cached(child)[0].range.start.line, 2);
+});
+
+test("closing a pending caller releases diagnostic pulls for its included source", async (t) => {
+  const { uri, disk, project, open, service, touch } = await fixture(t);
+  const child = uri("slow.dat");
+  disk.set(child, BAD);
+  const entry = open("model.dat", '#INCLUDE "slow.dat"\n');
+  await service.schedule(entry.uri, { immediate: true });
+  const requested = deferred();
+  const content = deferred();
+  project.readInput = async () => {
+    requested.resolve();
+    return content.promise;
+  };
+  touch(child);
+  service.changed(child, { immediate: true });
+  await bounded(requested.promise, "pending caller reading its include");
+  assert.equal(service.pendingDiagnosticJobs(child).length, 1);
+  const pending = service.waitDiagnostics(child);
+  project.documents.delete(entry.uri);
+  touch(entry.uri);
+  service.close(entry.uri);
+  assert.equal(await bounded(pending, "include pull after its caller closes"), null);
+  assert.deepEqual(service.pendingDiagnosticJobs(child), []);
+  assert.deepEqual(service.cached(child), []);
+  content.resolve(BAD);
+});
+
+test("worker failure releases diagnostic pulls for pending included-source findings", async (t) => {
+  const { uri, disk, project, open, service, touch } = await fixture(t);
+  const child = uri("slow.dat");
+  disk.set(child, BAD);
+  const entry = open("model.dat", '#INCLUDE "slow.dat"\n');
+  await service.schedule(entry.uri, { immediate: true });
+  const requested = deferred();
+  const content = deferred();
+  project.readInput = async () => {
+    requested.resolve();
+    return content.promise;
+  };
+  touch(child);
+  service.changed(child, { immediate: true });
+  await bounded(requested.promise, "failing caller reading its include");
+  assert.equal(service.pendingDiagnosticJobs(child).length, 1);
+  const pending = service.waitDiagnostics(child);
+  await service.worker.terminate();
+  assert.equal(await bounded(pending, "include pull after worker failure"), null);
+  assert.deepEqual(service.pendingDiagnosticJobs(child), []);
+  assert.deepEqual(service.cached(child), []);
+  content.resolve(BAD);
+});
+
+test("a stale queued generation settles and diagnostic pulls converge to the current snapshot", async (t) => {
+  const { open, change, service, published } = await fixture(t, { delay: 20 });
+  const entry = open("model.dat", BAD);
+  const obsolete = service.schedule(entry.uri);
+  // The source may change before a scheduler callback can replace this job.
+  // A pull must follow its replacement rather than await a settled old job forever.
+  change(entry, GOOD);
+  const current = await bounded(
+    service.waitDiagnostics(entry.uri),
+    "replacement for stale queued analysis",
+  );
+  assert.equal(await obsolete, null);
+  assert.equal(current.version, 2);
+  assert.deepEqual(current.diagnostics, []);
+  assert.equal(service.jobs.size, 0);
+  assert.deepEqual(published, [entry.uri]);
+});
+
+test("disposing an active analysis releases its pending diagnostic pull", async (t) => {
+  const { project, open, service } = await fixture(t);
+  const requested = deferred();
+  const content = deferred();
+  project.readInput = async () => {
+    requested.resolve();
+    return content.promise;
+  };
+  const entry = open("model.dat", '#INCLUDE "slow.dat"\n');
+  service.schedule(entry.uri, { immediate: true });
+  await bounded(requested.promise, "active analysis before disposal");
+  const pending = service.waitDiagnostics(entry.uri);
+  await service.dispose();
+  assert.equal(await bounded(pending, "diagnostic pull after disposal"), null);
+  assert.equal(service.jobs.size, 0);
+  assert.equal(service.worker, null);
+  content.resolve(BAD);
+});
+
 test("a persistent worker reuses unchanged modules and remaps their diagnostics", async (t) => {
   const { open, change, service, published } = await fixture(t);
   const entry = open("model.dat", BAD);

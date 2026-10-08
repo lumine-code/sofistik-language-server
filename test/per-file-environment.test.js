@@ -10,6 +10,28 @@ const { LspClient } = require("./lsp-client");
 
 const SOURCE = "+PROG ASE\nLET#size 1\nGRP NO #size VAL FULL\nEND\n";
 
+async function waitFor(check, label) {
+  const deadline = Date.now() + 10000;
+  while (Date.now() < deadline) {
+    const value = check();
+    if (value) return value;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.fail(`Expected ${label} did not arrive.`);
+}
+
+const publishedDiagnostics = (client, uri, matches) =>
+  waitFor(
+    () =>
+      client.notifications.findLast(
+        ({ method, params }) =>
+          method === "textDocument/publishDiagnostics" &&
+          params.uri === uri &&
+          matches(params.diagnostics),
+      )?.params,
+    `current diagnostics for ${uri}; stderr: ${client.stderr}`,
+  );
+
 async function fixture(t, files, beforeCleanup) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sofistik-file-environment-"));
   for (const [name, text] of Object.entries(files)) {
@@ -270,6 +292,13 @@ test("real protocol keeps directory environments isolated through watched change
   );
   assert.match((await diagnostics("second/model.dat")).items[0].message, /1999/);
   assert.deepEqual((await diagnostics("unconfigured/model.dat")).items, []);
+  assert.deepEqual((await diagnostics("first/model.dat")).items, []);
+  for (const name of ["first/model.dat", "unconfigured/model.dat"])
+    await publishedDiagnostics(client, uri(name), (items) => items.length === 0);
+  await publishedDiagnostics(client, "untitled:model", (items) => items.length === 0);
+  await publishedDiagnostics(client, uri("second/model.dat"), (items) =>
+    items.some((item) => /1999/.test(item.message)),
+  );
   client.notifications.length = 0;
   await fs.writeFile(
     path.join(root, "second/sofistik.def"),
@@ -279,6 +308,14 @@ test("real protocol keeps directory environments isolated through watched change
   const watched = process.platform === "win32" ? encoded.toUpperCase() : encoded;
   client.notify("workspace/didChangeWatchedFiles", { changes: [{ uri: watched, type: 2 }] });
   assert.equal((await tokens("second/model.dat")).data.length, 5);
+  const current = await diagnostics("second/model.dat");
+  assert.deepEqual(current.items, []);
+  const currentPush = await publishedDiagnostics(
+    client,
+    uri("second/model.dat"),
+    (items) => items.length === 0,
+  );
+  assert.deepEqual(currentPush.diagnostics, current.items);
   const published = client.notifications.filter(
     (item) => item.method === "textDocument/publishDiagnostics",
   );
@@ -388,16 +425,13 @@ test("real cursor protocol refreshes preloaded includes before the first graph a
   await client.start();
   client.open(uri("a/main.dat"), parent);
   client.open(uri("b/child.dat"), SOURCE);
-  const childReport = () =>
-    client.notifications
-      .filter(
-        (item) =>
-          item.method === "textDocument/publishDiagnostics" &&
-          item.params.uri === uri("b/child.dat"),
-      )
-      .at(-1)?.params.diagnostics;
-  await client.request("textDocument/diagnostic", { textDocument: { uri: uri("b/child.dat") } });
-  assert.match(childReport()[0].message, /1999/);
+  const diagnosticParams = { textDocument: { uri: uri("b/child.dat") } };
+  const initial = await client.request("textDocument/diagnostic", diagnosticParams);
+  assert.match(initial.items[0].message, /1999/);
+  const initialPush = await publishedDiagnostics(client, uri("b/child.dat"), (items) =>
+    items.some((item) => /1999/.test(item.message)),
+  );
+  assert.deepEqual(initialPush.diagnostics, initial.items);
   const completeParent = () =>
     client.request("textDocument/completion", {
       textDocument: { uri: uri("a/main.dat") },
@@ -406,14 +440,26 @@ test("real cursor protocol refreshes preloaded includes before the first graph a
   await fs.writeFile(path.join(root, "b/sofistik.def"), "SOF_VERSION = 2026\n");
   client.notifications.length = 0;
   await completeParent();
-  assert.deepEqual(childReport(), []);
+  const supported = await client.request("textDocument/diagnostic", diagnosticParams);
+  assert.deepEqual(supported.items, []);
+  const supportedPush = await publishedDiagnostics(
+    client,
+    uri("b/child.dat"),
+    (items) => items.length === 0,
+  );
+  assert.deepEqual(supportedPush.diagnostics, supported.items);
   // No watched-file notification: the parent edit clears the previously built graph.
   client.change(uri("a/main.dat"), [{ text: parent + "$ changed\n" }], 2);
   await client.request("textDocument/documentSymbol", { textDocument: { uri: uri("a/main.dat") } });
   await fs.writeFile(path.join(root, "b/sofistik.def"), "SOF_VERSION = 2099\n");
   client.notifications.length = 0;
   await completeParent();
-  assert.match(childReport()[0].message, /2099/);
+  const unsupported = await client.request("textDocument/diagnostic", diagnosticParams);
+  assert.match(unsupported.items[0].message, /2099/);
+  const unsupportedPush = await publishedDiagnostics(client, uri("b/child.dat"), (items) =>
+    items.some((item) => /2099/.test(item.message)),
+  );
+  assert.deepEqual(unsupportedPush.diagnostics, unsupported.items);
 });
 
 test("first include discovery refreshes a cached descendant hidden behind an uncached intermediate", async (t) => {
@@ -475,12 +521,18 @@ test("real graph discovery queues cached descendant refresh and allows reentrant
     textDocument: { uri: uri("c/leaf.dat") },
   });
   assert.match(initial.items[0].message, /1999/);
+  await publishedDiagnostics(client, uri("c/leaf.dat"), (items) =>
+    items.some((item) => /1999/.test(item.message)),
+  );
   let refreshes = 0;
+  const reentrantTokens = [];
   client.connection.onRequest("workspace/semanticTokens/refresh", async () => {
     refreshes++;
-    await client.request("textDocument/semanticTokens/full", {
-      textDocument: { uri: uri("c/leaf.dat") },
-    });
+    reentrantTokens.push(
+      await client.request("textDocument/semanticTokens/full", {
+        textDocument: { uri: uri("c/leaf.dat") },
+      }),
+    );
     return null;
   });
   await fs.writeFile(path.join(root, "c/sofistik.def"), "SOF_VERSION = 2026\n");
@@ -490,15 +542,20 @@ test("real graph discovery queues cached descendant refresh and allows reentrant
     position: { line: 2, character: 11 },
   });
   assert.ok(items.some((item) => item.label === "CHILD"));
-  assert.deepEqual(
-    client.notifications
-      .filter(
-        (item) =>
-          item.method === "textDocument/publishDiagnostics" &&
-          item.params.uri === uri("c/leaf.dat"),
-      )
-      .at(-1)?.params.diagnostics,
-    [],
+  const current = await client.request("textDocument/diagnostic", {
+    textDocument: { uri: uri("c/leaf.dat") },
+  });
+  assert.deepEqual(current.items, []);
+  const currentPush = await publishedDiagnostics(
+    client,
+    uri("c/leaf.dat"),
+    (items) => items.length === 0,
   );
+  assert.deepEqual(currentPush.diagnostics, current.items);
+  const refreshedTokens = await waitFor(
+    () => reentrantTokens[0],
+    "reentrant semantic token response",
+  );
+  assert.equal(refreshedTokens.data.length, 5);
   assert.ok(refreshes > 0);
 });
