@@ -319,3 +319,79 @@ test("two real processes keep project releases independent", async (t) => {
     { data: [] },
   );
 });
+
+test("variable statements end tables over stdio and incremental edits restore their context", async (t) => {
+  const { uri, client } = await fixture(t);
+  const enumTokensAt = (line) =>
+    client.request("textDocument/semanticTokens/range", {
+      textDocument: { uri },
+      range: { start: { line, character: 0 }, end: { line: line + 1, character: 0 } },
+    });
+  client.change(
+    uri,
+    [
+      {
+        text:
+          "+PROG SOFILOAD\nACT TYPE PART SUP\nlp_u q_1 COND\n" +
+          "STO#D_f 0.21\nSTO#B_1 -1.175\nlp_x q_1 COND\nEND\n",
+      },
+    ],
+    2,
+  );
+  assert.deepEqual(await enumTokensAt(2), { data: [2, 9, 4, 0, 0] });
+  assert.deepEqual(await enumTokensAt(5), { data: [] });
+  assert.equal(await client.request("textDocument/signatureHelp", params(uri, 5, 13)), null);
+  assert.equal(
+    (await client.request("textDocument/completion", params(uri, 5, 9))).some(
+      (item) => item.label === "COND",
+    ),
+    false,
+  );
+  const symbols = await client.request("textDocument/documentSymbol", { textDocument: { uri } });
+  const program = symbols.find((symbol) => symbol.name.toUpperCase().includes("SOFILOAD"));
+  const act = program.children.find((symbol) => symbol.name.toUpperCase() === "ACT");
+  assert.deepEqual(act.range.end, { line: 3, character: 0 });
+  for (const name of ["d_f", "b_1"]) {
+    assert.ok(program.children.some((symbol) => symbol.name.toLowerCase() === name));
+    assert.equal(
+      flattenSymbols(act.children ?? []).some((symbol) => symbol.name.toLowerCase() === name),
+      false,
+    );
+  }
+
+  client.change(
+    uri,
+    [
+      {
+        text: "+PROG SOFILOAD\nACT TYPE PART SUP\nlp_u q_1 COND\nSTO#saved 1\nlp_x q_1 COND\nEND\n",
+      },
+    ],
+    3,
+  );
+  assert.deepEqual(await enumTokensAt(4), { data: [] });
+  client.change(
+    uri,
+    [{ range: { start: { line: 3, character: 0 }, end: { line: 4, character: 0 } }, text: "" }],
+    4,
+  );
+  assert.deepEqual(await enumTokensAt(3), { data: [3, 9, 4, 0, 0] });
+  assert.ok(
+    (await client.request("textDocument/completion", params(uri, 3, 9))).some(
+      (item) => item.label === "COND",
+    ),
+  );
+  assert.ok(await client.request("textDocument/signatureHelp", params(uri, 3, 13)));
+  client.change(
+    uri,
+    [
+      {
+        range: { start: { line: 3, character: 0 }, end: { line: 3, character: 0 } },
+        text: "LET #saved 1\n",
+      },
+    ],
+    5,
+  );
+  assert.deepEqual(await enumTokensAt(4), { data: [] });
+  assert.equal(await client.request("textDocument/signatureHelp", params(uri, 4, 13)), null);
+  assert.equal(client.stderr, "");
+});
