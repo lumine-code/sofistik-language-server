@@ -46,18 +46,18 @@ test("tables and annotated continuations belong to their explicit command", () =
 });
 
 test("semicolon siblings retain exact selections and END separators", () => {
-  const text = "  +prog aqua; head 'a; END'; conc 1 c 30; end; +prog ase; grp no 1 val full";
+  const text = "  +prog aqua; norm 'a; END'; conc 1 c 30; end; +prog ase; grp no 1 val full";
   const symbols = outline(text);
   assert.deepEqual(names(symbols), ["AQUA", "ASE"]);
-  assert.deepEqual(names(symbols[0].children), ["HEAD", "CONC"]);
+  assert.deepEqual(names(symbols[0].children), ["NORM", "CONC"]);
   const secondProgram = text.indexOf("+prog ase");
   const end = text.indexOf("end;") + 4;
   assert.deepEqual(symbols[0].range, range(0, 2, 0, end));
   assert.deepEqual(symbols[1].range, range(0, secondProgram, 0, text.length));
-  const head = text.indexOf("head");
+  const norm = text.indexOf("norm");
   const conc = text.indexOf("conc");
-  assert.deepEqual(symbols[0].children[0].selectionRange, range(0, head, 0, head + 4));
-  assert.deepEqual(symbols[0].children[0].range, range(0, head, 0, conc - 1));
+  assert.deepEqual(symbols[0].children[0].selectionRange, range(0, norm, 0, norm + 4));
+  assert.deepEqual(symbols[0].children[0].range, range(0, norm, 0, conc - 1));
 });
 
 test("unfinished programs end at the next header or actual EOF", () => {

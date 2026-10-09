@@ -462,6 +462,68 @@ test("inline generator errors publish, match pull diagnostics and clear after co
   assert.deepEqual(lint(cleared.diagnostics), []);
 });
 
+test("HEAD titles remain implicit strings across LSP changes and retain following diagnostics", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const model = uri("model.dat");
+  const increment = codeFor("inline-generator-increment");
+  const title = "head calc (part 2)";
+  client.open(
+    model,
+    [
+      "+PROG SOFILOAD",
+      title,
+      "HeAd O'Brien (unfinished; LC (1 11) LET title missing [",
+      "LC (1 11)",
+      "END",
+      "",
+    ].join("\n"),
+  );
+  const assertIssues = async (version, lines) => {
+    const issues = lint((await diagnostics("model.dat")).items);
+    assert.deepEqual(
+      issues.map((item) => ({ code: item.code, line: item.range.start.line })),
+      lines.map((line) => ({ code: increment, line })),
+    );
+    const pushed = await notification(
+      client,
+      ({ method, params: item }) =>
+        method === "textDocument/publishDiagnostics" &&
+        item.uri === model &&
+        item.version === version,
+    );
+    assert.deepEqual(lint(pushed.diagnostics), issues);
+  };
+  await assertIssues(1, [3]);
+
+  client.change(
+    model,
+    [
+      {
+        range: { start: { line: 1, character: 0 }, end: { line: 1, character: title.length } },
+        text: "LC (1 11)",
+      },
+    ],
+    2,
+  );
+  await assertIssues(2, [1, 3]);
+
+  client.change(
+    model,
+    [
+      {
+        range: { start: { line: 1, character: 0 }, end: { line: 1, character: 9 } },
+        text: title,
+      },
+      {
+        range: { start: { line: 3, character: 8 }, end: { line: 3, character: 8 } },
+        text: " 1",
+      },
+    ],
+    3,
+  );
+  await assertIssues(3, []);
+});
+
 test("a trailing list comma is diagnosed without losing the next SOFILOAD enum", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const model = uri("model.dat");

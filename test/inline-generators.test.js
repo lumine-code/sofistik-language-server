@@ -194,6 +194,22 @@ test("verified releases and native keyword languages share the general rule", ()
   assert.deepEqual(analyze(program("LC (1 11)"), { version: "2019" }), []);
 });
 
+test("native title records remain implicit strings in every supported release", () => {
+  for (const version of ["2018", "2020", "2022", "2023", "2024", "2025", "2026"]) {
+    for (const [language, command] of [
+      ["en", "HEAD"],
+      ["de", "KOPF"],
+    ]) {
+      const text = program(
+        `${command.toLowerCase()} calc (part 2); LC (1 11)\n` +
+          `${command} title's (draft $$\n still (part 2)`,
+        "ASE",
+      );
+      assert.deepEqual(analyze(text, { version, language }), [], `${version}/${language}`);
+    }
+  }
+});
+
 test("cached analysis rechecks changed generator counts", () => {
   const engine = new LintEngine();
   assert.equal(analyze(program("LC (1 11)"), { engine }).length, 1);

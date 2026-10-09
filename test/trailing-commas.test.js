@@ -153,7 +153,7 @@ test("inactive programs and unknown command payloads do not report list syntax",
 });
 
 test("comma ranges remain precise after Unicode, semicolons and CRLF", () => {
-  const text = "+PROG SOFILOAD\r\nHEAD 'ą😀'; LC 1; AREA QGRP 51, TYPE DTXY 1\r\nEND\r\n";
+  const text = "+PROG SOFILOAD\r\nLET#text 'ą😀'; LC 1; AREA QGRP 51, TYPE DTXY 1\r\nEND\r\n";
   const [issue] = analyze(text);
   assert.equal(selected(text, issue), ",");
   assert.equal(issue.range.start.character, text.split("\r\n")[1].indexOf(","));

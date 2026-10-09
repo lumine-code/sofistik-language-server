@@ -296,7 +296,7 @@ test("unknown module command payloads are not assigned numeric meaning", () => {
 });
 
 test("UTF-16 offsets remain precise after Unicode text on the same physical line", () => {
-  const text = program("HEAD 'ą😀'; NODE NO 1 X 1.00.0 Y 2");
+  const text = program("LET#text 'ą😀'; NODE NO 1 X 1.00.0 Y 2");
   const issues = numeric(analyze(text));
   assert.equal(issues.length, 1);
   assert.equal(selectedText(text, issues[0].range), "1.00.0");

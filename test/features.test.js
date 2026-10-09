@@ -19,6 +19,24 @@ function projectFor(module, record) {
   };
 }
 
+test("HEAD title prose and trailing whitespace offer no code language features", async () => {
+  for (const record of [
+    "HEAD ",
+    "head calc (part 2) ",
+    "HEAD title's (unfinished; GRP NO 9 VAL FULL <TEXT>",
+  ]) {
+    const project = projectFor("ASE", record);
+    const start = record.indexOf(" ") + 1;
+    for (const character of [start, Math.max(start, record.length - 1), record.length]) {
+      const position = { line: 1, character };
+      assert.deepEqual(await completion(project, "untitled:fixture", position), [], record);
+      assert.equal(await hover(project, "untitled:fixture", position), null, record);
+      assert.equal(await signatureHelp(project, "untitled:fixture", position), null, record);
+    }
+    assert.deepEqual(semanticTokens(await project.loadDocument()), { data: [] });
+  }
+});
+
 test("signature help selects the real BDK EIGE form containing the named parameters", async () => {
   const firstRecord = "EIGE TYPE 1 NEIG ";
   const first = await signatureHelp(projectFor("BDK", firstRecord), "untitled:fixture", {

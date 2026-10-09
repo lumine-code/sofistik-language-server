@@ -69,6 +69,48 @@ test("TEXT is opaque prose with refs, PICT is code, legacy text ends at TXEN", (
   assert.equal(index.contextAt(at(text, "NODE 2", 5)).command, "NODE");
 });
 
+test("HEAD titles keep punctuation and semicolons as prose with real substitutions", () => {
+  const text =
+    "+PROG ASE\nLET#steps 2\n#DEFINE title=calc\n" +
+    "head $(title) O'Brien (part 2), = prose; +PROG AQUA <TEXT> #steps #(#steps,4.2) [m]  \n" +
+    "GRP NO 1 VAL FULL\nEND\n";
+  const index = createIndex(text, target());
+  assert.equal(index.lines[3].records.length, 1);
+  assert.equal(index.lines[3].records[0].kind, "command");
+  assert.equal(index.contextAt(at(text, "head", 1)).role, "command");
+  for (const needle of ["O'Brien", "(part 2)", "= prose", "+PROG AQUA", "<TEXT>", "[m]  "]) {
+    const context = index.contextAt(at(text, needle, 2));
+    assert.equal(context.role, "text", needle);
+    assert.equal(context.inText, true, needle);
+    assert.equal(context.module, "ASE", needle);
+  }
+  assert.deepEqual(index.diagnostics, []);
+  assert.deepEqual(
+    index.occurrences.filter((item) => item.line === 3).map((item) => item.name),
+    ["title", "steps", "steps"],
+  );
+  assert.equal(index.definitionsAt(at(text, "#steps #", 3)).length, 1);
+  assert.equal(index.contextAt(at(text, "FULL", 1)).param, "VAL");
+});
+
+test("title comments and continuations preserve prose only within their logical record", () => {
+  const text =
+    "+PROG ASE\nHEAD calc (part 2) $$ ignored\n continued (draft; GRP NO 9 ! comment\n" +
+    "HEAD next $ comment\nHEAD last // comment\nGRP NO 1 VAL FULL\nEND\n";
+  const index = createIndex(text, target());
+  assert.equal(index.lines[2].records[0].continuedFromPrevious, true);
+  assert.equal(index.contextAt(at(text, "continued", 2)).role, "text");
+  assert.equal(index.contextAt(at(text, "GRP NO 9", 2)).role, "text");
+  for (const line of [1, 2, 3, 4]) {
+    const content = index.lines[line].text;
+    assert.equal(index.contextAt({ line, character: content.length - 1 }).role, "comment");
+  }
+  assert.equal(index.contextAt(at(text, "FULL", 1)).param, "VAL");
+  const changed = text.replace("HEAD calc", "GRP NO 1 VAL");
+  index.applyChanges([{ text: changed }], 2);
+  assert.deepEqual(index.lines, createIndex(changed, target()).lines);
+});
+
 test("table header supplies parameter context for implicit rows", () => {
   const text = "+PROG SOFIMSHA\nNODE NO X Y Z\n1 0 3 0\n2 4 5 6\n";
   const index = createIndex(text, target());
@@ -97,7 +139,7 @@ test("indexes local definitions, recursive references, macros and include kinds"
 });
 
 test("accepts inherited fragment context and incomplete input", () => {
-  const text = "NODE 1 X 0\nHEAD 'unfinished\nNODE 2 Y 3\n";
+  const text = "NODE 1 X 0\nNODE 3 X 'unfinished\nNODE 2 Y 3\n";
   const index = createIndex(text, { ...target(), module: "SOFIMSHA", scopeId: "caller" });
   assert.equal(index.contextAt({ line: 0, character: 9 }).module, "SOFIMSHA");
   assert.equal(index.contextAt({ line: 2, character: 9 }).scopeId, "caller");
@@ -203,7 +245,7 @@ test("preprocessor names and neutral conditions do not start accidental records"
   assert.equal(index.occurrences.find((item) => item.role === "undef").namespace, "macro");
   assert.equal(index.contextAt({ line: 3, character: 5 }).module, "AQUA");
   assert.equal(index.lines[2].records.length, 1);
-  assert.equal(index.contextAt({ line: 4, character: 10 }).role, "command");
+  assert.equal(index.contextAt({ line: 4, character: 10 }).role, "text");
 });
 
 test("unknown scopes stay neutral and CDB statements emit no enum overlay", () => {

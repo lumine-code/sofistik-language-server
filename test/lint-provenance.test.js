@@ -45,11 +45,14 @@ test("direct findings keep program suppression anchors without boilerplate heade
 });
 
 test("precise variable diagnostics preserve UTF-16 columns across CRLF and semicolon records", async () => {
-  const prefix = "HEAD 'ą😀'; LET#a ";
+  const prefix = "LET#text 'ą😀'; LET#a ";
   const result = await analyze(`+PROG TEMPLATE\r\n${prefix}#missing\r\nEND\r\n`);
   assert.deepEqual(issue(result).range, range(1, prefix.length, prefix.length + 8));
   assert.deepEqual(issue(result).data.programAnchor, { uri, range: range(0, 0, 14) });
-  assert.deepEqual(issue(result).data.recordOrigin.range, range(1, 12, prefix.length + 8));
+  assert.deepEqual(
+    issue(result).data.recordOrigin.range,
+    range(1, prefix.indexOf("LET#a"), prefix.length + 8),
+  );
 });
 
 test("a scalar's generated variable points to its use and links its actual definition", async () => {
@@ -101,7 +104,7 @@ test("ERR checks select the invalid literal or the complete scalar use site", as
 
 test("native dollar comments do not hide records after doubled-delimiter quoted text", async () => {
   for (const quote of ["'", '"']) {
-    const prefix = `HEAD ${quote}${quote}Dollar $ title${quote}${quote}; EIGE RH `;
+    const prefix = `LET#text ${quote}${quote}Dollar $ title${quote}${quote}; EIGE RH `;
     const result = await analyze(`+PROG AQB\n${prefix}110\nEND\n`);
     const found = result.diagnostics.find(({ data }) => data.rule === "aqb-creep-humidity-range");
     assert.ok(found);
