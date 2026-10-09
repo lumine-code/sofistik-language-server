@@ -462,7 +462,7 @@ test("inline generator errors publish, match pull diagnostics and clear after co
   assert.deepEqual(lint(cleared.diagnostics), []);
 });
 
-test("HEAD titles remain implicit strings across LSP changes and retain following diagnostics", async (t) => {
+test("implicit text commands retain following diagnostics across LSP changes", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const model = uri("model.dat");
   const increment = codeFor("inline-generator-increment");
@@ -472,6 +472,7 @@ test("HEAD titles remain implicit strings across LSP changes and retain followin
     [
       "+PROG SOFILOAD",
       title,
+      "txb calc (part 2); LC (1 11) LET title missing [",
       "HeAd O'Brien (unfinished; LC (1 11) LET title missing [",
       "LC (1 11)",
       "END",
@@ -493,7 +494,7 @@ test("HEAD titles remain implicit strings across LSP changes and retain followin
     );
     assert.deepEqual(lint(pushed.diagnostics), issues);
   };
-  await assertIssues(1, [3]);
+  await assertIssues(1, [4]);
 
   client.change(
     model,
@@ -505,7 +506,7 @@ test("HEAD titles remain implicit strings across LSP changes and retain followin
     ],
     2,
   );
-  await assertIssues(2, [1, 3]);
+  await assertIssues(2, [1, 4]);
 
   client.change(
     model,
@@ -515,7 +516,7 @@ test("HEAD titles remain implicit strings across LSP changes and retain followin
         text: title,
       },
       {
-        range: { start: { line: 3, character: 8 }, end: { line: 3, character: 8 } },
+        range: { start: { line: 4, character: 8 }, end: { line: 4, character: 8 } },
         text: " 1",
       },
     ],

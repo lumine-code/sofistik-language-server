@@ -111,6 +111,37 @@ test("title comments and continuations preserve prose only within their logical 
   assert.deepEqual(index.lines, createIndex(changed, target()).lines);
 });
 
+test("native text commands retain substitutions without reading embedded HTML or code", () => {
+  for (const [language, command] of [
+    ["en", "TXB"],
+    ["en", "TXE"],
+    ["de", "TXA"],
+    ["de", "TXE"],
+  ]) {
+    const text =
+      "+PROG ASE\nLET#steps 2\n#DEFINE title=calc\n" +
+      `${command} $(title) (part 2); <b>O'Brien #steps</b> $$ comment\n` +
+      " continued; +PROG AQUA (draft ! comment\nLET#after 1\nEND\n";
+    const index = createIndex(text, {
+      ...target(),
+      language,
+      keywords: provider().forRelease("2026", language),
+    });
+    assert.equal(index.contextAt(at(text, command, 1)).role, "command");
+    assert.equal(index.contextAt(at(text, "(part 2)", 2)).role, "text");
+    assert.equal(index.contextAt(at(text, "continued", 2)).role, "text");
+    assert.equal(index.lines[3].records.length, 1);
+    assert.equal(index.lines[4].records.length, 1);
+    assert.equal(index.lines[5].records[0].kind, "variable");
+    assert.equal(index.definitionsAt(at(text, "#steps<", 3)).length, 1);
+    assert.deepEqual(index.diagnostics, []);
+    assert.deepEqual(
+      index.occurrences.filter((item) => item.line === 3).map((item) => item.name),
+      ["title", "steps"],
+    );
+  }
+});
+
 test("table header supplies parameter context for implicit rows", () => {
   const text = "+PROG SOFIMSHA\nNODE NO X Y Z\n1 0 3 0\n2 4 5 6\n";
   const index = createIndex(text, target());

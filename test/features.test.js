@@ -19,11 +19,13 @@ function projectFor(module, record) {
   };
 }
 
-test("HEAD title prose and trailing whitespace offer no code language features", async () => {
+test("implicit text records and trailing whitespace offer no code language features", async () => {
   for (const record of [
     "HEAD ",
     "head calc (part 2) ",
     "HEAD title's (unfinished; GRP NO 9 VAL FULL <TEXT>",
+    "txb calc (part 2); GRP NO 9 VAL FULL ",
+    "TXE calc (part 2); GRP NO 9 VAL FULL ",
   ]) {
     const project = projectFor("ASE", record);
     const start = record.indexOf(" ") + 1;
