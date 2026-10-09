@@ -525,6 +525,65 @@ test("implicit text commands retain following diagnostics across LSP changes", a
   await assertIssues(3, []);
 });
 
+test("legacy text blocks keep their bodies literal and resume diagnostics after TXEN", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const model = uri("model.dat");
+  const increment = codeFor("inline-generator-increment");
+  const body = "(1 11); LC (2 12) LET title missing [";
+  client.open(
+    model,
+    [
+      "+PROG SOFILOAD",
+      "TXBB O'Brien (first; LC (1 11)",
+      "O'Brien (unfinished; LC (1 11)",
+      "control words IF LOOP ENDIF",
+      "ending words END",
+      "program words +PROG AQUA",
+      "LET literal text",
+      "TXEN",
+      "TXEB last (1 11); LC (1 11)",
+      body,
+      "TXEN",
+      "LC (1 11)",
+      "END",
+      "",
+    ].join("\n"),
+  );
+  const first = await diagnostics("model.dat");
+  assert.deepEqual(
+    first.items.map((item) => ({ code: item.code, line: item.range.start.line })),
+    [{ code: increment, line: 11 }],
+  );
+  const pushed = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" && item.uri === model && item.version === 1,
+  );
+  assert.deepEqual(pushed.diagnostics, first.items);
+
+  client.change(
+    model,
+    [
+      {
+        range: { start: { line: 9, character: 0 }, end: { line: 9, character: body.length } },
+        text: "'unclosed; ENDIF (1 11)",
+      },
+      {
+        range: { start: { line: 11, character: 8 }, end: { line: 11, character: 8 } },
+        text: " 1",
+      },
+    ],
+    2,
+  );
+  assert.deepEqual((await diagnostics("model.dat")).items, []);
+  const cleared = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" && item.uri === model && item.version === 2,
+  );
+  assert.deepEqual(cleared.diagnostics, []);
+});
+
 test("a trailing list comma is diagnosed without losing the next SOFILOAD enum", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const model = uri("model.dat");

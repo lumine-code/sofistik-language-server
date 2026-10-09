@@ -206,7 +206,7 @@ test("native text records remain implicit strings in every supported release", (
     ]) {
       const text = program(
         `${command.toLowerCase()} calc (part 2); LC (1 11)\n` +
-          `${command} title's (draft $$\n still (part 2)`,
+          `${command} title's (draft $$\n${command} still (part 2) ! prose // prose`,
         "ASE",
       );
       assert.deepEqual(analyze(text, { version, language }), [], `${version}/${language}`);

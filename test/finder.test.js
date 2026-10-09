@@ -40,7 +40,7 @@ test("continues logical record through annotated $$ and handles semicolons", () 
 
 test("does not read code from comments or single/doubled quoted strings", () => {
   const text =
-    "+PROG AQUA\nHEAD 'a; ''quoted'' $(macro) #fake ! PROG' \"\"double\"\" BAUMANN'S f'= tent'\n$ PROG SOFIMSHA\nHEAD #real ! #comment\n";
+    "+PROG AQUA\nHEAD 'a; ''quoted'' $(macro) #fake ! PROG' \"\"double\"\" BAUMANN'S f'= tent'\n$ PROG SOFIMSHA\nHEAD #real $ #comment\n";
   const index = createIndex(text, target());
   assert.deepEqual(
     index.occurrences.filter((item) => item.namespace === "variable").map((item) => item.name),
@@ -93,15 +93,15 @@ test("HEAD titles keep punctuation and semicolons as prose with real substitutio
   assert.equal(index.contextAt(at(text, "FULL", 1)).param, "VAL");
 });
 
-test("title comments and continuations preserve prose only within their logical record", () => {
+test("title dollar comments do not continue input or hide bang and slash prose", () => {
   const text =
-    "+PROG ASE\nHEAD calc (part 2) $$ ignored\n continued (draft; GRP NO 9 ! comment\n" +
-    "HEAD next $ comment\nHEAD last // comment\nGRP NO 1 VAL FULL\nEND\n";
+    "+PROG ASE\nHEAD calc (part 2) $$ ignored\nGRP NO 1 VAL FULL\n" +
+    "HEAD next ! bang // slash $ comment\nHEAD last $$ ignored\nGRP NO 2 VAL FULL\nEND\n";
   const index = createIndex(text, target());
-  assert.equal(index.lines[2].records[0].continuedFromPrevious, true);
-  assert.equal(index.contextAt(at(text, "continued", 2)).role, "text");
-  assert.equal(index.contextAt(at(text, "GRP NO 9", 2)).role, "text");
-  for (const line of [1, 2, 3, 4]) {
+  assert.equal(index.lines[2].records[0].continuedFromPrevious, false);
+  assert.equal(index.contextAt(at(text, "! bang", 2)).role, "text");
+  assert.equal(index.contextAt(at(text, "// slash", 2)).role, "text");
+  for (const line of [1, 3, 4]) {
     const content = index.lines[line].text;
     assert.equal(index.contextAt({ line, character: content.length - 1 }).role, "comment");
   }
@@ -121,7 +121,7 @@ test("native text commands retain substitutions without reading embedded HTML or
     const text =
       "+PROG ASE\nLET#steps 2\n#DEFINE title=calc\n" +
       `${command} $(title) (part 2); <b>O'Brien #steps</b> $$ comment\n` +
-      " continued; +PROG AQUA (draft ! comment\nLET#after 1\nEND\n";
+      `${command} continued; +PROG AQUA (draft ! bang // slash\nLET#after 1\nEND\n`;
     const index = createIndex(text, {
       ...target(),
       language,
@@ -140,6 +140,66 @@ test("native text commands retain substitutions without reading embedded HTML or
       ["title", "steps"],
     );
   }
+});
+
+test("legacy text blocks keep literal bodies and closing payload without declaring text variables", () => {
+  for (const [language, command] of [
+    ["en", "TXBB"],
+    ["en", "TXEB"],
+    ["de", "TXAB"],
+    ["de", "TXEB"],
+  ]) {
+    const text =
+      "+PROG ASE\nLET#steps 2\n#DEFINE title=calc\n" +
+      `${command} $(title) O'Brien (part 2); LET#ghost 1\n` +
+      "'unfinished <b> ! bang // slash; (1 11) $$ ignored\n" +
+      "LET#steps 17\nLOOP#steps 2\nENDLOOP\n" +
+      "TXEN ignored; LET#tail 5\nLET#after 1\nEND\n";
+    const selected = {
+      ...target(),
+      language,
+      keywords: provider().forRelease("2026", language),
+    };
+    const index = createIndex(text, selected);
+    assert.equal(index.lines[3].records.length, 1);
+    assert.equal(index.lines[4].records.length, 1);
+    assert.equal(index.lines[4].endState.continued, false);
+    assert.equal(index.lines[5].records[0].kind, "text");
+    assert.equal(index.contextAt(at(text, "! bang", 2)).role, "text");
+    assert.equal(index.contextAt(at(text, "// slash", 2)).role, "text");
+    assert.equal(index.contextAt(at(text, "ignored;", 2)).role, "text");
+    assert.deepEqual(index.diagnostics, []);
+    assert.deepEqual(
+      index.declarations.filter((item) => item.namespace === "variable").map((item) => item.name),
+      ["steps", "after"],
+    );
+    assert.equal(
+      index.occurrences.some((item) => item.name === "tail"),
+      false,
+    );
+    const changed = text.replace("TXEN ignored; LET#tail 5", "still text");
+    index.applyChanges([{ text: changed }], 2);
+    assert.equal(
+      index.declarations.some((item) => item.name === "after"),
+      false,
+    );
+    assert.deepEqual(index.lines, createIndex(changed, selected).lines);
+  }
+});
+
+test("legacy prose requires complete structural names and real PROG starts restore code", () => {
+  const text =
+    "+PROG ASE\nTXBB opening\nIF2 'unfinished; LOOP_name (1 11)\n" +
+    "END9 'unfinished\nTXEN9 'unfinished\n+PROG SOFIMSHA\nNODE 1 X 0\nEND\n";
+  const index = createIndex(text, target());
+  assert.deepEqual(index.diagnostics, []);
+  for (const line of [2, 3, 4]) {
+    assert.equal(index.lines[line].records.length, 1);
+    assert.equal(index.lines[line].records[0].kind, "text");
+  }
+  assert.equal(index.contextAt(at(text, "X 0", 2)).param, "X");
+  assert.equal(index.contextAt(at(text, "X 0", 2)).module, "SOFIMSHA");
+  assert.equal(index.lines[5].endState.mode, "code");
 });
 
 test("table header supplies parameter context for implicit rows", () => {
