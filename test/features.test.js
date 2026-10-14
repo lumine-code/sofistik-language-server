@@ -4,16 +4,18 @@ const { SofistikSchemaProvider } = require("@lumine-code/sofistik-schema");
 const { createIndex } = require("../lib/finder");
 const { signatureHelp, completion, hover, semanticTokens } = require("../lib/features");
 
-const keywords = new SofistikSchemaProvider().forRelease("2026", "en");
+const data = new SofistikSchemaProvider();
+const keywords = data.forRelease("2026", "en");
 
-function projectFor(module, record) {
+function projectFor(module, record, language = "en") {
   const text = `+PROG ${module}\n${record}\nEND\n`;
-  const index = createIndex(text, { version: "2026", language: "en", keywords });
+  const target = { version: "2026", language, keywords: data.forRelease("2026", language) };
+  const index = createIndex(text, target);
   return {
     loadDocument: async () => ({
       text,
       index,
-      target: { version: "2026", language: "en", keywords },
+      target,
     }),
     settings: { textCase: "upper" },
   };
@@ -73,6 +75,61 @@ test("completion distinguishes a named enum value from the next parameter", asyn
   assert.ok(parameters.some((item) => item.label === "FACS"));
   assert.ok(parameters.every((item) => item.kind === 5));
 });
+
+for (const language of ["en", "de"]) {
+  test(`SOFIMSHC ECHO values have completion, hover and semantic tokens in ${language}`, async () => {
+    const values =
+      language === "en" ? ["EXTR", "FULL", "NO", "YES"] : ["EXTR", "JA", "NEIN", "VOLL"];
+    const option = language === "en" ? "full" : "voll";
+    const affirmative = language === "en" ? "yes" : "ja";
+    const param = language === "en" ? "VAL" : "WERT";
+    for (const named of [false, true]) {
+      const record = named
+        ? `echo opt ${option} ${param.toLowerCase()} ${affirmative}`
+        : `echo ${option} ${affirmative}`;
+      const project = projectFor("SOFIMSHC", record, language);
+      const entry = await project.loadDocument();
+      const optionStart = record.indexOf(option);
+      const valueStart = record.indexOf(affirmative);
+      assert.deepEqual(semanticTokens(entry), {
+        data: [
+          1,
+          optionStart,
+          option.length,
+          0,
+          0,
+          0,
+          valueStart - optionStart,
+          affirmative.length,
+          0,
+          0,
+        ],
+      });
+      const valueHover = await hover(project, "untitled:fixture", {
+        line: 1,
+        character: valueStart + 1,
+      });
+      assert.equal(
+        valueHover.contents.value,
+        `SOFIMSHC · ECHO · ${param} /2\n\n${values.join(", ")}`,
+      );
+
+      const prefix = record.slice(0, valueStart) + (named ? "" : affirmative.slice(0, -1));
+      const completions = await completion(
+        projectFor("SOFIMSHC", prefix, language),
+        "untitled:fixture",
+        { line: 1, character: prefix.length },
+      );
+      assert.deepEqual(
+        completions.map((item) => item.label).sort(),
+        named ? values : [affirmative.toUpperCase()],
+      );
+      assert.ok(completions.every((item) => item.kind === 20));
+    }
+    const numeric = await projectFor("SOFIMSHC", "echo syst 3", language).loadDocument();
+    assert.deepEqual(semanticTokens(numeric), { data: [1, 5, 4, 0, 0] });
+  });
+}
 
 test("positional GRP values advance after named slots across hover, signatures and semantic tokens", async () => {
   const records = [
