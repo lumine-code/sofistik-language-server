@@ -45,6 +45,55 @@ test("nested block definitions stay deferred until invocation", async () => {
   assert.equal(result.segments[0].invocation.range.start.line, 8);
 });
 
+test("memory block names retain literal hashes and digits independently of scalar parameters", async () => {
+  const result = await preprocess(
+    entry(
+      "#define results=scalar\n#define #results\nLET#results 7\nHEAD $(results) #results\n#enddef\n" +
+        "#define 10steps\nLET#step 10\n#enddef\n" +
+        "+PROG TEMPLATE\n#include #RESULTS\n#include 10STEPS\n#undef #results\nHEAD $(results)\nEND\n",
+    ),
+  );
+  assert.equal(
+    result.text,
+    "+PROG TEMPLATE\nLET#results 7\nHEAD scalar #results\nLET#step 10\nHEAD scalar\nEND\n",
+  );
+  assert.equal(result.complete, true);
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.segments[1].origin.range.start.line, 2);
+  assert.equal(result.segments[1].blockInvocation.range.start.line, 9);
+});
+
+test("hash-prefixed memory blocks support nested definitions and computed names", async () => {
+  const result = await preprocess(
+    entry(
+      "#define suffix=results\n#define outer\n#define #$(suffix)\nLET#value 1\n#enddef\n" +
+        "#include #$(suffix)\n#enddef\n+PROG TEMPLATE\n#include outer\nEND\n",
+    ),
+  );
+  assert.equal(result.text, "+PROG TEMPLATE\nLET#value 1\nEND\n");
+  assert.equal(result.complete, true);
+  assert.deepEqual(result.diagnostics, []);
+});
+
+test("memory block names keep their own length limits without relaxing scalar name rules", async () => {
+  for (const name of ["#" + "a".repeat(39), "1" + "a".repeat(39)]) {
+    const result = await preprocess(
+      entry(`#define ${name}\nHEAD valid\n#enddef\n#include ${name}\n`),
+    );
+    assert.equal(result.text, "HEAD valid\n", name);
+    assert.deepEqual(result.diagnostics, [], name);
+  }
+  for (const name of ["", "two words", "#" + "a".repeat(40)]) {
+    const result = await preprocess(entry(`#define ${name}\nHEAD invalid\n#enddef\n`));
+    assert.deepEqual(codes(result), ["invalid-macro-name"], name);
+    assert.equal(result.complete, false, name);
+  }
+  for (const name of ["#results", "10steps"]) {
+    const result = await preprocess(entry(`#define ${name}=invalid\n`));
+    assert.deepEqual(codes(result), ["invalid-macro-name"], name);
+  }
+});
+
 test("file inclusions are repeated in environment order, cached only as sources, and line separated", async () => {
   const reads = [];
   const result = await preprocess(

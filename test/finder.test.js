@@ -332,11 +332,43 @@ test("preprocessor names and neutral conditions do not start accidental records"
   const text =
     "ï»¿+PROG AQUA\n#DEFINE #foo.bar-1=value; PROG SOFIMSHA\n#IF $(foo.bar-1); PROG SOFIMSHA\n#UNDEF #foo.bar-1\nHEAD test;";
   const index = createIndex(text, target());
-  assert.equal(index.declarations.find((item) => item.namespace === "macro").name, "foo.bar-1");
+  assert.equal(index.declarations.find((item) => item.namespace === "macro").name, "#foo.bar-1");
   assert.equal(index.occurrences.find((item) => item.role === "undef").namespace, "macro");
   assert.equal(index.contextAt({ line: 3, character: 5 }).module, "AQUA");
   assert.equal(index.lines[2].records.length, 1);
   assert.equal(index.contextAt({ line: 4, character: 10 }).role, "text");
+});
+
+test("hash-prefixed memory block identities and ranges differ from unprefixed macros and CADINP variables", () => {
+  const text =
+    "#define results=scalar\n#define #results\nLET#results 7\n#enddef\n" +
+    "#include #RESULTS\n#include results\n#undef #results\n#define 10steps\nHEAD ten\n#enddef\n#include 10steps\n";
+  const index = createIndex(text, target());
+  assert.deepEqual(
+    index.declarations.filter((item) => item.namespace === "macro").map((item) => item.name),
+    ["results", "#results", "10steps"],
+  );
+  const definition = index.definitionsAt({ line: 4, character: 9 });
+  assert.equal(definition.length, 1);
+  assert.equal(definition[0].name, "#results");
+  assert.deepEqual(definition[0].selectionRange, {
+    start: { line: 1, character: 8 },
+    end: { line: 1, character: 16 },
+  });
+  assert.deepEqual(
+    index.occurrences.filter((item) => item.namespace === "variable").map((item) => item.name),
+    ["results"],
+  );
+  const includes = index.occurrences.filter((item) => item.role === "include");
+  assert.deepEqual(
+    includes.map((item) => item.name),
+    ["#RESULTS", "results", "10steps"],
+  );
+  assert.deepEqual(includes[0].range, {
+    start: { line: 4, character: 9 },
+    end: { line: 4, character: 17 },
+  });
+  assert.equal(index.occurrences.find((item) => item.role === "undef").name, "#results");
 });
 
 test("unknown scopes stay neutral and CDB statements emit no enum overlay", () => {

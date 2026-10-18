@@ -255,6 +255,65 @@ test("stdio legacy block replay initializes local numeric variables in each prog
   assert.equal(client.stderr, "");
 });
 
+test("stdio hash-prefixed memory blocks expand and navigate without becoming CADINP variables", async (t) => {
+  const { uri, client, expand } = await fixture(t);
+  const model = uri("model.dat");
+  const text =
+    "#define results=scalar\n#define #results\nLET#results 7\nLET#output #results\n#enddef\n" +
+    "+PROG TEMPLATE\n#include #RESULTS\nHEAD $(results)\nEND\n#undef #results\n";
+  client.open(model, text);
+  assert.deepEqual(await expand(model), {
+    uri: model,
+    version: 1,
+    text: "+PROG TEMPLATE\nLET#results 7\nLET#output #results\nHEAD scalar\nEND\n",
+    complete: true,
+    uncertainties: [],
+  });
+  const diagnostics = await client.request("textDocument/diagnostic", {
+    textDocument: { uri: model },
+  });
+  assert.deepEqual(diagnostics.items, []);
+  const params = { textDocument: { uri: model }, position: { line: 6, character: 9 } };
+  assert.deepEqual(await client.request("textDocument/definition", params), [
+    {
+      uri: model,
+      range: { start: { line: 1, character: 8 }, end: { line: 1, character: 16 } },
+    },
+  ]);
+  const references = await client.request("textDocument/references", {
+    ...params,
+    context: { includeDeclaration: true },
+  });
+  assert.deepEqual(
+    references.map((item) => item.range),
+    [
+      { start: { line: 1, character: 8 }, end: { line: 1, character: 16 } },
+      { start: { line: 6, character: 9 }, end: { line: 6, character: 17 } },
+      { start: { line: 9, character: 7 }, end: { line: 9, character: 15 } },
+    ],
+  );
+  const scalar = await client.request("textDocument/definition", {
+    textDocument: { uri: model },
+    position: { line: 7, character: 8 },
+  });
+  assert.equal(scalar.length, 1);
+  assert.equal(scalar[0].range.start.line, 0);
+  client.change(model, [{ text: text.replace("#include #RESULTS", "#include #missing") }], 2);
+  const missing = await client.request("textDocument/diagnostic", {
+    textDocument: { uri: model },
+  });
+  assert.deepEqual(
+    missing.items.map((item) => item.code),
+    ["G012"],
+  );
+  client.change(model, [{ text }], 3);
+  assert.deepEqual(
+    (await client.request("textDocument/diagnostic", { textDocument: { uri: model } })).items,
+    [],
+  );
+  assert.equal(client.stderr, "");
+});
+
 test("partial expansion preserves preprocessor completeness and uncertainty offsets", async (t) => {
   const { uri, client, expand } = await fixture(t);
   const model = uri("model.dat");
