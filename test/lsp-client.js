@@ -24,6 +24,7 @@ class LspClient {
     this.workDoneProgress = options.workDoneProgress === true;
     this.autoInitialized = options.autoInitialized !== false;
     this.onCreateProgress = options.onCreateProgress || (() => null);
+    this.experimental = options.experimental;
     this.progressRequests = [];
     this.settings = { textCase: "upper", encoding: "utf-8" };
     this.notifications = [];
@@ -67,6 +68,7 @@ class LspClient {
       processId: process.pid,
       rootUri: pathToFileURL(this.rootPath).href,
       capabilities: {
+        ...(this.experimental && { experimental: this.experimental }),
         ...(this.workDoneProgress && { window: { workDoneProgress: true } }),
         general: { positionEncodings: ["utf-16"] },
         workspace: {
