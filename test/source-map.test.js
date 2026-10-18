@@ -55,22 +55,22 @@ test("composite command names union copied and substituted source fragments", as
   assert.deepEqual(mapped(result, "NO"), location(URI, 1, 10, 12));
 });
 
-test("scalar RHS origins survive deferred lookups, nested names and redefinition", async () => {
+test("captured scalar RHS origins survive nested names and later redefinition", async () => {
   const result = await preprocess(
     entry(
       "#define X=old\n#define VALUE=$(X)\n#define INDEX=1\n#define A1=$(VALUE)\n" +
         "#define X=new\nTXA $(A$(INDEX))\n",
     ),
   );
-  const selected = mapped(result, "new");
+  const selected = mapped(result, "old");
   assert.deepEqual(selected.range, location(URI, 5, 4, 16).range);
   assert.deepEqual(selected.definitions, [
     location(URI, 2, 14, 15),
     location(URI, 3, 11, 19),
     location(URI, 1, 14, 18),
-    location(URI, 4, 10, 13),
+    location(URI, 0, 10, 13),
   ]);
-  assert.ok(selected.definitions.every((item) => item.range.start.line !== 0));
+  assert.ok(selected.definitions.every((item) => item.range.start.line !== 4));
 });
 
 test("exact RHS locations exclude directive indentation, spaces and comments", async () => {
@@ -209,15 +209,26 @@ test("noncontiguous fragments in one source keep their actual touched lines", ()
   assert.deepEqual(selected.origins, [location(URI, 2, 6, 8), location(URI, 90, 1, 3)]);
 });
 
-test("substitution errors highlight exact use sites and show lazy RHS references separately", async () => {
+test("substitution errors highlight failed assignments and external use sites precisely", async () => {
   const direct = await preprocess(entry("TXA $(missing)\n"));
   assert.deepEqual(direct.diagnostics[0].range, location(URI, 0, 4, 14).range);
-  const lazy = await preprocess(entry("#define outer=$(missing)\nTXA $(outer)\n"));
-  assert.deepEqual(lazy.diagnostics[0].range, location(URI, 1, 4, 12).range);
+  const eager = await preprocess(entry("#define outer=$(missing)\nTXA $(outer)\n"));
+  assert.deepEqual(eager.diagnostics[0].range, location(URI, 0, 14, 24).range);
+  assert.deepEqual(eager.diagnostics[0].data.recordOrigin.range, eager.diagnostics[0].range);
+  assert.deepEqual(eager.diagnostics[1].range, location(URI, 1, 4, 12).range);
+  const external = location("file:///project/sofistik.def", 0, 14, 24);
+  const lazy = await preprocess(entry("TXA $(outer)\n"), {
+    defines: { outer: "$(missing)" },
+    defineOrigins: { outer: external },
+  });
+  assert.deepEqual(lazy.diagnostics[0].range, location(URI, 0, 4, 12).range);
   assert.deepEqual(lazy.diagnostics[0].data.recordOrigin.range, lazy.diagnostics[0].range);
-  assert.deepEqual(lazy.diagnostics[0].relatedInformation[0].location, location(URI, 0, 14, 24));
-  const recursive = await preprocess(entry("#define value=$(value)\nTXA $(value)\n"));
-  assert.deepEqual(recursive.diagnostics[0].range, location(URI, 1, 4, 12).range);
+  assert.deepEqual(lazy.diagnostics[0].relatedInformation[0].location, external);
+  const recursive = await preprocess(entry("TXA $(value)\n"), {
+    defines: { value: "$(value)" },
+  });
+  assert.deepEqual(recursive.diagnostics[0].range, location(URI, 0, 4, 12).range);
+  assert.equal(recursive.diagnostics[0].code, "recursive-macro");
   const unclosed = await preprocess(entry("TXA $(missing\n"));
   assert.deepEqual(unclosed.diagnostics[0].range, location(URI, 0, 4, 13).range);
 });
@@ -255,8 +266,10 @@ test("scalar includes use an executable invocation and retain RHS origins", asyn
   assert.deepEqual(issue.definitions, [location(URI, 0, 16, 26)]);
   assert.equal(issue.blockInvocation.range.start.line, 1);
   const invalid = await preprocess(entry("#define command=$(missing)\n#include command\n"));
-  assert.deepEqual(invalid.diagnostics[0].range, location(URI, 1, 0, 16).range);
-  assert.equal(invalid.diagnostics[0].data.blockInvocation.range.start.line, 1);
+  assert.deepEqual(invalid.diagnostics[0].range, location(URI, 0, 16, 26).range);
+  assert.equal(invalid.diagnostics[0].data.blockInvocation, undefined);
+  assert.deepEqual(invalid.diagnostics[1].range, location(URI, 1, 0, 16).range);
+  assert.equal(invalid.diagnostics[1].code, "missing-include");
 });
 
 test("generated definitions retain their generator lineage without inventing columns", async () => {

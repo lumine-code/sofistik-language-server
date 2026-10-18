@@ -6,14 +6,14 @@ const URI = "file:///project/main.dat";
 const entry = (text) => ({ uri: URI, text });
 const codes = (result) => result.diagnostics.map((diagnostic) => diagnostic.code);
 
-test("substitutions join tokens, defer values and nested names, and ignore name case", async () => {
+test("substitutions join tokens, capture scalar values and nested names, and ignore name case", async () => {
   const result = await preprocess(
     entry(
-      "#define command=$(suffix)\n#define A1=first\n#define INDEX=1\n#define SUFFIX=mb\n" +
+      "#define SUFFIX=mb\n#define A1=first\n#define INDEX=1\n#define command=$(suffix)\n" +
         "+PROG MAXIMA\nco$(command) 1 TITL '$(A$(index))'\n#define suffix=nc\nco$(Command) 2\nEND\n",
     ),
   );
-  assert.equal(result.text, "+PROG MAXIMA\ncomb 1 TITL 'first'\nconc 2\nEND\n");
+  assert.equal(result.text, "+PROG MAXIMA\ncomb 1 TITL 'first'\ncomb 2\nEND\n");
   assert.equal(result.complete, true);
   assert.deepEqual(result.diagnostics, []);
   assert.equal(result.segments[1].origin.range.start.line, 5);
@@ -198,9 +198,9 @@ test("unresolved include identifies its source and keeps invocation and uncertai
 });
 
 test("recursive and incomplete substitutions are bounded and cannot invent a command", async () => {
-  const result = await preprocess(
-    entry("#define a=$(b)\n#define b=$(a)\nPROG AQUA\nco$(a) 1\nTXA $(missing\nEND\n"),
-  );
+  const result = await preprocess(entry("PROG AQUA\nco$(a) 1\nTXA $(missing\nEND\n"), {
+    defines: { a: "$(b)", b: "$(a)" },
+  });
   assert.deepEqual(codes(result), ["recursive-macro", "unclosed-substitution"]);
   assert.equal(result.complete, false);
   assert.ok(result.text.includes("co$(a) 1"));
@@ -307,13 +307,13 @@ test("comments cannot create unresolved parameters and quoted include punctuatio
   assert.ok(result.text.includes("HEAD 'title ! quoted'"));
 });
 
-test("unknown directives and computed CADINP conditions stop certainty without evaluation", async () => {
+test("computed CADINP conditions stop certainty while hash variables remain ordinary input", async () => {
   const result = await preprocess(
     entry("#if #x+1\nPROG AQUA\n#else\nPROG ASE\n#endif\n#exec danger\n"),
   );
-  assert.equal(result.text, "");
+  assert.equal(result.text, "#exec danger\n");
   assert.equal(result.complete, false);
-  assert.deepEqual(codes(result), ["unsupported-condition", "unsupported-directive"]);
+  assert.deepEqual(codes(result), ["unsupported-condition"]);
 });
 
 test("include URIs match open-buffer canonical encoding for brackets and literal percent", async () => {
