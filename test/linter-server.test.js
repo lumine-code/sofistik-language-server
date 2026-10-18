@@ -462,6 +462,51 @@ test("inline generator errors publish, match pull diagnostics and clear after co
   assert.deepEqual(lint(cleared.diagnostics), []);
 });
 
+test("positional generators after a default marker share the LSP increment check", async (t) => {
+  const { uri, client, diagnostics } = await fixture(t);
+  const model = uri("model.dat");
+  const increment = codeFor("inline-generator-increment");
+  const text = [
+    "+PROG SOFIMSHA",
+    "GRP 1",
+    "  BEAM - (101 120 1) (102 1) NCS 1 KR posy",
+    "  BEAM - (201 220) (202 1) NCS 1 KR posy",
+    "END",
+    "",
+  ].join("\n");
+  client.open(model, text);
+  const first = await diagnostics("model.dat");
+  const issues = lint(first.items);
+  assert.deepEqual(
+    issues.map(({ code, range }) => ({ code, range })),
+    [
+      {
+        code: increment,
+        range: { start: { line: 3, character: 9 }, end: { line: 3, character: 18 } },
+      },
+    ],
+  );
+  const pushed = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" &&
+      item.uri === model &&
+      item.version === 1 &&
+      lint(item.diagnostics).some((issue) => issue.code === increment),
+  );
+  assert.deepEqual(lint(pushed.diagnostics), issues);
+
+  client.change(model, [{ text: text.replace("(201 220)", "(201 220 1)") }], 2);
+  const corrected = await diagnostics("model.dat");
+  assert.deepEqual(lint(corrected.items), []);
+  const cleared = await notification(
+    client,
+    ({ method, params: item }) =>
+      method === "textDocument/publishDiagnostics" && item.uri === model && item.version === 2,
+  );
+  assert.deepEqual(lint(cleared.diagnostics), []);
+});
+
 test("implicit text commands retain following diagnostics across LSP changes", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const model = uri("model.dat");

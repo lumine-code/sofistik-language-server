@@ -117,6 +117,10 @@ test("functions, indices, grouping, repeat markers, strings and comments are not
     "LC 1 FACT MAX (1 2)",
     "LC 1 FACT #values(1 2)",
     "LC 1 FACT =(1 + 2)",
+    "LC 1 FACT -(1 + 2)",
+    "LC 1 FACT - (1 + 2)",
+    "LC 1 FACT + (1 11)",
+    "LC 1 FACT * (1 11)",
     "LC 1 FACT (1 + 2)",
     "LC 1 FACT ((1+2)*3)",
     "LC 1 FACT 1(1)10",
@@ -141,6 +145,7 @@ test("LET and STO array generators check only assignment values", () => {
       "inline-generator-increment",
     );
     assert.deepEqual(analyze(program(`${command}#a(1) #other(1)`, "TEMPLATE")), []);
+    assert.deepEqual(analyze(program(`${command}#a - (1 10)`, "TEMPLATE")), []);
     assert.equal(
       analyze(program(`${command}#a $$\n(1 10)`, "TEMPLATE"))[0]?.code,
       "inline-generator-increment",
@@ -155,6 +160,41 @@ test("a spaced generator after a variable belongs to the next value", () => {
     ["NODE #id (1 11)", "SOFIMSHA"],
   ])
     assert.equal(analyze(program(body, module))[0]?.code, "inline-generator-increment");
+});
+
+test("whole-value markers start the next positional generator at a resolved item boundary", () => {
+  for (const body of [
+    "BEAM - (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM ++ (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM -- (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM = (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM NO - (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM NO=- (101 120 1) (102 1) NCS 1 KR posy",
+    "BEAM NO NA NE NCS\n- (101 120 1) (102 1) 1",
+    "BEAM - (101 120 1) $$\n (102 1) NCS 1 KR posy",
+  ])
+    assert.deepEqual(analyze(program(body, "SOFIMSHA")), [], body);
+
+  const missing = program("BEAM - (101 120) (102 1) NCS 1", "SOFIMSHA");
+  const [missingIssue, ...missingOthers] = analyze(missing);
+  assert.deepEqual(missingOthers, []);
+  assert.equal(selected(missing, missingIssue), "(101 120)");
+  assert.match(missingIssue.message, /Exactly one/);
+
+  const extra = program("BEAM - (101 120 1) (102 121 1) NCS 1", "SOFIMSHA");
+  const [extraIssue, ...extraOthers] = analyze(extra);
+  assert.deepEqual(extraOthers, []);
+  assert.equal(selected(extra, extraIssue), "(102 121 1)");
+  assert.match(extraIssue.message, /Only one/);
+
+  const header = "NODE NO X PHIZ Z FIX\n";
+  assert.deepEqual(analyze(program(`${header}(2 5 1) = (6.625 13.25) = F`, "SOFIMSHA")), []);
+  assert.deepEqual(analyze(program(`${header}(2 1) = (6.625 13.25 1) = F`, "SOFIMSHA")), []);
+  const repeated = program(`${header}(2 5 1) = (6.625 13.25 1) = F`, "SOFIMSHA");
+  const [repeatedIssue, ...repeatedOthers] = analyze(repeated);
+  assert.deepEqual(repeatedOthers, []);
+  assert.equal(selected(repeated, repeatedIssue), "(6.625 13.25 1)");
+  assert.match(repeatedIssue.message, /Only one/);
 });
 
 test("table rows and semicolons each have an independent generator count", () => {
