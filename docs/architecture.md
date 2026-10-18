@@ -19,6 +19,8 @@ Raw navigation stays available while analysis is pending. It indexes the user's 
 
 The analysis worker expands preprocessor input in source order, tracks uncertainty and source provenance, then passes that expansion through the same lexical scanner to the lint engine. Its source map remains inside the worker; only the expansion, diagnostics, dependencies and metrics cross the worker boundary. Diagnostic pulls and preprocessor previews join the same scheduled analysis.
 
+Table headers may mix bare item names with `ITEM=value` defaults. Every declared item occupies a column, including those with defaults. The scanner shares that column order with navigation features; the lint engine applies defaults to omitted or `-` fields independently for each executing row. Headers do not execute domain checks or establish command contexts.
+
 Tree-sitter remains responsible for editor parsing, highlighting, folds and basic tags in language-sofistik. The server has no native-parser or WebAssembly runtime dependency. Both engines test the same cadinp-structure.json corpus distributed by sofistik-schema; fresh, compact and incremental server indexes and fresh/incremental Tree-sitter parses must agree on program and explicit-command selections.
 
 ## Analysis generations
