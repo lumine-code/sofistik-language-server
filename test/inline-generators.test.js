@@ -66,6 +66,65 @@ test("single and multiple secondary generators require one primary generator", (
   }
 });
 
+test("comma and numeric underscore lists drive secondary generators", () => {
+  for (const body of [
+    "NODE (1 1) X -129,-105,-75,-45,-15",
+    "NODE (1 1) X -129_-105_-75_-45_-15",
+    "NODE 1,3,5,7,9 X 0 Y (0. 100.) Z (0.00 -0.20)",
+    "NODE (1 1) X #x,#y,#z Y (0 1)",
+    "NODE (1 1) $$\n X 0,1,2",
+    "NODE (1 1) X 0,1,2[mm]",
+  ])
+    assert.deepEqual(analyze(program(body, "SOFIMSHA")), [], body);
+
+  for (const body of [
+    "LC (1 11) FACT MAX(1,2)",
+    "LC (1 11) FACT #my_array",
+    "LC (1 11) FACT #array_1_2",
+    "LC (1 11) TITL 'first,last'",
+    "LC (1 11) TITL 'first_1_2'",
+  ])
+    assert.equal(analyze(program(body))[0]?.code, "inline-generator-increment", body);
+});
+
+test("repeated and incremented list items preserve generation for the same record name", () => {
+  for (const repeat of ["=", "++", "--"]) {
+    const body = `NODE (11 1) 0.0,1.8,2.2 0.0\n(21 1) ${repeat} 1.25`;
+    assert.deepEqual(analyze(program(body, "SOFIMSHA")), [], body);
+  }
+  const inherited = program(
+    "NODE NO X Y\n(11 1) 0.0,1.8,2.2 0.0\n(21 1) = 1.25\n(31 1) = 1.75",
+    "SOFIMSHA",
+  );
+  assert.deepEqual(analyze(inherited), []);
+  for (const body of [
+    "NODE (11 1) 0.0,1.8,2.2 0.0\n(21 1) ==",
+    "NODE (11 1) 0.0 0.0,1.8,2.2\n(21 1) ==",
+  ])
+    assert.deepEqual(analyze(program(body, "SOFIMSHA")), [], body);
+
+  for (const body of [
+    "NODE (11 1) 0.0,1.8,2.2 0.0\nNODE (21 1) 0.0 =",
+    "NODE (11 1) 0.0,1.8,2.2 0.0\nNODE 21 0.0 0.0\nNODE (31 1) = 0.0",
+    "NODE (11 1) 0.0,1.8,2.2 0.0\nGRP 1\nNODE (21 1) = 0.0",
+  ])
+    assert.equal(analyze(program(body, "SOFIMSHA"))[0]?.code, "inline-generator-increment", body);
+});
+
+test("lists do not permit multiple primaries, invalid arguments or unclosed generators", () => {
+  for (const [body, code] of [
+    ["NODE (1 3 1) X 0,1,2 Y (0 2 1)", "inline-generator-increment"],
+    ["NODE (1 3 1 4) X 0,1,2", "inline-generator-increment"],
+    ["NODE X 0,1,2 NO (1 1", "unclosed-inline-generator"],
+  ])
+    assert.ok(
+      analyze(program(body, "SOFIMSHA")).some((issue) => issue.code === code),
+      body,
+    );
+
+  assert.deepEqual(analyze(program("NODE NO X=0,1,2 Y\n(1 1) - 0", "SOFIMSHA")), []);
+});
+
 test("extra primary generators select their own expression", () => {
   const text = program("LC (1 11 1) FACT (2 3 1) TITL (101 111 1)");
   const issues = analyze(text);

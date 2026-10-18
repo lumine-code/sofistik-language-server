@@ -629,7 +629,7 @@ test("legacy text blocks keep their bodies literal and resume diagnostics after 
   assert.deepEqual(cleared.diagnostics, []);
 });
 
-test("a trailing list comma is diagnosed without losing the next SOFILOAD enum", async (t) => {
+test("an adjacent list parameter warns and a separated trailing comma preserves SOFILOAD enums", async (t) => {
   const { uri, client, diagnostics } = await fixture(t);
   const model = uri("model.dat");
   const trailingComma = codeFor("trailing-comma");
@@ -641,7 +641,7 @@ test("a trailing list comma is diagnosed without losing the next SOFILOAD enum",
       "LET#dT_N_exp 1",
       "LC 321 NONE TITL 'N-summer'",
       "LINE BGRP 11,21,31,41 TYPE DT +#dT_N_exp",
-      "AREA QGRP 51, TYPE DTXY +#dT_N_exp",
+      "AREA QGRP 51,TYPE DTXY +#dT_N_exp",
       "END",
       "",
     ].join("\n"),
@@ -667,7 +667,7 @@ test("a trailing list comma is diagnosed without losing the next SOFILOAD enum",
     start: { line: 4, character: 12 },
     end: { line: 4, character: 13 },
   });
-  await assertTokens(19);
+  await assertTokens(18);
   const pushed = await notification(
     client,
     ({ method, params: item }) =>
@@ -678,10 +678,14 @@ test("a trailing list comma is diagnosed without losing the next SOFILOAD enum",
   );
   assert.deepEqual(lint(pushed.diagnostics), issues);
 
-  client.change(model, [{ range: issues[0].range, text: "" }], 2);
+  client.change(
+    model,
+    [{ range: { start: issues[0].range.end, end: issues[0].range.end }, text: " " }],
+    2,
+  );
   const corrected = await diagnostics("model.dat");
   assert.deepEqual(lint(corrected.items), []);
-  await assertTokens(18);
+  await assertTokens(19);
   const cleared = await notification(
     client,
     ({ method, params: item }) =>

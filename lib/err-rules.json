@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "ruleVersion": 5,
+  "ruleVersion": 6,
   "releases": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
   "modulePrefixes": {
     "BASIC": "G",
@@ -292,73 +292,14 @@
       "id": "ase-step-storage-single-step",
       "module": "ASE",
       "message": "Explicit result storage in STEP is restricted to a single step.",
-      "variants": [
-        {
-          "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
-          "commands": {
-            "en": ["STEP"],
-            "de": ["STEP"]
-          },
-          "parameters": {
-            "N": {
-              "en": "N",
-              "de": "N"
-            },
-            "LCST": {
-              "en": "LCST",
-              "de": "LFSP"
-            }
-          },
-          "invalid": {
-            "op": "ne",
-            "param": "N",
-            "value": 1
-          },
-          "when": {
-            "op": "all",
-            "conditions": [
-              {
-                "op": "integer",
-                "param": "N"
-              },
-              {
-                "op": "gt",
-                "param": "N",
-                "value": 1
-              },
-              {
-                "op": "any",
-                "conditions": [
-                  {
-                    "op": "all",
-                    "conditions": [
-                      {
-                        "op": "number",
-                        "param": "LCST"
-                      },
-                      {
-                        "op": "gt",
-                        "param": "LCST",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  {
-                    "op": "eq",
-                    "param": "LCST",
-                    "value": "CONT"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ],
+      "variants": [],
       "notes": [
-        "Only explicit N>1 and positive LCST/LFSP or CONT are checked. Omitted N, zero storage sentinels and expressions are skipped.",
-        "logical record; stop at unresolved expressions or ambiguous assignments"
+        "AS001 remains reserved, but no input-only predicate is enabled. Native ERR 419 does not identify the mode in which its single-step restriction applies.",
+        "The 2026 ASE manual section 3.5 explicitly supports STEP N>1 with LCST, gives STEP N 100 DT 0.01 LCST 1001, and documents incrementing LCST for each step. The former unconditional restriction contradicted valid official examples.",
+        "Do not restore this check until the exact native triggering mode is proven independently of database state; historical ERR wording alone does not establish a safe predicate for any release."
       ],
-      "code": "AS001"
+      "code": "AS001",
+      "status": "inactive-unverified-trigger"
     },
     {
       "id": "ase-launch-translation-rotation-conflict",
@@ -1259,31 +1200,14 @@
       "id": "csm-equilibrium-max-factor",
       "module": "CSM",
       "message": "EQIT FMAX must lie in its accepted numeric interval.",
-      "variants": [
-        {
-          "versions": ["2022", "2023", "2024", "2025", "2026"],
-          "commands": {
-            "en": ["EQIT"],
-            "de": ["EQIT"]
-          },
-          "parameters": {
-            "FMAX": {
-              "en": "FMAX",
-              "de": "FMAX"
-            }
-          },
-          "invalid": {
-            "op": "gt",
-            "param": "FMAX",
-            "value": 1
-          }
-        }
-      ],
+      "variants": [],
       "notes": [
-        "Check only explicitly provided, confidently resolved literal fields. Omitted fields and expressions remain unchecked.",
-        "logical record; stop at unresolved expressions or ambiguous assignments"
+        "CM002 remains reserved, but no input-only predicate is enabled. Native ERR409 does not identify the mode in which its upper bound applies.",
+        "The 2026 CSM manual section3.34 explicitly supports EQIT20 FMAX1.5, describes positive Crisfield acceleration and negative legacy regula-falsi values. The former blanket FMAX<=1 check contradicted documented input.",
+        "Restore only with a separately verified triggering mode; do not infer it from ITER, COPY, omitted values or database state."
       ],
-      "code": "CM002"
+      "code": "CM002",
+      "status": "inactive-unverified-trigger"
     },
     {
       "id": "csm-construction-stage-reserved-number",
@@ -2560,12 +2484,12 @@
     {
       "id": "sofimshc-grp-base-gdiv",
       "module": "SOFIMSHC",
-      "message": "GRP BASE requires SYST GDIV 0.",
+      "message": "GRP BASE is incompatible with a positive SYST GDIV.",
       "severity": 1,
       "caveats": [
         "Only literal scalar values are evaluated. Expressions, variables, generation lists, external state and unresolved preprocessing suppress dependent conclusions.",
         "Missing values are never filled from guessed defaults. Comparisons require all operands explicitly supplied or a separately verified effective state.",
-        "Only flag known nonzero GDIV; omitted SYST GDIV may depend on documented defaults or imported state."
+        "Only flag known positive GDIV. Zero uses explicit bases; negative GDIV enables automatic group-base assignment and does not make supplied BASE values invalid."
       ],
       "variants": [
         {
@@ -2592,7 +2516,7 @@
             "right": {
               "value": 0
             },
-            "relation": "ne"
+            "relation": "gt"
           }
         },
         {
@@ -2642,7 +2566,7 @@
             "right": {
               "value": 0
             },
-            "relation": "ne"
+            "relation": "gt"
           }
         },
         {
@@ -2674,12 +2598,13 @@
     {
       "id": "sof-gax-property-context",
       "module": "SOFIMSHC",
-      "message": "Geometric axis properties require an earlier GAX definition.",
+      "message": "An implicit geometric axis property needs an earlier GAX definition.",
       "severity": 1,
       "caveats": [
         "Only literal scalar values are evaluated. Expressions, variables, generation lists, external state and unresolved preprocessing suppress dependent conclusions.",
         "Missing values are never filled from guessed defaults. Comparisons require all operands explicitly supplied or a separately verified effective state.",
-        "Every listed child command must exist in each current release schema; do not expand by name prefix blindly."
+        "Every listed child command must exist in each current release schema; do not expand by name prefix blindly.",
+        "An explicitly supplied axis ID can reference an axis already in the database. Table rows are not diagnosed without tracking their header defaults; a header may supply ID=axis."
       ],
       "variants": [
         {
@@ -2688,11 +2613,28 @@
             "en": ["GAXA", "GAXH", "GAXB", "GAXC", "GAXD", "GAXN", "GAXP", "GAXS", "GAXV"],
             "de": []
           },
-          "parameters": {},
+          "parameters": {
+            "ID": {
+              "en": "ID",
+              "de": "ID"
+            }
+          },
           "invalid": {
             "op": "context",
             "key": "sof-gax-property-context:parent",
             "value": false
+          },
+          "when": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "explicit"
+              },
+              {
+                "op": "absent",
+                "param": "ID"
+              }
+            ]
           }
         },
         {
@@ -2719,11 +2661,28 @@
             "en": [],
             "de": ["GAXA", "GAXH", "GAXB", "GAXC", "GAXD", "GAXN", "GAXP", "GAXS", "GAXV"]
           },
-          "parameters": {},
+          "parameters": {
+            "ID": {
+              "en": "ID",
+              "de": "ID"
+            }
+          },
           "invalid": {
             "op": "context",
             "key": "sof-gax-property-context:parent",
             "value": false
+          },
+          "when": {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "explicit"
+              },
+              {
+                "op": "absent",
+                "param": "ID"
+              }
+            ]
           }
         },
         {
@@ -3912,12 +3871,12 @@
     {
       "id": "textile-comp-matrix-count",
       "module": "TEXTILE",
-      "message": "COMP requires N >= 2 <= 10.",
+      "message": "COMP S1/S2 requires N >= 2 <= 10.",
       "severity": 1,
       "caveats": [
         "Only literal scalar values are evaluated. Expressions, variables, generation lists, external state and unresolved preprocessing suppress dependent conclusions.",
         "Missing values are never filled from guessed defaults. Comparisons require all operands explicitly supplied or a separately verified effective state.",
-        "Restrict the count to explicit matrix/stress-strain forms; CE/DE single compensation forms have different semantics."
+        "Only S1/S2 N gives the matrix dimension (2 to 10). E1/E2 N selects a matrix row, so row 1 is valid; CE/DE have separate strain semantics."
       ],
       "variants": [
         {
@@ -3939,7 +3898,7 @@
           "when": {
             "op": "in",
             "param": "TYPE",
-            "values": ["E1", "E2", "S1", "S2"]
+            "values": ["S1", "S2"]
           },
           "invalid": {
             "op": "any",
@@ -3976,7 +3935,7 @@
           "when": {
             "op": "in",
             "param": "TYPE",
-            "values": ["E1", "E2", "S1", "S2"]
+            "values": ["S1", "S2"]
           },
           "invalid": {
             "op": "any",
@@ -5467,11 +5426,12 @@
     {
       "id": "results-join-columns",
       "module": "RESULTS",
-      "message": "JOIN requires COL1 and COL2.",
+      "message": "A JOIN specifying a column requires both COL1 and COL2.",
       "severity": 1,
       "caveats": [
         "Only literal scalar values are evaluated. Expressions, variables, generation lists, external state and unresolved preprocessing suppress dependent conclusions.",
-        "Missing values are never filled from guessed defaults. Comparisons require all operands explicitly supplied or a separately verified effective state."
+        "Missing values are never filled from guessed defaults. Comparisons require all operands explicitly supplied or a separately verified effective state.",
+        "The manual's generated input includes a valid bare JOIN. Require at least one nonempty supplied column before diagnosing a missing counterpart; do not infer a missing column when neither column is supplied."
       ],
       "variants": [
         {
@@ -5502,6 +5462,19 @@
                 "param": "COL2"
               }
             ]
+          },
+          "when": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "present",
+                "param": "COL1"
+              },
+              {
+                "op": "present",
+                "param": "COL2"
+              }
+            ]
           }
         },
         {
@@ -5529,6 +5502,19 @@
               },
               {
                 "op": "absent",
+                "param": "COL2"
+              }
+            ]
+          },
+          "when": {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "present",
+                "param": "COL1"
+              },
+              {
+                "op": "present",
                 "param": "COL2"
               }
             ]

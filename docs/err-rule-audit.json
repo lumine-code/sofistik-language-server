@@ -30047,6 +30047,369 @@
         "String membership is explicitly guarded by not(number), because a numeric value compared with a string-only set intentionally yields unknown."
       ],
       "variants": [{}, {}]
+    },
+    "ase-step-storage-single-step": {
+      "notes": [
+        "AS001 is reserved but inactive for every release: no safe input-only mode selector for native ERR 419 has been established.",
+        "The previous fixture STEP N 2 DT 0.1 LCST 100 was a valid time-step storage sequence, not proof of invalid input. It is retained as a positive regression in corpus-err-rules.test.js.",
+        "Historical ERR text does not override the documented multi-step mode; do not invent a DT, SELE or LCSM guard."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/ase_1.pdf",
+          "sha256": "edaa45352a769e8feec5db2ae1482d48c47f58c9acad3960e0cf9b96d660695b",
+          "section": "3.5 STEP",
+          "pdfPages": [134, 135, 136],
+          "findings": [
+            "STEP N defines the number of time steps. LCST is the storage load-case sequence and accepts CONT.",
+            "The manual explicitly supports STEP N>1 with LCST and says the storage number increases for each time step.",
+            "The worked input STEP N 100 DT 0.01 LCST 1001 directly contradicts the former blanket single-step check."
+          ]
+        }
+      ],
+      "examples": [
+        "ase.dat/english/dynamics/a2_introduction_earthquake.dat",
+        "ase.dat/english/special/collaps_element_deactivation.dat"
+      ],
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js"
+    },
+    "results-join-columns": {
+      "notes": [
+        "RS001 still checks a missing counterpart when one nonempty column is supplied.",
+        "A bare JOIN is valid. The manual's generated XLSX input and shipped verification files contain it.",
+        "When neither column is supplied no local conclusion is made; no runtime join-column existence is inferred."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/resultviewer_1.pdf",
+          "sha256": "087bb46555809b447d114ae94a4701d125622bfdaa577663e8f645f8859f3279",
+          "section": "3.20 JOIN and 3.21 XLSX",
+          "pdfPages": [38, 41],
+          "findings": [
+            "A column join identifies both COL1 and COL2.",
+            "The complete generated XLSX example contains a bare JOIN before DBO and FILT."
+          ]
+        }
+      ],
+      "examples": [
+        "verification.dat/benchmarks.dat/be8/moment_quad.dat",
+        "verification.dat/dcbenchmarks.dat/dce-en21/real_creep_shrinkage.results"
+      ],
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js"
+    },
+    "textile-comp-matrix-count": {
+      "notes": [
+        "N has different meanings selected by TYPE: S1/S2 give the matrix dimension; E1/E2 give a matrix row number.",
+        "The 2-to-10 dimension bound is limited to S1/S2. E1/E2 row 1 is a documented valid input.",
+        "CE/DE strain forms remain excluded, and row-to-dimension consistency is not guessed."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/textile_1.pdf",
+          "sha256": "030b1dba41713406d7d503cf3a4498030845dd12461623ed86760e7acb1798df",
+          "section": "3.8 COMP",
+          "pdfPages": [21, 22],
+          "findings": [
+            "The N item explicitly distinguishes S1/S2 dimension from E1/E2 row selection.",
+            "The worked compensation matrix starts with COMP E1 1 and COMP E2 1."
+          ]
+        }
+      ],
+      "examples": [
+        "textile.dat/english/textile1_tennishall.dat",
+        "textile.dat/english/textile2_mexiko.dat"
+      ],
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js"
+    },
+    "sofimshc-grp-base-gdiv": {
+      "notes": [
+        "The previous nonzero-divisor comparison conflated fixed positive GDIV and automatic negative GDIV modes.",
+        "SHC001 requires an explicitly known positive GDIV. Zero or negative divisors do not trigger it.",
+        "Unknown or omitted GDIV stays unknown; no default or inherited database value is synthesized."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/sofimshc_1.pdf",
+          "sha256": "b0c5cc91b18ece9dfe1d41cf43f57d0fb23f6c3a996e845ff871d9b324e1fda6",
+          "section": "3.6.1 Primary group number",
+          "pdfPages": [31, 32],
+          "findings": [
+            "GDIV>0 partitions by a fixed divisor; GDIV=0 uses explicit group bases.",
+            "GDIV<0 enables automatic group-base assignment after element generation. Explicit bases are no longer necessary in that mode, rather than forbidden."
+          ]
+        }
+      ],
+      "examples": ["dolfyn.dat/english/buildings_3D/city.dat"],
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js"
+    },
+    "sof-gax-property-context": {
+      "notes": [
+        "A property with its own ID may reference an axis already present in the database; absence of GAX in this program is not proof of missing geometry.",
+        "SHC002 retains its implicit-current-axis check for explicit records without a supplied ID.",
+        "Table rows remain unproven because their header may supply ID=axis. A header does not execute a property record, and its default fields are not synthesized by this rule."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/sofimshc_1.pdf",
+          "sha256": "b0c5cc91b18ece9dfe1d41cf43f57d0fb23f6c3a996e845ff871d9b324e1fda6",
+          "section": "4.2 GAX, 4.8 GAXP, 4.9 GAXS, 4.10 GAXV",
+          "pdfPages": [44, 45, 56, 59, 60],
+          "findings": [
+            "GAXP ID, GAXS ID and GAXV ID explicitly select the primary axis independently of a preceding current GAX.",
+            "The current-axis geometry definition records remain distinct from the self-identifying property records."
+          ]
+        }
+      ],
+      "examples": [
+        "sofimshc.dat/english/bridge_design/Varying_Secondary_Axis_01.dat",
+        "sofimshc.dat/english/bridge_design/Varying_Secondary_Axis_02.dat",
+        "tendon.dat/english/tendon1.dat"
+      ],
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js"
+    },
+    "csm-equilibrium-max-factor": {
+      "reviewDate": "2026-10-19",
+      "fixtureFile": "test/corpus-err-rules.test.js",
+      "notes": [
+        "CM002 remains reserved, but no input-only predicate is enabled. Native ERR409 does not identify the mode in which its upper bound applies.",
+        "The 2026 CSM manual section3.34 explicitly supports EQIT20 FMAX1.5, describes positive Crisfield acceleration and negative legacy regula-falsi values. The former blanket FMAX<=1 check contradicted documented input.",
+        "Restore only with a separately verified triggering mode; do not infer it from ITER, COPY, omitted values or database state."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/csm_1.pdf",
+          "sha256": "1592e035cb4b4c898722110f95b48af9c90f9e535aecdd66cc273683dcea68cc",
+          "section": "3.34 EQIT",
+          "pdfPages": [122],
+          "findings": [
+            "The worked input EQIT20 FMAX1.5 is valid. Positive FMAX selects Crisfield acceleration; a negative value selects legacy regula-falsi.",
+            "ERR409 does not establish a blanket upper bound for these documented modes."
+          ]
+        }
+      ],
+      "examples": [
+        "csm.dat/english/optimize/csm27_suspension_w_nonlopti.dat",
+        "csm.dat/deutsch/optimize/csm27_suspension_w_nonlopti.dat"
+      ]
+    },
+    "native-input-language-selection": {
+      "reviewDate": "2026-10-19",
+      "notes": [
+        "Native ERR 148 explains that the first input dataset selects the keyword language and recommends HEAD/KOPF.",
+        "An introductory HEAD selects English; KOPF selects German. LET before KOPF remains valid; a later opposite header does not switch the selected language.",
+        "No universal cross-language command alias fallback is introduced. A program with no explicit header retains the configured schema default.",
+        "Lexer/index context, schema lookups, ERR compiler bindings, module cache keys and language features share the selected program language."
+      ],
+      "nativeEvidence": {
+        "version": "2026",
+        "reportedVersion": "2026-7.0.962",
+        "catalogueFile": "sofistik-schema/build/2026/sofistik.err",
+        "catalogueCode": "148",
+        "catalogueLines": [691, 692, 693, 694],
+        "catalogueSha256": "2f3ccb40f84ea3141e57fad1f0f7e2fc2abb3647895dfa4983dde5a0da392821",
+        "program": "SOFILOAD",
+        "preparation": "An isolated SOFIMSHA input creates one node, without running a structural analysis.",
+        "probes": [
+          {
+            "input": "HEAD English\nLC 21\nEND",
+            "errors": []
+          },
+          {
+            "input": "KOPF Deutsch\nLF 21\nENDE",
+            "errors": []
+          },
+          {
+            "input": "HEAD English\nLF 21\nEND",
+            "errors": [12106]
+          },
+          {
+            "input": "KOPF Deutsch\nLC 21\nENDE",
+            "errors": [12106]
+          },
+          {
+            "input": "LET#probe 1\nKOPF Deutsch\nLF 21\nENDE",
+            "errors": []
+          },
+          {
+            "input": "HEAD English\nKOPF Deutsch\nLF 21\nENDE",
+            "errors": [12106, 12106, 12106]
+          },
+          {
+            "input": "IF 1\nKOPF Deutsch\nLF 21\nENDIF\nENDE",
+            "errors": []
+          },
+          {
+            "input": "LOOP 1\nKOPF Deutsch\nLF 21\nENDLOOP\nENDE",
+            "errors": []
+          }
+        ]
+      },
+      "fixtureFile": "test/corpus-command-aliases.test.js",
+      "examples": ["sofimshc.dat/english/geotechnics/excavation_3d_02.dat"]
+    },
+    "native-value-list-separators": {
+      "reviewDate": "2026-10-19",
+      "code": "G313",
+      "notes": [
+        "The former blanket trailing-comma rule produced a false positive in the installed be33 example. Native CADINP accepts trailing commas at EOL, before comments or semicolons, and before whitespace-separated named items.",
+        "Keep G313 only for a root-level comma immediately adjacent to a confidently resolved named parameter. Partial names, enum/item ambiguity, strings, nested commas and pending continuation lines are excluded.",
+        "Do not describe a legal final comma as a missing list value. Invalid continuation payloads or unfinished $$ input are separate expression/continuation problems, as shown by matching native failures with and without a comma.",
+        "The probes create only tiny isolated TEMPLATE arrays or SOFIMSHA geometry and empty load cases; they do not run an original engineering model or a structural calculation."
+      ],
+      "manualEvidence": [
+        {
+          "version": "2026",
+          "file": "C:/Program Files/SOFiSTiK/2026/SOFiSTiK 2026/cadinp_1.pdf",
+          "sha256": "d3d03813ffc8a179bfa9efabf43f71ca80bf9998656cbab443326a1b92beb232",
+          "sections": ["1.1.3 Separation Characters", "1.2.12 List of Values"]
+        }
+      ],
+      "nativeEvidence": {
+        "version": "2026",
+        "reportedVersion": "2026-7.0",
+        "programs": ["TEMPLATE", "SOFIMSHA", "SOFILOAD"],
+        "probes": [
+          {
+            "name": "template-end",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-end\nLET#a 1,2,\nPRT#a\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "template-comment",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-comment\nLET#a 1,2, $ comment\nPRT#a\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "template-semicolon",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-semicolon\nLET#a 1,2,; PRT#a\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "template-continuation",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-continuation\nLET#a 1, $$\n2,\nPRT#a\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "template-continuation-command",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-continuation-command\nLET#a 1, $$\nPRT#a\nEND\n",
+            "errors": [10132]
+          },
+          {
+            "name": "template-multiple-commas",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-multiple-commas\nLET#a 1,,2\nPRT#a\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "template-empty-comma",
+            "program": "TEMPLATE",
+            "input": "+PROG TEMPLATE\nHEAD template-empty-comma\nLET#a ,\nPRT#a\nEND\n",
+            "errors": [10132, 12101]
+          },
+          {
+            "name": "template-final-continuation-eof",
+            "program": "TEMPLATE-DIRECT",
+            "input": "HEAD template-final-continuation-eof\nLET#a 1, $$\n",
+            "errors": [10132]
+          },
+          {
+            "name": "template-final-continuation-no-comma",
+            "program": "TEMPLATE-DIRECT",
+            "input": "HEAD template-final-continuation-no-comma\nLET#a 1 $$\n",
+            "errors": [10132]
+          },
+          {
+            "name": "geometry-control",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-control\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2 X 0 Y 0 Z 0\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "geometry-end",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-end\nECHO FULL YES\nSYST SPAC\nNODE (1 1) X 0,1,\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "geometry-before-parameter",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-before-parameter\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2, X 0 Y 0 Z 0\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "geometry-before-adjacent-parameter",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-before-adjacent-parameter\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2,X 0 Y 0 Z 0\nEND\n",
+            "errors": [12111, 2010, 109]
+          },
+          {
+            "name": "geometry-semicolon",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-semicolon\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2,; NODE 3 X 3\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "geometry-continuation-param",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-continuation-param\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2, $$\nX 0 Y 0 Z 0\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "geometry-continuation-value",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-continuation-value\nECHO FULL YES\nSYST SPAC\nNODE NO 1, $$\n2, X 0 Y 0 Z 0\nEND\n",
+            "errors": [12108]
+          },
+          {
+            "name": "geometry-continuation-end",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-continuation-end\nECHO FULL YES\nSYST SPAC\nNODE NO 1,2, $$\nEND\nEND\n",
+            "errors": [12110]
+          },
+          {
+            "name": "geometry-multiple-commas",
+            "program": "SOFIMSHA",
+            "input": "+PROG SOFIMSHA\nHEAD geometry-multiple-commas\nECHO FULL YES\nSYST SPAC\nNODE NO 1,,2 X 0 Y 0 Z 0\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "load-end",
+            "program": "SOFILOAD",
+            "input": "+PROG SOFIMSHA\nHEAD Minimal geometry\nSYST SPAC\nNODE 1 X 0 Y 0 Z 0\nEND\n+PROG SOFILOAD\nHEAD load-end\nLC 1,\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "load-before-parameter",
+            "program": "SOFILOAD",
+            "input": "+PROG SOFIMSHA\nHEAD Minimal geometry\nSYST SPAC\nNODE 1 X 0 Y 0 Z 0\nEND\n+PROG SOFILOAD\nHEAD load-before-parameter\nLC 1, TITL 'comma probe'\nEND\n",
+            "errors": []
+          },
+          {
+            "name": "load-before-adjacent-parameter",
+            "program": "SOFILOAD",
+            "input": "+PROG SOFIMSHA\nHEAD Minimal geometry\nSYST SPAC\nNODE 1 X 0 Y 0 Z 0\nEND\n+PROG SOFILOAD\nHEAD load-before-adjacent-parameter\nLC 1,TITL 'comma probe'\nEND\n",
+            "errors": [12110]
+          }
+        ]
+      },
+      "fixtureFile": "test/trailing-commas.test.js",
+      "examples": ["verification.dat/benchmarks.dat/be33/quad_33.dat"]
     }
   },
   "generalEvidence": {

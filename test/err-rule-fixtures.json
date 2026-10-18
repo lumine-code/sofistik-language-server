@@ -129,43 +129,7 @@
       }
     }
   ],
-  "ase-step-storage-single-step": [
-    {
-      "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
-      "commands": {
-        "en": ["STEP"],
-        "de": ["STEP"]
-      },
-      "parameters": {
-        "N": {
-          "en": "N",
-          "de": "N"
-        },
-        "LCST": {
-          "en": "LCST",
-          "de": "LFSP"
-        }
-      },
-      "fixtures": {
-        "en": {
-          "invalid": ["+PROG ASE\nSTEP N 2 DT 0.1 LCST 100\nEND"],
-          "valid": ["+PROG ASE\nSTEP N 1 DT 0.1 LCST 100\nEND"],
-          "dynamic": [
-            "+PROG ASE\nSTEP N #n DT 0.1 LCST 100\nEND",
-            "+PROG ASE\nSTEP N 1.3 DT 0.1 LCST 100\nEND"
-          ]
-        },
-        "de": {
-          "invalid": ["+PROG ASE\nSTEP N 2 DT 0.1 LFSP 100\nENDE"],
-          "valid": ["+PROG ASE\nSTEP N 1 DT 0.1 LFSP 100\nENDE"],
-          "dynamic": [
-            "+PROG ASE\nSTEP N #n DT 0.1 LFSP 100\nENDE",
-            "+PROG ASE\nSTEP N 1.3 DT 0.1 LFSP 100\nENDE"
-          ]
-        }
-      }
-    }
-  ],
+  "ase-step-storage-single-step": [],
   "ase-launch-translation-rotation-conflict": [
     {
       "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
@@ -680,33 +644,7 @@
       }
     }
   ],
-  "csm-equilibrium-max-factor": [
-    {
-      "versions": ["2022", "2023", "2024", "2025", "2026"],
-      "commands": {
-        "en": ["EQIT"],
-        "de": ["EQIT"]
-      },
-      "parameters": {
-        "FMAX": {
-          "en": "FMAX",
-          "de": "FMAX"
-        }
-      },
-      "fixtures": {
-        "en": {
-          "invalid": ["+PROG CSM\nEQIT FMAX 1.1\nEND"],
-          "valid": ["+PROG CSM\nEQIT FMAX 1\nEND"],
-          "dynamic": ["+PROG CSM\nEQIT FMAX #value\nEND"]
-        },
-        "de": {
-          "invalid": ["+PROG CSM\nEQIT FMAX 1.1\nENDE"],
-          "valid": ["+PROG CSM\nEQIT FMAX 1\nENDE"],
-          "dynamic": ["+PROG CSM\nEQIT FMAX #value\nENDE"]
-        }
-      }
-    }
-  ],
+  "csm-equilibrium-max-factor": [],
   "csm-construction-stage-reserved-number": [
     {
       "versions": ["2018", "2020", "2022", "2023", "2024", "2025", "2026"],
@@ -2729,9 +2667,12 @@
       },
       "fixtures": {
         "en": {
-          "invalid": ["+PROG TEXTILE\nCOMP TYPE E1 N 1 V1 0\nEND\n"],
-          "valid": ["+PROG TEXTILE\nCOMP TYPE E1 N 2 V1 0 V2 0.01\nEND\n"],
-          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYPE E1 N #count V1 0\nEND\n"]
+          "invalid": ["+PROG TEXTILE\nCOMP TYPE S1 N 1 V1 0\nEND\n"],
+          "valid": [
+            "+PROG TEXTILE\nCOMP TYPE E1 N 2 V1 0 V2 0.01\nEND\n",
+            "+PROG TEXTILE\nCOMP TYPE E1 N 1 V1 0 V2 0.01\nEND\n"
+          ],
+          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYPE S1 N #count V1 0\nEND\n"]
         },
         "de": {
           "invalid": [],
@@ -2763,9 +2704,12 @@
           "dynamic": []
         },
         "de": {
-          "invalid": ["+PROG TEXTILE\nCOMP TYP E1 N 1 W1 0\nENDE\n"],
-          "valid": ["+PROG TEXTILE\nCOMP TYP E1 N 2 W1 0 W2 0.01\nENDE\n"],
-          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYP E1 N #count W1 0\nENDE\n"]
+          "invalid": ["+PROG TEXTILE\nCOMP TYP S1 N 1 W1 0\nENDE\n"],
+          "valid": [
+            "+PROG TEXTILE\nCOMP TYP E1 N 2 W1 0 W2 0.01\nENDE\n",
+            "+PROG TEXTILE\nCOMP TYP E1 N 1 W1 0 W2 0.01\nENDE\n"
+          ],
+          "dynamic": ["+PROG TEXTILE\nLET#count 1\nCOMP TYP S1 N #count W1 0\nENDE\n"]
         }
       }
     }
@@ -4032,7 +3976,10 @@
       "fixtures": {
         "en": {
           "invalid": ["+PROG RESULTS\nJOIN COL1 \"NODE.NO\"\nEND\n"],
-          "valid": ["+PROG RESULTS\nJOIN COL1 \"NODE.NO\" COL2 \"BEAM.NA\"\nEND\n"],
+          "valid": [
+            "+PROG RESULTS\nJOIN COL1 \"NODE.NO\" COL2 \"BEAM.NA\"\nEND\n",
+            "+PROG RESULTS\nJOIN\nEND\n"
+          ],
           "dynamic": [
             "+PROG RESULTS\nLET#column1 1\nLET#column2 1\nJOIN COL1 #column1 COL2 #column2\nEND\n"
           ]
@@ -4068,7 +4015,10 @@
         },
         "de": {
           "invalid": ["+PROG RESULTS\nJOIN SPA1 \"NODE.NO\"\nENDE\n"],
-          "valid": ["+PROG RESULTS\nJOIN SPA1 \"NODE.NO\" SPA2 \"BEAM.NA\"\nENDE\n"],
+          "valid": [
+            "+PROG RESULTS\nJOIN SPA1 \"NODE.NO\" SPA2 \"BEAM.NA\"\nENDE\n",
+            "+PROG RESULTS\nJOIN\nENDE\n"
+          ],
           "dynamic": [
             "+PROG RESULTS\nLET#column1 1\nLET#column2 1\nJOIN SPA1 #column1 SPA2 #column2\nENDE\n"
           ]

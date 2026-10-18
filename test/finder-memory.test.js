@@ -38,6 +38,21 @@ test("unfinished control and macro nesting fits a constrained heap", () => {
   `);
 });
 
+test("selected input language shares compact state across deeply nested snapshots", () => {
+  constrainedIndex(String.raw`
+    const assert = require("node:assert/strict");
+    const { createIndex } = require("./lib/finder");
+    const depth = 6000;
+    const index = createIndex("+PROG ASE\nKOPF Deutsch\n" + "IF 1\n".repeat(depth) +
+      "#DEFINE nested\n".repeat(depth) + "LET#value 1\n", { language: "en" });
+    assert.equal(index.lines.at(-2).endState.controls.length, depth);
+    assert.equal(index.lines.at(-2).endState.macros.length, depth);
+    assert.equal(index.lines.at(-2).records[0].context.language, "de");
+    global.gc();
+    console.log("ok");
+  `);
+});
+
 test("navigation indexing does not retain tokens for large closed inputs", () => {
   constrainedIndex(String.raw`
     const assert = require("node:assert/strict");

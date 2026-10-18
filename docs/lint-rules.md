@@ -2,6 +2,8 @@
 
 The linter selects verified rules by the source's exact SOFiSTiK release and keyword language. It never carries a newer rule into an unverified older release.
 
+An introductory `HEAD` selects English keywords and `KOPF` selects German keywords for that program, including files whose project setting or directory suggests the other language. Shared variable and control records may precede the header. A later header does not switch already selected input, and the next `PROG` starts with the configured default again. Parsing, rule bindings, completion, hover, signatures and enum highlighting use the same selected language; foreign command names are not universal aliases.
+
 G identifies general checks. Other prefixes identify canonical calculation modules; executable aliases use their canonical module's prefix. Codes remain stable when version-specific predicates or bindings differ.
 
 ## Suppressions
@@ -86,9 +88,9 @@ Source ranges identify the original variable, proven invalid value or record, ev
 | G308 | IF or ELSEIF has no condition expression. Bare LOOP retains its documented default bound. |
 | G309 | Native IF/LOOP remains open at a confirmed program boundary. Intermediate END does not close its scope. |
 | G310 | A number-like atom has repeated decimal points in its mantissa, such as 1.00.0, 1..2 or .1.2. |
-| G311 | Exactly one inline generator in a logical record must contain a third increment argument; all other generators must contain two arguments. |
+| G311 | Generation requires one primary generator with a third increment argument or a value list; secondary generators contain two arguments. |
 | G312 | A recognized inline generator with at least two arguments lacks its closing parenthesis. |
-| G313 | A value list ends with a comma before the next named parameter or the end of the logical record. |
+| G313 | A resolved named parameter follows a value-list comma without separating whitespace. |
 | SL001 | SOFILOAD loading record without an active load case. |
 | SL002 | SOFILOAD supplementary LTD record without a task. |
 | SL003 | SOFILOAD LTD MOD without a known source selection. |
@@ -101,15 +103,19 @@ Native control checks run only for the verified releases. They inspect structure
 
 Numbered variables such as `#1` and `#9999` follow the same local program scope as named `LET` variables. Legacy `$BLOCK BEG1` / `$BLOCK END1` definitions defer their bodies until `$BLOCK SET1`, which replays declarations and records in the calling program. A missing legacy block reports G012 and reduces downstream certainty; an unclosed definition reports G009, and a mismatched or orphan `$BLOCK END` reports G304. Findings inside a replayed body select its executing `SET` and link the original source location, using the same suppression rules as named reusable blocks.
 
-G311 and G312 check inline generator syntax in each logical record after preprocessing without evaluating argument expressions. Exactly one primary generator supplies `(start end increment)`; each secondary generator supplies `(start increment)`, and the primary may occur anywhere in the record. Both `LC (1 11 1) TITL (101 111)` and `LC (1 11) TITL (101 111 1)` are valid. Separated whole-value markers belong to their own items, so the default `-` before a positional generator in `BEAM - (101 120 1) (102 1) NCS 1 KR posy` does not hide its primary generator. `LC (1 11 1) TITL (101 111 1)` and `LC (1 11)` violate G311; `LC (1 11) TITL (101 111` also has an unclosed generator reported by G312. G311 selects the first generator when no primary exists, each additional primary generator, or a generator with too many arguments; G312 selects the unclosed generator. Findings retain original-source mappings through macros and includes and use the same record, program and project suppression scopes as other static checks. Unresolved preprocessing in the record prevents a definite generator finding. Use `! noqa: G311,G312` on the offending record or `NOQA = G311,G312` in the adjacent `sofistik.def` to suppress these checks.
+G311 and G312 check inline generator syntax in each logical record after preprocessing without evaluating argument expressions. One primary generator supplies `(start end increment)`; each secondary generator supplies `(start increment)`, and the primary may occur anywhere in the record. A comma or numeric underscore list can also drive generation, including a list repeated from the same item of the preceding record with `=`, `==`, `++` or `--`. Both `LC (1 11 1) TITL (101 111)` and `LC (1 11) TITL (101 111 1)` are valid, as is `NODE 1,2,3 X (0 1)`. Separated whole-value markers belong to their own items, so the default `-` before a positional generator in `BEAM - (101 120 1) (102 1) NCS 1 KR posy` does not hide its primary generator. `LC (1 11 1) TITL (101 111 1)` and `LC (1 11)` violate G311; `LC (1 11) TITL (101 111` also has an unclosed generator reported by G312. G311 selects the first generator when neither a primary nor a driving list exists, each additional primary generator, or a generator with too many arguments; G312 selects the unclosed generator. Findings retain original-source mappings through macros and includes and use the same record, program and project suppression scopes as other static checks. Unresolved preprocessing in the record prevents a definite generator finding. Use `! noqa: G311,G312` on the offending record or `NOQA = G311,G312` in the adjacent `sofistik.def` to suppress these checks.
 
 `HEAD` (`KOPF` with German keywords), introductory text (`TXB` in English, `TXA` in German) and concluding text (`TXE`) take the rest of their physical line as implicit text. Legacy introductory blocks (`TXBB` in English, `TXAB` in German) and concluding blocks (`TXEB` in both languages) include their opening-line text and following lines until `TXEN`; the closing line consumes its remaining payload before code resumes on the next line. Parentheses, commas, apostrophes, semicolons, `!` and `//` remain text rather than expressions, additional records or comments, so `HEAD calc (part 2)` and `TXB calc (part 2)` have no generator finding. Only an unquoted `$` starts a text comment, and `$$` does not continue a text line. SPS program and `END` boundaries, preprocessor directives and native `IF`/`LOOP` structural balance remain recognized. Text containing `LET` or a loop index does not declare variables; genuine substitutions retain navigation and preprocessing diagnostics remain available.
+
+G313 checks a missing separator before a confidently resolved named parameter: `LC 1,TITL 'name'` is invalid, while `LC 1, TITL 'name'` is valid. Native CADINP accepts a final comma at the end of a record, before a comment or semicolon, and before a separated named parameter, including a parameter on a physical continuation line. Such commas are not missing values. The check does not guess from partial parameter names, enum/item ambiguity, strings, nested expressions or an unfinished physical continuation. Its range selects the comma and retains source mappings and ordinary suppression scopes.
 
 ## ERR-derived module rules
 
 G310 scans numeric atoms in definite numeric fields, LET/STO assignments, array indices, conditions and UNIT input after preprocessing. It uses native source prefixes to exclude identifiers and text that share the generic keyword kind. Arithmetic operators, generation, repetition, trailing decimal points, strings, comments and unit contents do not become guessed errors. Incomplete or repeated exponent syntax is outside this rule: native CADINP accepts some forms such as 1E+ and changes others in variable-expression mode. A malformed atom retains its complete source range while long messages and finding counts stay bounded.
 
 A rule listed for a release still requires its language's native command and parameter bindings to exist in that release's schema. Source values, implicit units and control-flow states that cannot be resolved from text remain unknown; they do not become guessed defaults.
+
+AS001 and CM002 are reserved but inactive: their native ERR messages do not identify the triggering modes, while the ASE manual explicitly documents multi-step `STEP N>1` storage with `LCST` and the CSM manual gives valid `EQIT 20 FMAX 1.5`. An ERR message alone is insufficient to turn these valid sequences into static errors. In RESULTS, bare `JOIN` is valid; RS001 requires both column names only when at least one is supplied. TEXTILE `COMP S1/S2 N` specifies the matrix size, whereas `COMP E1/E2 N` selects a row and permits row 1. SOFiMSHC negative `GDIV` enables automatic group-base numbering. Axis property records carrying their own `ID` may reference an existing database axis, so SHC002 checks only explicit records that require an implicit preceding `GAX`; table rows with untracked header defaults remain unknown.
 
 | Code | Module | Rule | Verified releases |
 | --- | --- | --- | --- |
@@ -118,7 +124,7 @@ A rule listed for a release still requires its language's native command and par
 | AQB003 | AQB | EIGE TEMP must lie in its accepted numeric interval. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | AQB004 | AQB | Creep processing excludes GMAX and GMIN combination modes. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | AQ001 | AQUA | A vertex record needs an active polygon definition. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
-| AS001 | ASE | Explicit result storage in STEP is restricted to a single step. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| AS001 | ASE | Reserved; the single-step restriction has no verified input-only trigger. | Inactive |
 | AS002 | ASE | A launch record cannot combine its DX translation and PHI rotation inputs. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | AS003 | ASE | A rotation axis must not define all three center coordinates in LAUN. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | BD001 | BDK | CTRL SFAC must lie in its accepted numeric interval. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
@@ -136,7 +142,7 @@ A rule listed for a release still requires its language's native command and par
 | CP005 | COMPOSITE | Selection properties require an earlier selection definition. | 2024, 2025, 2026 |
 | CS001 | CSA | An explicit load-set number must be positive. | 2026 |
 | CM001 | CSM | A safety-factor override supplies both ultimate and accidental factors. | 2020, 2022, 2023, 2024, 2025, 2026 |
-| CM002 | CSM | EQIT FMAX must lie in its accepted numeric interval. | 2022, 2023, 2024, 2025, 2026 |
+| CM002 | CSM | Reserved; the FMAX upper bound has no verified input-only trigger. | Inactive |
 | CM003 | CSM | These construction-stage numbers are zero or reserved identifiers. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | CM004 | CSM | The stage cantilever mode must use a supported numeric selector. | 2023, 2024, 2025, 2026 |
 | CM005 | CSM | Variable-temperature mode excludes the conventional explicit height inputs. | 2023, 2024, 2025, 2026 |
@@ -155,8 +161,8 @@ A rule listed for a release still requires its language's native command and par
 | SHA003 | SOFIMSHA | UBND requires an earlier UMSH definition. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | SHA004 | SOFIMSHA | BSEC requires a preceding BEAM definition or explicit NO and X. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | SHA005 | SOFIMSHA | GRP BASE requires SYST GDIV 0. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
-| SHC001 | SOFIMSHC | GRP BASE requires SYST GDIV 0. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
-| SHC002 | SOFIMSHC | Geometric axis properties require an earlier GAX definition. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| SHC001 | SOFIMSHC | GRP BASE is incompatible with a positive SYST GDIV. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| SHC002 | SOFIMSHC | An implicit geometric axis property needs an earlier GAX definition. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | SHC003 | SOFIMSHC | Geometric area properties require an earlier GAR definition. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | SL007 | SOFILOAD | PUSH requires NLCC > 0. | 2022, 2023, 2024, 2025, 2026 |
 | SL008 | SOFILOAD | LTD requires SRLC > 0. | 2025, 2026 |
@@ -173,7 +179,7 @@ A rule listed for a release still requires its language's native command and par
 | TD006 | TENDON | TEND requires NOT >= 1 <= 1000000. | 2023, 2024, 2025, 2026 |
 | TD007 | TENDON | TENDON supports only SIZE FORM URS. | 2023, 2024, 2025, 2026 |
 | TX001 | TEXTILE | Only one CUTT record is allowed in an input block. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
-| TX002 | TEXTILE | COMP requires N >= 2 <= 10. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| TX002 | TEXTILE | COMP S1/S2 requires N >= 2 <= 10. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | ST001 | STAR | Only one DESI record is allowed in an input block. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | ST002 | STAR | Only one NSTR record is allowed in an input block. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | MX002 | MAXIMA | ACT requires TYPE. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
@@ -193,7 +199,7 @@ A rule listed for a release still requires its language's native command and par
 | WG007 | WING | DUTP requires NUMB > 0. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | WG008 | WING | DETP requires NUMB > 0. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | WG009 | WING | DGRP requires NUMB > 0. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
-| RS001 | RESULTS | JOIN requires COL1 and COL2. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
+| RS001 | RESULTS | A JOIN specifying a column requires both COL1 and COL2. | 2018, 2020, 2022, 2023, 2024, 2025, 2026 |
 | SW001 | SHEARWALL | DESI requires SCMC >= 0.1; SCMS >= 0.1. | 2024, 2025, 2026 |
 | FC001 | FEACHECK | SOFT requires MR1L >= 0; SRX1 >= 0; SRX3 >= 0; MR1L <= MR1U; SRX1 <= SR1; SRX3 <= SR3; SR1 <= SR3. | 2022, 2023, 2024, 2025, 2026 |
 | FC002 | FEACHECK | WEAK requires TAUC > 0; TAUS > 0; CR1X >= 0; CR1X <= CR1. | 2022, 2023, 2024, 2025, 2026 |

@@ -44,17 +44,17 @@ async function expanded(text, files = new Map()) {
   return { issues: analyze(result.text, result), sources };
 }
 
-test("the trailing value-list comma has a stable general syntax code", () => {
+test("the missing separator after a value-list comma keeps its general syntax code", () => {
   assert.equal(codeFor("trailing-comma"), "G313");
 });
 
-test("a comma before the next named parameter selects only the comma", () => {
+test("an adjacent named parameter requires whitespace after the comma", () => {
   for (const body of [
-    "LC 321 NONE TITL 'N-summer'\nAREA QGRP 51, TYPE DTXY 1",
-    "LC 1\nLINE BGRP 11,21,31,41, TYPE DT 1",
-    "LC 1\nAREA QGRP 51, TYPE=DTXY 1",
+    "LC 321 NONE TITL 'N-summer'\nAREA QGRP 51,TYPE DTXY 1",
+    "LC 1\nLINE BGRP 11,21,31,41,TYPE DT 1",
+    "LC 1\nAREA QGRP 51,TYPE=DTXY 1",
     "LC 1\nAREA QGRP 51,TYPE DTXY 1",
-    "LC 1\nAREA QGRP 51, TYPE DTXY 1, P2 2",
+    "LC 1\nAREA QGRP 51,TYPE DTXY 1,P2 2",
   ]) {
     const text = program(body);
     const issues = analyze(text);
@@ -62,13 +62,13 @@ test("a comma before the next named parameter selects only the comma", () => {
     for (const issue of issues) {
       assert.equal(selected(text, issue), ",");
       assert.equal(issue.uri, uri);
-      assert.match(issue.message, /followed by another value/);
+      assert.match(issue.message, /with whitespace/);
       assert.equal(issue.relatedInformation, undefined);
     }
   }
 });
 
-test("lists at a logical record boundary reject a final comma", () => {
+test("native CADINP accepts final commas at logical record boundaries", () => {
   for (const body of [
     "LC 1,",
     "LC 1, ! comment",
@@ -78,19 +78,20 @@ test("lists at a logical record boundary reject a final comma", () => {
     "LET#a 1,",
     "STO#a 1,2,",
   ]) {
-    const text = program(body);
-    const [issue, ...others] = analyze(text);
-    assert.deepEqual(others, [], body);
-    assert.ok(issue, body);
-    assert.equal(selected(text, issue), ",", body);
+    assert.deepEqual(analyze(program(body)), [], body);
   }
 });
 
-test("complete lists, expressions, functions, strings, units and prose keep their commas", () => {
+test("native valid trailing separators, complete lists and non-list commas are preserved", () => {
   for (const body of [
     "LC 1\nLINE BGRP 11,21,31,41 TYPE DT 1",
     "LC 1\nAREA QGRP 51,52 TYPE DTXY 1",
+    "LC 1\nAREA QGRP 51, TYPE DTXY 1",
+    "LC 1\nAREA QGRP 51,\tTYPE DTXY 1",
+    "LC 1\nAREA QGRP 51, TYPE=DTXY 1",
+    "LC 1\nAREA QGRP 51, TYPE DTXY 1, P2 2",
     "LET#a 1,2,3",
+    "LET#a 1,,2",
     "LET#a MAX(1,2)",
     "LET#a MAX(1,)",
     "LET#a 1[m,]",
@@ -103,35 +104,23 @@ test("complete lists, expressions, functions, strings, units and prose keep thei
     assert.deepEqual(analyze(program(body)), [], body);
 });
 
-test("a list continuation waits for the next physical line's value", () => {
+test("physical continuation does not make the previous line's final comma invalid", () => {
   for (const body of [
-    "LC 1\nAREA QGRP 51, $$\n52 TYPE DTXY 1",
     "LET#a 1, $$\n2,3",
     "LET#a 1, $$\n2, $$\n3",
-  ])
-    assert.deepEqual(analyze(program(body)), [], body);
-  for (const body of [
+    "LET#a 1, $$\n2,",
     "LC 1\nAREA QGRP 51, $$\nTYPE DTXY 1",
     "LC 1\nAREA QGRP 51, $$ ! comment\nTYPE DTXY 1",
-    "LET#a 1, $$\n2,",
-  ]) {
-    const text = program(body);
-    const [issue, ...others] = analyze(text);
-    assert.deepEqual(others, [], body);
-    assert.ok(issue, body);
-    assert.equal(selected(text, issue), ",", body);
-  }
+  ])
+    assert.deepEqual(analyze(program(body)), [], body);
 });
 
-test("a final continuation without a next value still reports its comma", () => {
+test("an unfinished physical continuation is not a missing value-list separator", () => {
   for (const text of [
     "+PROG SOFILOAD\nLC 1\nAREA QGRP 51, $$\n",
     "+PROG TEMPLATE\nLET#a 51, $$\n",
   ]) {
-    const [issue, ...others] = analyze(text);
-    assert.deepEqual(others, []);
-    assert.ok(issue);
-    assert.equal(selected(text, issue), ",");
+    assert.deepEqual(analyze(text), []);
   }
 });
 
@@ -139,7 +128,7 @@ test("all supported releases and German keyword aliases share the comma check", 
   for (const version of provider.getAvailableVersions())
     for (const language of ["en", "de"]) {
       const body =
-        language === "de" ? "LF 1\nFLAE QGR 51, TYP DTXY 1" : "LC 1\nAREA QGRP 51, TYPE DTXY 1";
+        language === "de" ? "LF 1\nFLAE QGR 51,TYP DTXY 1" : "LC 1\nAREA QGRP 51,TYPE DTXY 1";
       const text = program(body);
       const issues = analyze(text, { version, language });
       assert.equal(issues.length, 1, `${version}/${language}`);
@@ -148,19 +137,45 @@ test("all supported releases and German keyword aliases share the comma check", 
 });
 
 test("inactive programs and unknown command payloads do not report list syntax", () => {
-  assert.deepEqual(analyze("-PROG SOFILOAD\nLC 1\nAREA QGRP 51, TYPE DTXY 1\nEND\n"), []);
+  assert.deepEqual(analyze("-PROG SOFILOAD\nLC 1\nAREA QGRP 51,TYPE DTXY 1\nEND\n"), []);
   assert.deepEqual(analyze(program("SOMETHING VALUE 51,", "UNKNOWN")), []);
 });
 
+test("partial parameter names and nested expressions do not prove a missing separator", () => {
+  for (const body of ["LC 1\nAREA QGRP 51,TY", "LC 1 FACT MAX(1,TYPE)", "LC 1 TYPE NONE,NONE"])
+    assert.deepEqual(analyze(program(body)), [], body);
+});
+
+test("accepting native trailing commas preserves genuine numeric and structural findings", () => {
+  for (const [body, module, expected] of [
+    ["LET#a 1..2,", "TEMPLATE", "invalid-number"],
+    ["LC (1 11 1) FACT (0 1 1) TITL 1,", "SOFILOAD", "inline-generator-increment"],
+    ["LET#a 1,\nENDIF", "TEMPLATE", "orphan-control"],
+  ]) {
+    const result = new LintEngine().analyze({
+      uri,
+      text: program(body, module),
+      version: "2026",
+      language: "en",
+      keywords: provider.forRelease("2026", "en"),
+    });
+    assert.ok(
+      result.diagnostics.some((issue) => issue.code === expected),
+      body,
+    );
+    assert.ok(!result.diagnostics.some((issue) => issue.code === "trailing-comma"), body);
+  }
+});
+
 test("comma ranges remain precise after Unicode, semicolons and CRLF", () => {
-  const text = "+PROG SOFILOAD\r\nLET#text 'ą😀'; LC 1; AREA QGRP 51, TYPE DTXY 1\r\nEND\r\n";
+  const text = "+PROG SOFILOAD\r\nLET#text 'ą😀'; LC 1; AREA QGRP 51,TYPE DTXY 1\r\nEND\r\n";
   const [issue] = analyze(text);
   assert.equal(selected(text, issue), ",");
   assert.equal(issue.range.start.character, text.split("\r\n")[1].indexOf(","));
 });
 
 test("a macro-generated comma focuses its use and links its definition", async () => {
-  const text = "#DEFINE list=51,\n" + program("LC 1\nAREA QGRP $(list) TYPE DTXY 1");
+  const text = "#DEFINE list=51,\n" + program("LC 1\nAREA QGRP $(list)TYPE DTXY 1");
   const { issues } = await expanded(text);
   assert.equal(issues.length, 1);
   assert.equal(selected(text, issues[0]), "$(list)");
@@ -169,7 +184,7 @@ test("a macro-generated comma focuses its use and links its definition", async (
 
 test("ordinary includes report their original comma and support noqa", async () => {
   const child = "file:///project/child.dat";
-  const childText = program("LC 1\nAREA QGRP 51, TYPE DTXY 1");
+  const childText = program("LC 1\nAREA QGRP 51,TYPE DTXY 1");
   const text = '#INCLUDE "child.dat"\n';
   const { issues } = await expanded(text, new Map([[child, childText]]));
   assert.equal(issues.length, 1);
@@ -183,12 +198,12 @@ test("ordinary includes report their original comma and support noqa", async () 
 });
 
 test("global, program and physical continuation-line noqa suppress G313", () => {
-  const source = program("LC 1\nAREA QGRP 51, $$\nTYPE DTXY 1");
+  const source = program("LC 1\nAREA QGRP 51,TYPE $$\nDTXY 1");
   assert.deepEqual(filterDiagnostics(analyze(source), { uri, ignore: "G313" }), []);
   for (const text of [
     source.replace("+PROG SOFILOAD", "+PROG SOFILOAD ! noqa: G313"),
-    source.replace("51, $$", "51, $$ ! noqa: G313"),
-    source.replace("TYPE DTXY 1", "TYPE DTXY 1 ! noqa: G313"),
+    source.replace("TYPE $$", "TYPE $$ ! noqa: G313"),
+    source.replace("DTXY 1", "DTXY 1 ! noqa: G313"),
   ])
     assert.deepEqual(
       filterDiagnostics(analyze(text), { uri, sources: new Map([[uri, text]]) }),
@@ -198,14 +213,14 @@ test("global, program and physical continuation-line noqa suppress G313", () => 
 
 test("cached programs shift comma ranges and incremental correction clears them", () => {
   const engine = new LintEngine();
-  const body = program("LC 1\nAREA QGRP 51, TYPE DTXY 1");
+  const body = program("LC 1\nAREA QGRP 51,TYPE DTXY 1");
   const before = program("LET#a 1", "TEMPLATE");
   assert.equal(analyze(before + body, { engine }).length, 1);
   const moved = before.replace("LET#a 1", "LET#a 1\nLET#b 2") + body;
   const [issue] = analyze(moved, { engine });
   assert.equal(selected(moved, issue), ",");
   assert.equal(issue.range.start.line, 6);
-  const corrected = moved.replace("51, TYPE", "51 TYPE");
+  const corrected = moved.replace("51,TYPE", "51, TYPE");
   assert.deepEqual(analyze(corrected, { engine }), []);
   assert.equal(analyze(moved, { engine }).length, 1);
 });
