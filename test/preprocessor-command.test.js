@@ -224,6 +224,37 @@ test("stdio root commands preserve shell suffixes and filename macro navigation"
   assert.equal(client.stderr, "");
 });
 
+test("stdio legacy block replay initializes local numeric variables in each program", async (t) => {
+  const { uri, client, expand } = await fixture(t);
+  const model = uri("model.dat");
+  const text =
+    "+PROG TEMPLATE\n$BLOCK BEG1\nLET#1 5\nLET#9999 #1\n$BLOCK END1\n" +
+    "$BLOCK SET1\nLET#check #9999\nEND\n+PROG TEMPLATE\n$BLOCK SET1\nLET#check #9999\nEND\n";
+  client.open(model, text);
+  const expanded = await expand(model);
+  assert.equal(expanded.complete, true);
+  assert.equal(
+    expanded.text,
+    "+PROG TEMPLATE\nLET#1 5\nLET#9999 #1\nLET#check #9999\nEND\n" +
+      "+PROG TEMPLATE\nLET#1 5\nLET#9999 #1\nLET#check #9999\nEND\n",
+  );
+  const diagnose = () =>
+    client.request("textDocument/diagnostic", { textDocument: { uri: model } });
+  assert.deepEqual((await diagnose()).items, []);
+  client.change(model, [
+    { range: { start: { line: 9, character: 0 }, end: { line: 10, character: 0 } }, text: "" },
+  ]);
+  const missing = await diagnose();
+  assert.deepEqual(
+    missing.items.map((item) => item.code),
+    ["G101"],
+  );
+  assert.equal(missing.items[0].range.start.line, 9);
+  client.change(model, [{ text }], 3);
+  assert.deepEqual((await diagnose()).items, []);
+  assert.equal(client.stderr, "");
+});
+
 test("partial expansion preserves preprocessor completeness and uncertainty offsets", async (t) => {
   const { uri, client, expand } = await fixture(t);
   const model = uri("model.dat");
