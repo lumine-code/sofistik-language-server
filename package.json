@@ -45,14 +45,14 @@
   "dependencies": {
     "@lumine-code/sofistik-schema": "github:lumine-code/sofistik-schema#c86b746edb77f3a9e1a3b89f245831d5bbd8ddc4",
     "@lumine-code/sofistik-context": "github:lumine-code/sofistik-context#d9187ecef04975573b3100c6e679da95de7c6f15",
-    "vscode-languageserver": "10.1.2"
+    "vscode-languageserver": "11.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
-    "prettier": "^3.9.9",
-    "vscode-jsonrpc": "^9.0.3"
+    "prettier": "^3.9.10",
+    "vscode-jsonrpc": "^10.0.0"
   }
 }
