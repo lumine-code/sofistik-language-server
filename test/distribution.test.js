@@ -30,9 +30,14 @@ test(
       await fs.rm(temporary, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
     });
     const repository = path.resolve(__dirname, "..");
-    const packed = JSON.parse(
+    const packResult = JSON.parse(
       npm(["pack", "--json", "--ignore-scripts", "--pack-destination", temporary], repository),
-    )[0];
+    );
+    assert.equal(Object.keys(packResult).length, 1);
+    const packed = Array.isArray(packResult)
+      ? packResult[0]
+      : packResult["@lumine-code/sofistik-language-server"];
+    assert.equal(packed?.name, "@lumine-code/sofistik-language-server");
     assert.ok(packed.files.some((file) => file.path === "lib/finder.js"));
     assert.ok(!packed.files.some((file) => /\.wasm$|grammars\/|\.node$/.test(file.path)));
     const consumer = path.join(temporary, "consumer");
@@ -41,6 +46,18 @@ test(
       path.join(consumer, "package.json"),
       '{"name":"sofistik-package-probe","private":true}\n',
     );
+    const manifest = JSON.parse(await fs.readFile(path.join(repository, "package.json"), "utf8"));
+    for (const [name, selector] of Object.entries(manifest.dependencies)) {
+      if (name.startsWith("@lumine-code/")) {
+        const repositoryName = name.slice("@lumine-code/".length);
+        assert.match(selector, new RegExp(`^github:lumine-code/${repositoryName}#[a-f0-9]{40}$`));
+      } else {
+        assert.doesNotMatch(selector, /^(?:github:|git[+:]|https?:|file:|workspace:)/);
+      }
+    }
+    // Only this disposable consumer grants Git access, after checking the
+    // trusted local tarball's immutable Lumine dependency selectors above.
+    await fs.writeFile(path.join(consumer, ".npmrc"), "allow-git=all\n");
     npm(
       ["install", "--omit=dev", "--no-audit", "--no-fund", path.join(temporary, packed.filename)],
       consumer,
