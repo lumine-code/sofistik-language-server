@@ -1,1 +1,1 @@
-module.exports = { printWidth: 100, proseWrap: "never" };
+module.exports = { endOfLine: "lf", printWidth: 100, proseWrap: "never" };
