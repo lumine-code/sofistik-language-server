@@ -352,10 +352,13 @@ test("shared include push and related pull wait until both affected roots have c
     await fs.rm(gate.pulling, { force: true });
     await fs.writeFile(gate.enabled, "");
   }
-  const offset = client.notifications.length;
   await fs.writeFile(path.join(root, "shared.dat"), "\n" + BAD);
   client.notify("workspace/didChangeWatchedFiles", { changes: [{ uri: child, type: 2 }] });
   await barrier(gates["a.dat"].entered);
+  // An initial report can still be in transit when the file changes. Drain
+  // earlier protocol writes after the mutation, while both new roots are held.
+  await client.request("textDocument/completion", params(first, 0, 0));
+  const offset = client.notifications.length;
   let settled = false;
   const pending = diagnostics("a.dat").then((report) => {
     settled = true;
