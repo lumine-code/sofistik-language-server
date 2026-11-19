@@ -44,14 +44,31 @@ async function finished(client) {
   return until(() => messages(client).some(({ params }) => params.value.kind === "end"));
 }
 
-test("indexing creates progress after initialized and reports file counts without percentages", async (t) => {
+test("initialization indexes and watches direct project files, reporting only indexed inputs", async (t) => {
   const { root, client } = await fixture(t, { workDoneProgress: true, autoInitialized: false });
   await fs.writeFile(path.join(root, "second.dat"), SOURCE);
+  await fs.mkdir(path.join(root, "archive"));
+  await fs.writeFile(path.join(root, "archive", "ignored.dat"), "+PROG ASE\nLET#archived 1\nEND\n");
   await client.start();
   assert.deepEqual(client.progressRequests, []);
   assert.deepEqual(messages(client), []);
+  let watchers;
+  client.connection.onRequest("client/registerCapability", ({ registrations }) => {
+    watchers = registrations.find(({ method }) => method === "workspace/didChangeWatchedFiles")
+      ?.registerOptions.watchers;
+    return null;
+  });
   client.notify("initialized", {});
-  await client.request("workspace/symbol", { query: "" });
+  assert.deepEqual(await client.request("workspace/symbol", { query: "archived" }), []);
+  assert.deepEqual(watchers, [
+    {
+      globPattern: {
+        baseUri: pathToFileURL(root).href,
+        pattern: "*.{dat,gra,grb,results,def,inc}",
+      },
+      kind: 7,
+    },
+  ]);
   await finished(client);
   assert.equal(client.progressRequests.length, 1);
   const token = client.progressRequests[0].token;

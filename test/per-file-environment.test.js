@@ -66,7 +66,7 @@ async function projectFixture(t, files) {
   return { ...fixtureResult, project };
 }
 
-test("one workspace resolves each file's sibling definition without ancestor inheritance", async (t) => {
+test("each explicitly loaded source uses its sibling definition without ancestor inheritance", async (t) => {
   const { project, uri } = await projectFixture(t, {
     "sofistik.def": "SOF_VERSION = 1999\nSOF_LANGUAGE = DE\nSOF_EDITION = educational\n",
     "parent.dat": SOURCE,
@@ -77,8 +77,8 @@ test("one workspace resolves each file's sibling definition without ancestor inh
     "first/child/model.dat": SOURCE,
     "unconfigured/model.dat": "@ SOFiSTiK 1999 DE\n" + SOURCE,
   });
-  const first = project.documents.get(uri("first/model.dat"));
-  const second = project.documents.get(uri("second/model.dat"));
+  const first = await project.loadDocument(uri("first/model.dat"));
+  const second = await project.loadDocument(uri("second/model.dat"));
   assert.deepEqual(
     [first.target.version, first.target.language, first.target.edition],
     ["2026", "en", "professional"],
@@ -89,7 +89,7 @@ test("one workspace resolves each file's sibling definition without ancestor inh
   );
   assert.equal(project.documents.get(uri("parent.dat")).target.version, "1999");
   for (const name of ["first/child/model.dat", "unconfigured/model.dat"]) {
-    const target = project.documents.get(uri(name)).target;
+    const { target } = await project.loadDocument(uri(name));
     assert.deepEqual(
       [target.version, target.language, target.edition],
       ["2026", "en", "professional"],
@@ -392,7 +392,7 @@ test("current static include indexes retain transitive environment reachability 
     version: 1,
   });
   await project.graphFor(main.uri);
-  const unrelated = project.documents.get(uri("unrelated/input.dat"));
+  const unrelated = await project.loadDocument(uri("unrelated/input.dat"));
   const unrelatedIndex = unrelated.index;
   project.change(main.uri, [{ text: main.text + "$ changed\n" }], 2);
   assert.equal(project.views.size, 0);
@@ -471,6 +471,9 @@ test("first include discovery refreshes a cached descendant hidden behind an unc
     "unrelated/sofistik.def": "SOF_VERSION = 2024\n",
     "unrelated/input.dat": SOURCE,
   });
+  await project.loadDocument(uri("a/main.dat"));
+  await project.loadDocument(uri("c/leaf.dat"));
+  await project.loadDocument(uri("unrelated/input.dat"));
   assert.equal(project.documents.has(uri("b/part.inc")), false);
   assert.equal(project.targetFor(uri("c/leaf.dat")).version, "2024");
   await fs.writeFile(path.join(root, "c/sofistik.def"), "SOF_VERSION = 2025\n");
@@ -481,7 +484,7 @@ test("first include discovery refreshes a cached descendant hidden behind an unc
   assert.equal(project.targetFor(uri("unrelated/input.dat")).version, "2024");
 });
 
-test("one graph pass resolves each reached directory once even with several files in that directory", async (t) => {
+test("one graph pass refreshes each cached directory once even with several files in that directory", async (t) => {
   const { project, uri } = await projectFixture(t, {
     "a/main.dat": "+PROG ASE\n#include '../b/part.inc'\nEND\n",
     "b/part.inc": "#include '../c/first.dat'\n#include '../c/second.dat'\n",
@@ -489,6 +492,8 @@ test("one graph pass resolves each reached directory once even with several file
     "c/second.dat": "LET#second 1\n",
     "unrelated/input.dat": SOURCE,
   });
+  await project.loadDocument(uri("a/main.dat"));
+  await project.loadDocument(uri("c/first.dat"));
   const calls = {};
   const resolve = project.resolver.resolve.bind(project.resolver);
   project.resolver.resolve = (options) => {

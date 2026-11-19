@@ -33,7 +33,7 @@ test("navigation and expansion resolve one source-relative include and share the
     "sub/part.dat": "LET#disk 1\n",
     "sub/main.dat": "+PROG ASE\n#include 'part.dat'\nEND\n",
   });
-  const source = project.documents.get(uri("sub/main.dat"));
+  const source = await project.loadDocument(uri("sub/main.dat"));
   project.open({ ...source, version: 1 });
   project.open({ uri: uri("sub/part.dat"), version: 1, text: "LET#buffer 1\n" });
   const targets = await project.definitions(source.uri, { line: 1, character: 12 });
@@ -53,7 +53,7 @@ test("a missing source-relative include never falls back to the workspace root",
     "part.dat": "LET#wrong 1\n",
     "sub/main.dat": "+PROG ASE\n#include part.dat\nEND\n",
   });
-  const source = project.documents.get(uri("sub/main.dat"));
+  const source = await project.loadDocument(uri("sub/main.dat"));
   project.open({ ...source, version: 1 });
   assert.deepEqual(await project.definitions(source.uri, { line: 1, character: 12 }), []);
   const result = await analysis.wait(source.uri);
@@ -104,7 +104,7 @@ test("definition edits invalidate only analyses in that directory", async (t) =>
     "second/main.dat": "+PROG AQUA\nEND\n",
   });
   for (const name of ["first/main.dat", "second/main.dat"])
-    project.open({ ...project.documents.get(uri(name)), version: 1 });
+    project.open({ ...(await project.loadDocument(uri(name))), version: 1 });
   await analysis.wait(uri("first/main.dat"));
   const independent = await analysis.wait(uri("second/main.dat"));
   await project.watched([{ uri: uri("first/sofistik.def"), type: 2 }]);

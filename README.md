@@ -32,7 +32,7 @@ The server is distributed through Git pins and is not published to the npm regis
 sofistik-language-server --stdio
 ```
 
-One process indexes a workspace, while each saved file uses only `sofistik.def` beside that file. `SOF_VERSION = 2026` selects the release for files in that directory; definitions in the workspace root or an ancestor never apply to a child directory. Without a sibling declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-schema. File headers do not select a release, language or edition. Untitled documents use the installed or bundled fallback without reading a definition.
+One process indexes and watches the files directly in its CADINP project directory. Each saved source uses the `sofistik.def` beside it. `SOF_VERSION = 2026` selects the release for files in that directory. Without a sibling declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-schema. File headers do not select a release, language or edition. Untitled documents use the installed or bundled fallback without reading a definition.
 
 `SOF_LANGUAGE = EN` or `DE` and `SOF_EDITION = professional` or `educational` in the same definition select the language and edition; the defaults are English and professional. These are integration declarations used by the Lumine packages, not a claim that SOFiSTiK itself interprets these fields. Every consumer uses the lightweight resolver from sofistik-context directly; no environment service or installation-path setting is required.
 
@@ -40,7 +40,7 @@ Included files use their own directory's release, language and edition while ret
 
 The server consumes the `sofistik` workspace configuration section: `textCase` is `upper` or `lower`, and `encoding` defaults to `utf-8` for closed files. Open documents always use the client's text. Unsupported declared releases are reported rather than silently substituted.
 
-File includes resolve relative to the source containing the directive, including nested includes. Navigation and preprocessing use the same canonical URI and prefer an open buffer to its disk copy; an unresolved relative include never searches the workspace root.
+File includes resolve relative to the source containing the directive, including nested includes. The server loads and watches explicit dependencies outside the project directory individually. Navigation and preprocessing use the same canonical URI and prefer a buffer open in the session to its disk copy.
 
 Closed inputs and include fragments retain a compact navigation index; full token indexes are kept only for open documents. Inputs larger than 32 MiB are excluded from language services to prevent generated outputs from exhausting the server's memory. Skipped disk inputs are reported in the server log, and opening an oversized input shows a diagnostic. Reducing its size restores language services automatically.
 
