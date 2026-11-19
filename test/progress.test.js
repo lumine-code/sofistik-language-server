@@ -44,12 +44,22 @@ async function finished(client) {
   return until(() => messages(client).some(({ params }) => params.value.kind === "end"));
 }
 
-test("initialization indexes and watches direct project files, reporting only indexed inputs", async (t) => {
+test("initialization indexes and watches direct files in the supplied workspace folder", async (t) => {
   const { root, client } = await fixture(t, { workDoneProgress: true, autoInitialized: false });
-  await fs.writeFile(path.join(root, "second.dat"), SOURCE);
-  await fs.mkdir(path.join(root, "archive"));
-  await fs.writeFile(path.join(root, "archive", "ignored.dat"), "+PROG ASE\nLET#archived 1\nEND\n");
-  await client.start();
+  const project = path.join(root, "project");
+  const legacy = path.join(root, "legacy");
+  const projectUri = pathToFileURL(project).href;
+  const model = path.join(project, "model.dat");
+  const archive = path.join(project, "archive");
+  await fs.mkdir(archive, { recursive: true });
+  await fs.mkdir(legacy);
+  await fs.writeFile(model, "+PROG ASE\nLET#chosen 1\nEND\n");
+  await fs.writeFile(path.join(project, "second.dat"), SOURCE);
+  await fs.writeFile(path.join(archive, "ignored.dat"), "+PROG ASE\nLET#archived 1\nEND\n");
+  await client.start({
+    rootUri: pathToFileURL(legacy).href,
+    workspaceFolders: [{ uri: projectUri, name: "project" }],
+  });
   assert.deepEqual(client.progressRequests, []);
   assert.deepEqual(messages(client), []);
   let watchers;
@@ -59,11 +69,13 @@ test("initialization indexes and watches direct project files, reporting only in
     return null;
   });
   client.notify("initialized", {});
+  const symbols = await client.request("workspace/symbol", { query: "chosen" });
+  assert.equal(symbols[0]?.location.uri, pathToFileURL(model).href);
   assert.deepEqual(await client.request("workspace/symbol", { query: "archived" }), []);
   assert.deepEqual(watchers, [
     {
       globPattern: {
-        baseUri: pathToFileURL(root).href,
+        baseUri: projectUri,
         pattern: "*.{dat,gra,grb,results,def,inc}",
       },
       kind: 7,
@@ -98,10 +110,13 @@ test("even an empty project begins and ends its indexing progress", async (t) =>
   assert.equal(messages(client)[1].params.value.message, "Indexed 0 files");
 });
 
-test("a client without progress support still receives indexed workspace symbols", async (t) => {
-  const { client } = await fixture(t);
-  await client.start();
-  assert.ok((await client.request("workspace/symbol", { query: "" })).length);
+test("a client without a workspace folder or progress support receives working-directory symbols", async (t) => {
+  const { root, client, uri } = await fixture(t);
+  const legacy = path.join(root, "legacy");
+  await fs.mkdir(legacy);
+  await client.start({ rootUri: pathToFileURL(legacy).href, workspaceFolders: null });
+  const symbols = await client.request("workspace/symbol", { query: "" });
+  assert.ok(symbols.some((symbol) => symbol.location.uri === uri));
   assert.deepEqual(client.progressRequests, []);
   assert.deepEqual(messages(client), []);
 });

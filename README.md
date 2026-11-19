@@ -32,7 +32,7 @@ The server is distributed through Git pins and is not published to the npm regis
 sofistik-language-server --stdio
 ```
 
-One process indexes and watches the files directly in its CADINP project directory. Each saved source uses the `sofistik.def` beside it. `SOF_VERSION = 2026` selects the release for files in that directory. Without a sibling declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-schema. File headers do not select a release, language or edition. Untitled documents use the installed or bundled fallback without reading a definition.
+One process indexes and watches the files directly in its CADINP project directory. The server uses the first folder in `initialize.workspaceFolders`, falling back to its working directory when the client supplies no folder. Each saved source uses the `sofistik.def` beside it. `SOF_VERSION = 2026` selects the release for files in that directory. Without a sibling declaration, the newest release installed under `C:\Program Files\SOFiSTiK` applies, then the newest schema included in sofistik-schema. File headers do not select a release, language or edition. Untitled documents use the installed or bundled fallback without reading a definition.
 
 `SOF_LANGUAGE = EN` or `DE` and `SOF_EDITION = professional` or `educational` in the same definition select the language and edition; the defaults are English and professional. These are integration declarations used by the Lumine packages, not a claim that SOFiSTiK itself interprets these fields. Every consumer uses the lightweight resolver from sofistik-context directly; no environment service or installation-path setting is required.
 

@@ -31,7 +31,12 @@ class LspClient {
     this.stderr = "";
   }
 
-  async start() {
+  async start({
+    rootUri = null,
+    workspaceFolders = [
+      { uri: pathToFileURL(this.rootPath).href, name: path.basename(this.rootPath) },
+    ],
+  } = {}) {
     this.child = spawn(process.execPath, [this.entryPath, "--stdio"], {
       cwd: this.rootPath,
       stdio: ["pipe", "pipe", "pipe"],
@@ -66,12 +71,14 @@ class LspClient {
     this.connection.listen();
     const result = await this.request("initialize", {
       processId: process.pid,
-      rootUri: pathToFileURL(this.rootPath).href,
+      rootUri,
+      workspaceFolders,
       capabilities: {
         ...(this.experimental && { experimental: this.experimental }),
         ...(this.workDoneProgress && { window: { workDoneProgress: true } }),
         general: { positionEncodings: ["utf-16"] },
         workspace: {
+          workspaceFolders: true,
           configuration: true,
           didChangeWatchedFiles: { dynamicRegistration: true, relativePatternSupport: true },
           semanticTokens: { refreshSupport: true },
