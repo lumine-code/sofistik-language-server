@@ -116,7 +116,11 @@ test("a client without a workspace folder or progress support receives working-d
   await fs.mkdir(legacy);
   await client.start({ rootUri: pathToFileURL(legacy).href, workspaceFolders: null });
   const symbols = await client.request("workspace/symbol", { query: "" });
-  assert.ok(symbols.some((symbol) => symbol.location.uri === uri));
+  assert.ok(symbols.length);
+  assert.equal(
+    await fs.realpath(new URL(symbols[0].location.uri)),
+    await fs.realpath(new URL(uri)),
+  );
   assert.deepEqual(client.progressRequests, []);
   assert.deepEqual(messages(client), []);
 });
