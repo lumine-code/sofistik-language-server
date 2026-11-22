@@ -248,6 +248,33 @@ test("only emits enum semantic tokens for values of an identified named or posit
   assert.ok(index.enumTokens().every((token) => token.param === "KIND"));
 });
 
+test("macro substitutions suppress enum fragments without suppressing standalone enum neighbors", () => {
+  const record = "GRP NUMB 57 OPTI YES,OFF ETYP BEAM,GLN GDIV SING";
+  const original = `+PROG WING\n${record}\nEND\n`;
+  const index = createIndex(original, target());
+  const off = at(original, "OFF", "OFF".length);
+  const beam = at(original, "BEAM");
+  const updates = [
+    { range: { start: beam, end: beam }, text: "$(PREFIX$(INDEX))" },
+    { range: { start: off, end: off }, text: "$(SUFFIX)" },
+  ];
+  assert.deepEqual(
+    index.enumTokens().map(({ value }) => value),
+    ["YES", "OFF", "BEAM", "GLN", "SING"],
+  );
+  index.applyChanges(updates, 1);
+  const full = index.enumTokens();
+  assert.deepEqual(
+    full.map(({ value }) => value),
+    ["YES", "GLN", "SING"],
+  );
+  assert.deepEqual(full, createIndex(index.text, target()).enumTokens());
+  assert.deepEqual(
+    index.enumTokens({ start: { line: 1, character: 0 }, end: { line: 2, character: 0 } }),
+    full,
+  );
+});
+
 test("incremental edits converge and match a fresh index after context changes", () => {
   const text =
     "+PROG SOFIMSHA\n" +

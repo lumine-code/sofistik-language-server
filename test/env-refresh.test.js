@@ -4,9 +4,17 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
+const { PassThrough } = require("node:stream");
 const test = require("node:test");
 const { SofistikContextResolver } = require("@lumine-code/sofistik-context");
+const {
+  createMessageConnection,
+  StreamMessageReader,
+  StreamMessageWriter,
+} = require("vscode-jsonrpc/node");
+const { createConnection, ProposedFeatures } = require("vscode-languageserver/node");
 const { SofistikProject, canonicalUri } = require("../lib/project");
+const { startServer } = require("../lib/server");
 const { LspClient } = require("./lsp-client");
 
 async function directory(t, beforeCleanup) {
@@ -210,4 +218,85 @@ test("real protocol refreshes automatic selections on requests and save without 
   const unsupported = await client.request("textDocument/diagnostic", { textDocument: { uri } });
   assert.match(unsupported.items.find((item) => item.code === "G302").message, /2099/);
   assert.ok(refreshes > 0);
+});
+
+test("semantic requests reuse watched definitions and poll when a watch is unavailable", async (t) => {
+  for (const watch of ["accepted", "unsupported", "rejected"]) {
+    await t.test(watch, async (t) => {
+      const root = await directory(t);
+      let version = "2026";
+      let definitionReads = 0;
+      const resolver = new SofistikContextResolver({
+        exists: () => false,
+        readFile: () => {
+          definitionReads++;
+          return `SOF_VERSION = ${version}\n`;
+        },
+      });
+      const toServer = new PassThrough();
+      const fromServer = new PassThrough();
+      const server = createConnection(
+        ProposedFeatures.all,
+        new StreamMessageReader(toServer),
+        new StreamMessageWriter(fromServer),
+      );
+      const client = createMessageConnection(
+        new StreamMessageReader(fromServer),
+        new StreamMessageWriter(toServer),
+      );
+      client.onNotification(() => {});
+      client.onRequest("client/registerCapability", () => {
+        if (watch === "rejected") throw new Error("Watching unavailable");
+        return null;
+      });
+      client.listen();
+      startServer(server, { resolver });
+      t.after(async () => {
+        await client.sendRequest("shutdown");
+        client.dispose();
+        server.dispose();
+        toServer.destroy();
+        fromServer.destroy();
+      });
+      await client.sendRequest("initialize", {
+        workspaceFolders: [{ uri: canonicalUri(root), name: "example" }],
+        capabilities: {
+          workspace: {
+            didChangeWatchedFiles: {
+              dynamicRegistration: watch !== "unsupported",
+              relativePatternSupport: true,
+            },
+          },
+        },
+      });
+      await client.sendNotification("initialized", {});
+      const textDocument = { uri: canonicalUri(path.join(root, "model.dat")) };
+      await client.sendNotification("textDocument/didOpen", {
+        textDocument: {
+          ...textDocument,
+          version: 1,
+          languageId: "sofistik",
+          text: "+PROG ASE\nGRP NO 1 VAL FULL\nEND\n",
+        },
+      });
+      const full = () => client.sendRequest("textDocument/semanticTokens/full", { textDocument });
+      const visible = () =>
+        client.sendRequest("textDocument/semanticTokens/range", {
+          textDocument,
+          range: { start: { line: 1, character: 0 }, end: { line: 2, character: 0 } },
+        });
+      assert.equal((await full()).data.length, 5);
+      definitionReads = 0;
+      assert.deepEqual(await full(), await visible());
+      assert.equal(definitionReads, watch === "accepted" ? 0 : 2);
+
+      version = "2099";
+      if (watch === "accepted") {
+        await client.sendNotification("workspace/didChangeWatchedFiles", {
+          changes: [{ uri: canonicalUri(path.join(root, "sofistik.def")), type: 2 }],
+        });
+      }
+      assert.deepEqual(await visible(), { data: [] });
+    });
+  }
 });

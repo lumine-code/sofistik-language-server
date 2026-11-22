@@ -184,6 +184,26 @@ test("positional GRP values advance after named slots across hover, signatures a
   }
 });
 
+test("a complete positional enum retains its value context alongside field completion", async () => {
+  const record = "STEE NO 1 AL";
+  const project = projectFor("AQUA", record);
+  const start = record.indexOf("AL");
+  const position = { line: 1, character: record.length };
+  const entry = await project.loadDocument();
+  const context = entry.index.contextAt(position);
+  assert.equal(context.role, "value");
+  assert.equal(context.param, "TYPE");
+  assert.deepEqual(semanticTokens(entry), { data: [1, start, 2, 0, 0] });
+  const result = await completion(project, "untitled:fixture", position);
+  assert.ok(result.some(({ label, kind }) => label === "AL" && kind === 20));
+  assert.ok(result.some(({ label, kind }) => label === "ALFA" && kind === 5));
+  const valueHover = await hover(project, "untitled:fixture", {
+    line: 1,
+    character: start + 1,
+  });
+  assert.match(valueHover.contents.value, /^AQUA · STEE · TYPE/);
+});
+
 test("comma alternatives retain one GRP slot across language features and advance the following slot once", async () => {
   const cases = [
     { record: "GRP NUMB 31+#grp YES BEAM,GLN SING" },
